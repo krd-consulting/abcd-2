@@ -1,0 +1,81 @@
+<?php
+$this->title = " - Forms";
+$this->headTitle($this->title);
+$deleteOK = FALSE;
+if ($this->manager == TRUE || $this->admin == TRUE) { $deleteOK = TRUE; }
+?>
+
+<div id="content">
+
+  <h1 class="float-left"> Forms </h1> 
+  <div class="inline float-right">
+      Showing <span id="record-count"><?php print $this->count; ?></span> form records.
+  </div>
+
+  <div id="content-top">
+        
+        <span id="browse" class="float-left">
+            <h2>Browse</h2>
+        </span>
+        
+        <span id="searchform">
+            
+        </span>
+        
+        <span id="addNew" class="float-right">
+              <button id="addForm">Add New Form</button>
+        </span>
+        
+</div>
+
+  <div id="content-main">
+
+
+    <table id="forms-table" class="p-list-table">
+            <?php 
+                if ($this->count > 0) {
+		print '<tr class="groupHeader collapsible">
+		  	<td colspan="5">
+		   	 Enabled Forms
+		  	</td>
+		       </tr>';
+
+                    foreach ($this->forms as $form) {
+                        $links = array('profile'); 
+                        if (in_array($form['id'],$this->permittedIDs)) {
+                            array_push($links,'enter');
+                        }
+                        if ($deleteOK == TRUE)       {
+                            array_push($links,'delete');
+                        }
+                        print $this->tableRow('entity', 'forms', $form, $links);                        
+                    }
+		
+		print '<tr class="groupHeader collapsible">
+		  	<td colspan="5">
+		   	 Disabled Forms
+		  	</td>
+		       </tr>';
+
+                    foreach ($this->dForms as $form) {
+                        $links = array('profile', 'edit', 'enable'); 
+                        print $this->tableRow('entity', 'forms', $form, $links);                        
+                    }
+
+                } else {
+                    print "<h2 align='center'>No forms in the system yet.</h2>";
+                }
+            ?>
+    </table>
+   
+  </div>
+</div>
+
+<div id="dialog-form" title="Initial Options for Form Generator">
+    <p class="validateTips">Please enter the department name.</p>
+    <?php print $this->formCreator; ?>
+</div>
+
+<div id="dialog-form-edit" class="dialog-form" title="Edit form descriptors">
+    <p class="validateTips">Please update values below.</p>
+</div>

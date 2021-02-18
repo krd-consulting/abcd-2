@@ -1,0 +1,1171 @@
+html, body {
+	background: #fff;	
+}	
+
+body {
+	margin: 0; /* Required */
+        color: #555555;
+}
+
+#desktop {
+	min-width: 400px; /* Helps keep header content from wrapping */
+	height: 100%;
+	min-height: 100%;
+	cursor: default; /* Fix for issue in IE7. IE7 wants to use the I-bar text cursor */
+}
+
+#topWrapper {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+#desktopHeader {
+	background: #f2f2f2;
+}
+
+#desktopTitlebarWrapper {
+	position: relative;	
+	height: 55px;
+	overflow: hidden;
+	background: #718BA6;
+}
+
+#desktopTitlebar {
+	padding: 7px 8px 6px 8px;
+	height: 32px;
+	background-position: left 0;
+}
+
+#desktop div.left {
+    width: 140px;
+    float: left;
+}
+
+#desktopTitlebar h1.applicationTitle {
+    background: none repeat scroll 0 0 #F2F2F2;
+    border-radius: 20px 20px 0 0;
+    color: #718BA6;
+    font-family: Trebuchet MS;
+    font-size: 24pt;
+    font-weight: bold;
+    height: 48px;
+    line-height: 40pt;
+    margin: 0;
+    text-align: center;
+}
+
+#desktopTitlebar h2.tagline {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 9pt;    
+	color: #d4dce4;    
+	font-weight: bold;
+	text-align: center;
+	text-transform: uppercase;
+        margin-top: 15px;
+        margin-right: 140px;
+        position: relative;
+}
+
+#desktopTitlebar h2.tagline .taglineEm {
+	color: #fff;
+	font-weight: bold;
+}
+
+#topNav {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+	position: absolute;
+	right: 0;
+	top: 0;
+	color: #d4dce4;
+	text-align: right;
+	padding: 13px 10px 0 0;
+        border-left: 1px dotted;
+        height: 55px;
+}
+
+#topNav a {
+	color: #fff;
+	font-weight: normal;
+}
+
+#topNav a:hover {
+	text-decoration: none;
+}
+
+/* Navbar */
+
+#desktopNavbar {
+	background: #f2f2f2;
+	height: 29px;
+        position: relative;
+	overflow: hidden; /* Remove this line if you want the menu to be backward compatible with Firefox 2 */	
+        border-bottom: 1px solid #909090;
+        width: 100%;
+        z-index: 100;
+}
+
+#desktopNavbar ul {
+	margin: 3px 0 2px 13px;
+	list-style: none;
+	font-size: 10pt;
+}
+
+#desktopNavbar li {
+	float: left;
+}
+
+#desktopNavbar a {
+	display: block;
+}	
+	
+#desktopNavbar ul li a {
+	background: no-repeat scroll 0 0 transparent;
+        padding: 4px 10px 2px 25px;	
+	color: #333;
+	font-weight: normal;
+        margin-right: 10px;
+}
+
+#desktopNavbar ul li a:hover {
+	background-color: #6C98D9;
+	color: #fff;
+	border-radius: 4px;
+        text-decoration: none !important;
+}
+
+#desktopNavbar ul li a.home {
+        background-image: url('../images/home.png');
+}
+
+#desktopNavbar ul li a.participants {
+        background-image: url('../images/participant.png');
+}
+
+#desktopNavbar ul li a.volunteers {
+        background-image: url('../images/volunteer.png');
+}
+
+#desktopNavbar ul li a.groups {
+        background-image: url('../images/groups-small.png');
+}
+
+#desktopNavbar ul li a.programs {
+        background-image: url('../images/program-small.png');
+}
+
+#desktopNavbar ul li a.users {
+        background-image: url('../images/staff-small.png');
+}
+
+#desktopNavbar ul li a.depts {
+        background-image: url('../images/depts.png');
+}
+
+#desktopNavbar ul li a.schedules {
+        background-image: url('../images/schedule-icon.png');
+}
+
+#desktopNavbar ul li a.funders {
+        background-image: url('../images/funders.png');
+}
+
+#desktopNavbar ul li a.forms {
+        background-image: url('../images/form-little.png');
+}
+
+#desktopNavbar ul li a.reports {
+        background-image: url('../images/report.png');
+}
+
+#desktopNavbar li ul {
+	padding: 2px;
+	border-color: #3f3f3f;
+        border-style: solid;
+        border-width: 0 1px 1px;
+	background: #fff;
+	position: absolute;
+	width: 164px;
+	left: -999em;
+	z-index: 8000;
+}
+
+#desktopNavbar li:hover ul ul,
+#desktopNavbar li.ieHover ul ul,
+#desktopNavbar li:hover ul ul ul,
+#desktopNavbar li.ieHover ul ul ul {
+	left: -999em;
+}
+
+#desktopNavbar li ul ul { /* third-and-above-level lists */
+	margin: -22px 0 0 163px;
+}
+
+#desktopNavbar li ul li .check {
+	position: absolute;
+	top: 8px;
+	left: 6px;
+	width: 5px;
+	height: 5px;
+	background: #555;
+	overflow: hidden;
+	line-height: 1px;
+	font-size: 1px;
+}
+
+#desktopNavbar li ul li a {
+	position: relative;
+	padding: 1px 9px 1px 25px;
+	width: 130px;
+	color: #3f3f3f;
+	font-weight: normal;	
+}
+
+#desktopNavbar li ul li a:hover {
+	background: #6C98D9;
+	color: #fff;
+	-moz-border-radius: 2px;	
+}
+
+#desktopNavbar li ul li a:hover .check {
+	background: #fff;
+}
+
+#desktopNavbar li:hover ul,
+#desktopNavbar li.ieHover ul,
+#desktopNavbar li li.ieHover ul,
+#desktopNavbar li li li.ieHover ul,
+#desktopNavbar li li:hover ul,
+#desktopNavbar li li li:hover ul { /* lists nested under hovered list items */
+	left: auto;
+}
+
+#desktopNavbar li:hover { /* For IE7 */
+    position: static;
+}
+
+li.divider {
+	margin-top: 2px;
+	padding-top: 3px;	
+	border-top: 1px solid #ebebeb;
+}	
+
+#pageWrapper {
+	overflow: auto;
+	padding: 0;
+        position: absolute;
+        top: 85px;
+	width: 100%
+}
+
+#sideColumn1 {
+    float: left;
+}
+
+#sideColumn2 {
+    float: right;
+}
+
+#mainColumn {
+    width: 95%;
+    margin: auto;
+    min-height: 400px;
+    padding: 18px;
+}
+
+/* Footer */
+
+#desktopFooterWrapper {
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	width: 100%;
+	height: 30px;
+	overflow: hidden;
+        border-top: 1px solid #909090;
+}
+
+#desktopFooter {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	height: 24px;
+	padding: 6px 8px 0 8px;
+	background: #f2f2f2;
+}
+
+.topbar {
+    background: white none repeat scroll 0 0;
+    border: 1px solid #73879c;
+    font-weight: 500;
+    margin: 3pt auto -5pt;
+    text-align: center;
+    width: 80%;
+}
+
+.linespace {
+    margin-left: 15px;
+}
+
+#loggedInAs {
+    font-size: 9pt;
+    margin: -6px 0 3px 10px;
+}
+
+#access {
+    width: 125px;
+}
+
+#accessLogout a:hover {
+    text-decoration: underline;
+}
+
+div#login {
+    width: 400px;
+    margin: auto;
+}
+
+fieldset#front {
+    font-size: 12pt;
+}
+
+legend {
+    font-size: 24px;
+    font-family: "Trebuchet MS";
+    font-weight: bold;
+    color: #718ba6;
+    margin-left: 7px;
+}
+
+div#desktopTitleBar div.left {
+    width: 140px;
+    float: left;
+}
+
+div#desktopTitleBar div.center {
+}
+
+div#desktopTitleBar div.right {
+    float: right;
+    border-left: 1px dotted;
+    padding-bottom: 12px;
+}
+
+.half {
+    width: 50%;
+}
+
+.bottom-links {
+    margin-top: 10px;
+    line-height: 20pt;
+}
+
+.bottom-links a {
+    background: no-repeat 14px 4px transparent;
+    padding: 4px 20px 4px 35px; 
+    font-size: 10pt;
+    border: 2px solid #718BA6;
+    border-radius: 10px;
+}
+
+.bottom-links a:hover {
+    background-color: #718BA6;
+    border: 3px double;
+    color: #f2f2f2;
+}
+    
+a.add-link {
+    background-image: url('../images/Add16.png');
+}
+
+a.minus-link {
+    background-image: url('../images/Purge16.png');
+    float: right;
+    padding: 0 5px 0 35px;
+    line-height: 23px;
+}
+
+div#dashboard {
+    width: 1000px;
+    height: 240px;
+    margin: 30px auto;
+}
+
+h3.dash-title {
+    font-size: 13pt;
+    color: #718ba6;
+    font-family: verdana;
+}
+
+img.dash-icon {
+    float: left;
+    margin: 0 10px 0px 0;
+    width: 64px;
+}
+
+.dash-item {
+    float: left;
+    width: 237px;
+    margin: 0 7px 20px 0;
+    padding: 3px;
+}
+
+div.dash-item:hover {
+    background: #e3e3e3;
+}
+
+p.description {
+    line-height: 10pt;
+    font-size: 9pt;
+    color: #555555;
+    margin-top: 3px;
+    display: flex;
+}
+
+div#dash-search {
+    width: 500px;
+    margin: auto;
+    text-align: center;
+    background: #e3e3e3;
+    padding: 0 5px 10px;
+    border: 6px double #fff;
+}
+
+div.search-options {
+    font-size: 11pt;
+    font-weight: normal;
+    width: 400px;
+    margin: auto;
+}
+
+div#dash-search h2 {
+    font-size: 13pt;
+    font-family: 'Trebuchet MS';
+    margin-bottom: -5px;
+}
+
+div.content-block {
+    background: none repeat scroll 0 0 paleTurquoise;
+    padding: 7px;
+    width: 440px;
+    position: relative;
+}
+
+.below-header {
+    margin-top: 35px !important;
+}
+
+.float-left {
+    float: left;
+}
+
+.float-right, .css_right, .right {
+    float: right;
+}
+
+.tiny {
+    font-size: 9pt !important;
+}
+
+div.inline {
+    float: none!important;
+    text-align: right;
+}
+
+div.content-block h2 {
+    margin-top: 3px;
+    font-size: 13pt;
+}
+
+li.draggable, div.draggable {
+    border: 1px solid;
+    border-radius: 3px 3px 3px 3px;
+    list-style: none outside none;
+    margin-bottom: 3px;
+    padding: 3px 25px;
+    background: url("../images/arrow-e-w.png") no-repeat scroll 0px 1px transparent;
+    font-weight: bold;
+    font-size: 11pt;
+}
+
+div.draggable {
+    background-image: none !important;
+    padding: 3px 5px!important;
+    margin-right: 13px;
+    width: 44%;
+    float: left;
+}
+
+div.draggable .remove-pic {
+    float: right;
+}
+
+ul.meeting-list li.draggable {
+    background-image: none!important;
+    overflow: auto;
+    font-weight: normal !important;
+}
+
+ul.meeting-data {
+    margin-top: 10px;
+}
+
+ul.meeting-data h3 {
+    float: left;
+    margin-right: 10px;
+}
+
+a.showNotes, a.hideNotes, a.showDetails, a.hideDetails{
+    margin-left: 10px;
+    float: right;
+}
+
+ul.connectedSortable {
+}
+
+li.placeholder {
+    min-height: 30px;
+    list-style: none;
+    margin-bottom: 3px;
+    border: 2px dashed;
+    border-radius: 3px;
+    background-image: none;
+}
+
+li.in-list {
+    background-color: white;
+}
+
+li.out-list {
+    background-color: wheat;
+}
+
+li.exclude {
+    background-image: none !important;
+    background-color: #ddd;
+    color: #909090;
+}
+
+span.list-manager {
+    font-size: 9pt;
+    font-weight: normal;
+    font-style: italic;
+}
+
+span.filterName, select.middleSelect {
+   float: left;
+}
+
+.hidden {
+    display: none;
+}
+
+.rounded {
+    border-radius: 5px;
+}
+
+div#helparea {
+    width: 50%;
+    margin: 12px auto;
+    border-top: 1px solid #555;
+    border-bottom: 1px solid #555;
+    background: #777;
+    color: palegreen;
+    padding: 3px 15px;
+}
+
+div#content {
+    position: relative;
+}
+
+div#content-top{
+    background: url("../images/ui-bg_gloss-wave_35_f6a828_500x100.png") repeat-x scroll 50% 50% #F6A828;
+    border-color: #E78F08 #E78F08;
+    border-radius: 10px 10px 0 0;
+    border-style: solid solid none;
+    border-width: 1px 0px medium;
+    display: inline-block;
+    min-height: 50px;
+    width: 100%;
+}
+
+#content-top span {
+    background: transparent none repeat scroll 0 0;
+    display: inline-flex;
+    font-size: 11pt;
+    margin-left: 15px;
+    text-align: center;
+}
+
+#content-top span.third {
+    margin-top: 10px;
+    max-width: 35%;
+    min-width: 33%;
+    margin-left: auto !important;
+}
+
+#content-top span.fifth {
+    min-width: 18%;
+    max-width: 20%;
+    margin-top: 13px;
+    display: inline-flex;
+}
+
+.shaded {
+    background-color: #EDEDED;
+}
+
+.gamify-profile {
+    width: 130px;
+    margin: 8px auto !important;
+    background: white !important;
+    padding: 5px 10px 10px 0px;
+    height: 50px;
+    position: relative;
+    display: block !important;
+    border-radius: 0px;
+    border: 1px solid #73879C;
+}
+
+.topnum {   
+    font-size: 40px !important;
+    line-height: 40px;
+    font-weight: 600;
+    color: #73879C;
+    font-family: "Helvetica Neue";
+
+}
+
+#content-main {
+    border: 1px solid #e78807;
+    border-top: none;
+    overflow-y: auto;
+    overflow-x: auto;
+    border-radius: 0 0 10px 10px;
+    padding: 8px;
+}
+
+#content-top h2 {
+    background: none repeat scroll 0 0 #FFFFFF;
+    border-radius: 10px 10px 0 0;
+    font-size: 12pt;
+    line-height: 2.3em;
+    padding-top: 3px;
+    text-align: center;
+    width: 120px;
+    margin-top: 12px;
+    margin-bottom: 0px;
+}
+
+span#addNew {
+    z-index: 500;
+    *position: absolute;
+    *right: -180px;
+    *top: 40px;
+}
+
+#content-main h2, #content-top h3 {
+    text-shadow: 1px 1px 1px #a2a2a2;
+    display: inline-block;
+    font-size: 14pt;
+}
+
+#content-top h3 {
+    margin: 14px;
+}
+
+#content-top button {
+    margin: 8px 5px 0 0;
+}
+
+#formBuilder {
+    border-radius: 5px;
+    border: 2px solid #e78807;
+    margin-top: 2px;
+    padding: 0px;
+    position: relative;
+}
+
+#canvas {
+    font-size: 11pt;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    position: relative;
+}
+
+#controls {
+    float: left;
+    width: 250px;
+    color: #777;
+    font-size: 10pt;
+    height: 100%;
+    overflow: hidden; 
+    border-radius: 5px 0 0 5px;
+    border-right: 1px solid #999999;
+}
+
+div#elementButtons {
+}
+
+h2.canvasHead {
+    text-align: center;
+    font-size: 15pt;
+} 
+
+.elementHeader {
+    background: #DDDDDD;
+    border-bottom: 1px solid #999999;
+    border-top: 1px solid #999999;
+    font-weight: bold;
+    letter-spacing: 0px;
+    line-height: 30px;
+    padding: 0 8px;
+    text-shadow: 0 1px 0 #FFFFFF, 0 0 10px rgba(255, 255, 255, 0.6);
+    margin-bottom: -1px;
+}
+
+#elementOptions {
+    padding-top: 4px;
+}
+
+li.elementList {
+    margin: 0 0;
+    float: none;
+    height: 16px;
+    padding: 2px 3px 2px 20px;
+    position: relative;
+    border: 1px solid transparent;
+}
+
+li.elementList:hover {
+    border: 1px solid #AAAAAA;
+    box-shadow: 1px 1px 3px #999999;
+    background: url('../images/element-back.png') repeat scroll 0 0 transparent;
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+.element-pic {
+    background: url('../images/toolbar.png') no-repeat scroll 0 0 transparent;
+    margin: 0 5px;
+    height: 16px;
+    width: 16px;
+    border: none;
+}
+
+.sprite-pic {
+    background: url('../images/sprites.png') no-repeat scroll 0 0 transparent;
+    margin: 1px 1px;
+    height: 16px;
+    width: 16px;
+    border: none;
+}
+
+.head-pic {
+    background-position: -1326px 0;
+    margin-top: 8px;
+}
+
+.option-pic {
+    background-position: -1117px 0;
+    margin-top: 8px;
+}
+
+.text-pic {
+    background-position: -1310px 0;
+}
+
+.radio-pic {
+    background-position: -1149px 0;
+}
+
+.num-pic {
+    background-position: -716px 0;
+}
+
+.cal-pic {
+    background-position: -449px 0;
+}
+
+.check-pic {
+    background-position: -326px 0;
+}
+
+.matrix-pic {
+    background-position: -700px 0;
+}
+
+.paragraph-pic {
+    background-position: -1294px 0;
+}
+
+.remove-pic {
+    background-position: -16px 0;
+}
+
+.remove-pic:hover {
+    cursor: pointer;
+}
+
+.drag-pic {
+    background-position: 0 0;
+}
+
+button#addElement, button#saveStoredReport {
+    position: absolute;
+    bottom: 5px;
+    left: 55px;
+}
+
+.absolute-right {
+    position: absolute!important;
+    right: 2px;
+    top: 5px;
+}
+
+ul.optionsList li {
+    list-style: none;
+    padding: 2px 0 0 10px;
+    margin: 10px 0;
+}
+
+li.dynamicElement {
+    border-top: 1px dotted #333;
+    border-bottom: 1px dotted #333;
+    border-left: 1px transparent;
+    border-right: 1px transparent;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 25px;
+    overflow: auto;
+    margin: 1px 0;
+    position: relative;
+}
+
+div.elementButtons {
+    background: none repeat scroll 0 0 #FFFFFF;
+    border-color: #555555;
+    border-radius: 4px;
+    border-style: solid;
+    border-width: 1px;
+    height: 18px;
+    position: absolute;
+    width: 18px;
+}
+
+div.removeElement {
+    top: 2px;
+    right: 2px;
+}
+
+div.moveElement {
+    border: medium none;
+    left: 4px;
+    top: 4px;
+}
+
+div.removeElement:hover {
+    cursor: pointer;
+}
+
+li.dynamicElement:hover {
+    border: 1px solid #333;
+}
+
+.editable:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.formDesc {
+    width: 300px;
+    margin: -10px auto 10px auto;
+    font-size: 11px;
+    font-style: italic;
+    
+}
+
+#saveForm, .addForm {
+    z-index: 105;
+    font-size: 11pt !important;
+    position: absolute;
+    top: -45px;
+    right: 10px;
+}
+
+.savebutton {
+    position: absolute !important;
+    right: 25px;
+    top: 40px;
+    z-index: 100;
+    font-size: 11pt !important;
+}
+
+input[type='text'].ui-autocomplete-loading {
+    background: url('../images/autocompleter.gif') no-repeat right center;
+}
+
+#ui-datepicker-div {
+    z-index: 1003 !important;
+}
+
+span.ac-extra {
+    font-size: 11px;
+}
+
+div.form-display-item, div.input-home-wrapper, li.relative {
+    border: 1px solid #CCCCCC;
+    border-radius: 5px;
+    font-size: 11pt;
+    margin: 4px auto;
+    padding: 3pt 0;
+    width: 80%;
+    overflow: auto;
+    list-style: none;
+}
+
+.relative {
+    position: relative;
+}
+
+.sideLinks {
+    position: absolute;
+    right: 5px;
+    top: 15px;
+}
+
+ul.meeting-list span.date, tr span.date {
+    float: left;
+    width: 35%;
+    font-size: 15pt;
+    text-align: right;
+    padding-right: 5px;
+    line-height: 32pt;
+    font-weight: bold;
+} 
+
+tr span.date {
+    display: block;
+    float: none;
+    padding-left: 20px;
+    text-align: left;
+    line-height: 15pt;
+}
+
+ul.meeting-list span.data {
+    line-height: 15pt;
+    padding: 15px 10px;
+    border-left: 1px #CCC dashed;
+    float: left;
+    width: 60%;
+}
+
+.notesDiv {    
+    background: none repeat scroll 0 0 white;
+    border: 1px solid #333333;
+    box-shadow: 1px 1px 3px #777777;
+    float: right;
+    font-size: 10pt;
+    margin: 7px 10px 0 0;
+    padding: 5px;
+    width: 350px;
+}
+
+div.input-home-wrapper {
+    padding: 3pt 10pt !important;
+}
+
+div.input-home {
+    width: 33%;
+    overflow: auto;
+}
+
+div.input-home label {
+    width: 150px;
+    text-align: right;
+    padding-right: 5px;
+    font-weight: bold;
+    line-height: 24pt;
+}
+
+
+.form-display-item span.title {
+    width: 35%;
+    text-align: right;
+    float: left;
+    padding-right: 10px;
+}
+
+.form-display-item span.value {
+    display: table;
+    font-weight: bold;
+}
+
+#content-main button.top-right {
+    float: right;
+    margin-top: 10pt;
+}
+
+div.exception {
+    border-radius: 5px 5px 5px 5px;
+    height: 45px;
+    margin: 10px auto;
+    padding: 15px 10px;
+    width: 500px;
+}
+
+div.exception h3 {
+    margin: 5px 0 0 55px;
+} 
+
+ul#deleteList {
+    list-style: decimal inside none;
+    margin-bottom: 10px;
+    margin-left: 40px;
+}
+
+ul#deleteList li {
+    font-size: 10pt;
+}
+
+p.asof {
+    font-size: 10pt;
+    margin-top: -15px;
+}
+
+div.content-block ul {
+    overflow-y: auto;
+}
+
+ul.ui-tabs-nav {
+    font-size: 0.9em;
+}
+
+div.block {
+    width: 31% !important;
+    float: left;
+    border: 1px solid #CCC;
+    margin-right: 15px;
+    position: relative;
+}
+
+#vol-frag-1 .block {
+    width: 24% !important;
+    margin-right: 10px;
+}
+
+div.reportBuilder {
+    min-height: 190px;
+    padding: 5px;
+}
+
+div.block-header {
+    border-bottom: 1px solid #CCC;
+    background: white;
+    font-size: 14pt;
+    line-height: 28pt;
+    padding-left: 10px;
+}
+
+div.block ul:not(.plain-block) li {
+    list-style: none;
+    padding: 3px;
+    padding-left: 40px;
+    background: transparent no-repeat 3px 6px;
+    min-height: 32px;
+    position: relative;
+}
+
+div.block ul:not(.plain-block) li:hover {
+    border: 1px solid #333;
+}
+
+div.block ul.plain-block li {
+    list-style: none;
+    padding: 1px 3px 1px 40px;
+    background: transparent no-repeat 3px 6px;
+    min-height: 16px;
+    position: relative;
+}
+
+div.block ul.plain-block li:hover {
+    border: none;
+}
+
+div#alerts-block ul li {
+    background-image: url('/skins/default/images/flag-red.png');
+}
+
+span.w90 {
+    width: 90%;
+}
+
+.ui-tabs {
+    overflow: auto;
+}
+
+.dataTables_length, .dataTables_info {
+    float: left;
+    margin-left: 5px;
+}
+
+.dataTables_filter, .dataTables_paginate {
+    float: right;
+    margin-right: 5px;
+}
+
+.graphContainer {
+    margin: 5px 0 !important;
+}
+
+.scrollable {
+    overflow-y: scroll !important;
+}
+
+#top, #bottom {
+    height: 49%;
+    border-bottom: 1px solid #333;
+    padding: 2px 5px;
+}
+
+#controls #options {
+    overflow-x: hidden;
+}
+
+ul#filterList li * {
+    margin: 0 4px;
+}
+
+.editLatest {
+    position: relative;
+    top: -38px;
+    left: 200px;
+    font-size: 10pt;
+}
+
+.highlight {
+    background: palegoldenrod;
+    padding: 6px 0 6px 3px !important;
+    margin-top: 5px;
+}
+
+span#list {
+    display: table;
+}
+
+.center-button button {
+    display: block;
+    margin: 40px auto;
+}
+
+#button-release {
+    margin-left: 10px;
+    font-size: 9pt;
+}
+
+button.deleteDynamicForm {
+    margin: -72px 0 0 345px;
+    display: table;
+}

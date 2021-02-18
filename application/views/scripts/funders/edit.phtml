@@ -1,0 +1,25 @@
+<?php
+$this->title = $this->dept->deptName;
+$this->headTitle($this->title);
+
+$users = $this->users;
+$userList = '';
+foreach ($users as $user) {
+    $userList .= $user['firstName'] . ' ' . $user['lastName'];
+    $userList .= "<br>";
+}
+
+
+$this->tabPane('editDept', 'Funders la la la', array('title' => 'Funders'));
+$this->tabPane('editDept', 'Forms la la la', array('title' => 'Forms'));
+$this->tabPane('editDept', 'Programs la la la', array('title' => 'Programs'));
+$this->tabPane('editDept', $userList, array('title' => 'Staff'));
+$this->tabPane('editDept', 'Participants la la la', array('title' => 'Participants'));
+
+?>
+
+<h2>
+    <?php print $this->dept->deptName; ?>
+</h2>
+
+<?php print $this->tabContainer('editDept'); ?>

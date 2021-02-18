@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configdata>
+<nav>
+        <home>
+            <label>Home</label>
+            <uri>/</uri>
+            <class>home</class>
+        </home>
+        
+        <participants>
+            <label>Participants</label>
+            <uri>/participants</uri>
+            <class>participants</class>
+        </participants>
+
+        <groups>
+            <label>Groups</label>
+            <uri>/groups</uri>
+            <class>groups</class>
+        </groups>
+    
+        <programs>
+            <label>Programs</label>
+            <uri>/programs</uri>
+            <class>programs</class>
+        </programs>
+       
+        <staff>
+            <label>Staff</label>
+            <uri>/users</uri>
+            <class>users</class>
+        </staff>
+        
+        <schedules>
+            <label>Scheduling</label>
+            <uri>/schedule</uri>
+            <class>schedules</class>
+        </schedules> 
+        
+        
+        <forms>
+            <label>Forms</label>
+            <uri>/forms</uri>
+            <class>forms</class>
+        </forms>
+        
+        <reports>
+            <label>Reports</label>
+            <uri>/reports</uri>
+            <class>reports</class>
+        </reports>
+        
+</nav>
+</configdata>

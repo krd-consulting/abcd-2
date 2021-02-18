@@ -1,0 +1,49 @@
+<?php
+$this->title = " - Stored Report Builder";
+$this->headTitle($this->title);
+
+//set up "Save Report" button
+    $srSave = "<div>
+                    <button id='saveStoredReport'>
+                      Save Report
+                    </button>
+                  </div>";
+
+$recipTab       = $this->recipForm . "<div id='fieldList' class='hidden'></div>"; 
+$contentTab     = $this->typeForm . "<div id='dataFieldList' class='hidden'></div>";
+$reportTab      = $this->nameForm . $this->freqForm . $srSave;
+
+$this->tabPane('options',$recipTab,array('title' => 'Recipients'));
+$this->tabPane('options',$contentTab,array('title' => 'Data'));
+$this->tabPane('options',$reportTab,array('title' => 'Go'));
+
+$selfRecip = "<li class='draggable unsortable' data-userid='" . 
+                  $this->user['id'] . 
+                "'>" . 
+                  $this->user['name'] . 
+                "</li>";
+
+?>
+<h1>Stored Report Builder</h1>
+
+<div id="formBuilder">
+    
+    <div id="controls" class="scrollable">
+        <?php print $this->tabContainer('options'); ?>
+    </div>
+    
+    <div id="canvas">
+        <div id="top" class="scrollable">
+            <h3>Report recipients</h3>
+            <ul id="recipList" class="connectedRecip connectedSortable">                
+                    <?php print $selfRecip; ?>
+            </ul>
+        </div>
+        
+        <div id="bottom" class="scrollable">
+            <h3>Information to include</h3>
+            <ul id="dataList" class="connectedData connectedSortable"></ul>
+        </div>
+    </div> 
+</div>
+

@@ -1,0 +1,59 @@
+<?php
+$this->title = " - Departments";
+$this->headTitle($this->title);
+?>
+
+<div id="content">
+
+  <h1 class="float-left"> Departments </h1> 
+  <div class="inline float-right">
+      Showing <span id="record-count"><?php print $this->count; ?></span> department records.
+  </div>
+
+  <div id="content-top">
+        
+        <span id="browse" class="float-left">
+            <h2>Browse</h2>
+        </span>
+        
+        <span id="searchform">
+            
+        </span>
+        
+        <span id="addNew" class="float-right">
+            <?php if ($this->admin) : ?>
+                <button id="addDept">Add New Department</button>
+            <?php endif; ?>
+        </span>
+        
+</div>
+
+  <div id="content-main">
+    
+    <table id="depts-table" class="p-list-table">
+            <?php 
+                $links = array('profile', 'edit');
+                foreach ($this->depts as $dept) {
+                    print $this->tableRow('entity', 'depts', $dept, $links);
+                }
+            ?>
+    </table>
+      
+
+
+<?php if ($this->admin) : ?>
+<div id="dialog-form" title="Add a Department">
+	<p class="validateTips">Please enter the department name.</p>
+
+            <label for="name">Name</label>
+            <input type="text" name="name" id="nametoadd" class="text ui-widget-content ui-corner-all" />		
+
+</div>
+<?php endif; ?>
+
+<div id="dialog-form-edit" class="dialog-form " title="Edit department name">
+    <p class="validateTips">Please update values below.</p>
+</div>
+
+</div>
+</div>

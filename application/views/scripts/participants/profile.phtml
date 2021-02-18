@@ -1,0 +1,174 @@
+<?php
+//PARTICIPANTS
+$pName = $this->participant['firstName'] . ' ' . $this->participant['lastName'];
+$this->pName = $pName;
+
+$this->title = $pName;
+$this->headTitle(" - $this->title");
+$backURL = $this->url(array(
+    'controller' => 'participants',
+    'action' => 'list'
+));
+
+$ptcp  = $this->participant;
+
+//set up links
+$addPtcpToProgUrl = $this->url(array(
+                               'controller'  =>'participants',
+                               'action'      =>'associate',
+                               'type'        =>'program',
+                               'id'          => $ptcp['id']));
+
+
+
+// List of departments for header
+$deptNames = array();
+foreach ($this->partDepts as $partDept) {
+    array_push($deptNames, $partDept['deptName']);
+}
+$deptList = implode(', ', $deptNames);
+
+$alertsDiv = $this->block('alerts', $ptcp['id']);
+$notesDiv = $this->block('activities', $ptcp['id']);
+$filesDiv = $this->block('files', $ptcp['id']);
+
+$sumtab = $alertsDiv . $notesDiv . $filesDiv;
+
+$this->tabPane('ptcp', $sumtab, array('title' => 'Summary'));
+
+$depts = $this->depts;
+foreach ($depts as $dept) {
+    $name = $dept['deptName'];
+    $content = $this->participantProfile($dept['id'],$ptcp['id'],$pName);
+    $this->tabPane('ptcp', $content, array('title' => "$name Profile"));
+}
+
+$dob = date('F d, Y', strtotime($ptcp['dateOfBirth']));
+$age = $ptcp['age'] . " y.o.";
+$doc = date('F d, Y', strtotime($ptcp['createdOn']));
+
+
+
+//set up programs tab
+$progTable = $this->ptcpTable('prog', $this->participant['id'], $this->programs);
+
+$ptcpAddMore = '<a class="add-link" href=' . $addPtcpToProgUrl . '>
+                            Enroll' . $this->name .' in other programs 
+                        </a>
+                ';
+
+$ptcpPurge = '<a class="minus-link" data-ptype="ptcp" data-pid="' . $this->participant['id'] . '" id="purge" href="#">
+                  Purge from "concluded" programs. 
+              </a>
+              ';
+
+$bottomLinks = "<div class='bottom-links'> $ptcpAddMore $ptcpPurge </div>";
+
+$progTab = $progTable . $bottomLinks;
+
+$groupTab = $this->ptcpGroupTable($this->groups);
+
+$formTab = $this->formTab($this->forms);
+
+$this->tabPane('ptcp', $progTab, array('title' => 'Programs'));
+$this->tabPane('ptcp', $groupTab, array('title' => 'Groups'));
+$this->tabPane('ptcp', $formTab, array('title' => 'Forms'));
+?>
+
+<div id="content">
+    <h1 class='participantProfile float-left' id='<?php print $ptcp["id"]?>'>
+        Participant Profile: 
+        <span class=p-name>
+            <?php print $pName; ?>
+        </span>
+    </h1>
+    
+
+<div class="inline float-right">
+    <a href="<?php print $backURL; ?>"> Back to Participant List</a>
+</div>
+
+<div id="content-top">
+    <span class="third shaded">
+        <strong>Date of Birth:</strong> <?php print $dob; ?> (<?php print $age; ?>)
+    </span>
+    
+    <span class="third shaded">
+        <strong>Departments:</strong> 
+            <?php print $deptList; ?>
+    </span>
+    
+    <?php if ($ptcp['createdOn']) : ?>
+    <!--<span style="min-width: 0 !important; margin-right: 5px" class="third shaded float-right">-->
+    <span class="third shaded">
+        <strong>Since:</strong> <?php print $doc; ?>
+    </span>
+    <?php endif; ?>
+    
+</div>
+
+    <div id="content-main">
+        <?php print $this->tabContainer('ptcp'); ?>
+    </div>
+    
+
+
+<!-- javascript divs -->
+<div id='dialog-form' title="">
+        <?php print $this->statusForm; ?>
+    </div>
+
+<div id='dialog-confirm' title="Purge program records?">
+    <p>
+        <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"/></span>
+        <span id="list">
+            The following records will be purged, along with their status histories:
+            <ul id="deleteList">
+                
+            </ul>
+        </span>
+    </p>
+</div>    
+
+<div id="addAlert-dialog" title="Set new alert">
+    <p class=".validateTips">Please fill out all fields</p>
+    <?php print $this->alertForm; ?>
+</div>
+
+<div id="addAct-dialog" title="Add a one-on-one activity">
+    <p class=".validateTips">Please fill out all fields</p>
+    <?php print $this->activityForm; ?>
+</div>
+
+<div id="uploadFile-dialog" title="Upload an attachment">
+    <p class=".validateTips">Please choose attachment to upload.</p>
+    
+    
+    <form id="uploadFileForm" enctype="multipart/form-data" class="dialog-form" method="post" action="">
+        <dl class="zend_form">
+           <dt id="targetType-label">&#160;</dt>
+           <dd id="targetType-element">
+               <input type="hidden" name="targetType" value="ptcp" id="targetType" />
+           </dd>
+           <dt id="targetID-label">&#160;</dt>
+            <dd id="targetID-element">
+                <input type="hidden" name="targetID" value="<?php print $ptcp["id"]?>" id="targetID" />
+            </dd>
+<!--           <dt id="fileDescription-label"><label for="fileDescription" class="optional">Description</label></dt>
+            <dd id="fileDescription-element">
+                <input type="text" name="fileDescription" id="fileDescription" value="" />
+            </dd>-->
+           <dt id="fileupload-label"><label for="fileupload" class="optional">Select File</label></dt>
+            <dd>
+                <input type="file" name="files[]" id="fileupload" data-url="/ajax/uploadFile" />
+            </dd>
+        </dl>
+    </form>
+    
+    <div id="progress">
+        <div class="bar" style="width: 0%;"></div>
+    </div>
+   
+</div>
+
+</div> <!-- /#content -->

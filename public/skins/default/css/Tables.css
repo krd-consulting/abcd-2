@@ -1,0 +1,217 @@
+/* 
+    Document   : Tables
+    Created on : 10-Sep-2011, 10:49:33 PM
+    Author     : roman
+    Description:
+        Describe tables for ABCD system. 
+*/
+
+
+table a {
+    color: #555;
+}
+
+table tr.odd {
+    background: #ddd;
+}
+
+table.list-table, table.p-list-table {
+    width: 880px;
+    border: 2px #718BA6 solid;
+    margin: 10px auto;
+}
+
+table.list-table th {
+    border: 2px #766969 solid;
+    color: #fff;
+    background: #718ba6;
+    text-align: left;
+    padding-left: 15px;
+    font-weight: normal;
+    line-height: 25pt;
+}
+
+td.nameLink a {
+    text-decoration: none !important;
+}
+
+table.list-table td {
+    border: 1px #718BA6 solid;
+    padding-left: 15px;
+    height: 30px;
+}
+
+table.list-table div.table-link:hover, table.p-list-table div.table-link:hover {
+    background-color: #00B6FF;
+    color: #fff;
+}
+
+table.list-table tr:hover, table.p-list-table tr:hover {
+    background: #00B6FF;
+    color: #fff;
+}
+
+tr.groupHeader:hover {
+    background: transparent !important;
+    color: #777 !important;
+}
+
+tr.groupHeader td {
+    background: url("../images/down-arrow.png") no-repeat scroll 0 0 #DDDDDD;
+    color: #777777;
+    font-size: 11pt;
+    font-weight: bold;
+    height: auto !important;
+    letter-spacing: 0;
+    padding: 5px 25px;
+    text-shadow: 0 1px 0 #FFFFFF, 0 0 10px rgba(255, 255, 255, 0.6);
+}
+
+tr.groupHeader td:hover {
+    cursor: pointer;
+    text-shadow: 0 0 4px palegoldenrod;
+}
+
+tr.groupHeader td.open {
+    background-image: none !important;
+    cursor: auto !important;
+    color: #111 !important;
+}
+
+table.p-list-table tr {
+    border-top: 1px #718BA6 solid;
+    border-bottom: 1px #718BA6 solid;
+}
+
+table.p-list-table td {
+    height: 30px;
+    text-transform: capitalize;
+}
+
+table.p-list-table div.table-link {
+    background: no-repeat transparent 4px 1px;
+    padding-left: 40px;
+}
+
+table.p-list-table div.default {
+    background-image: url('../images/default.png');
+}
+
+table.p-list-table div.locked {
+    background-image: url('../images/lock.png');
+}
+
+table.p-list-table div.alert {
+    background-image: url('../images/flag-red.png');
+}
+
+
+table.p-list-table div.programs {
+    /*background-image: url('../images/program.png');*/
+}
+
+div.pName, span.name {
+    font-size: 12pt;
+    font-weight: bold;
+}
+
+td.view-link {
+    border-left: 1px dotted;
+    font-size: 9.5pt;
+    padding-right: 5px;
+    text-align: center;
+    width: 65px;
+    
+}
+
+td.view-link a:hover {
+    text-decoration: underline;
+    color: #fff;
+}
+
+table.matrix-table {
+    width: 600px;
+    font-size: 14px;
+    border-width: 0px;
+    margin: 10px auto;
+}
+
+table.matrix-table td {
+    border-width: 1px;
+    border-style: solid;
+    border-color: #333;
+    text-align: center;
+    padding: 3px;
+    background: #fff;
+}
+
+table.matrix-table td.question {
+    text-align: left !important;
+    padding-left: 5px;
+}
+
+table.matrix-table td.head {
+    background: #ddd;
+}
+
+table.matrix-table td.noborder {
+    border: none !important;
+    background: transparent;
+}
+
+table.formsTable {
+    width: 100%;
+    padding: 3px;
+    border: 2px #718BA6 solid;
+}
+
+table.formsTable th, table.formsTable td {
+    text-align: center;
+    padding: 5px;
+    border: 1px #718BA6 solid;
+    height: 20px;
+}
+
+td.nameTD {
+    text-align: left !important;
+}
+
+tr.disabled {
+    background-color: #efdddd;
+}
+
+.nameCol {
+    width: 30%;
+}
+
+.shortCol {
+    width: 15%;
+}
+
+.longCol {
+}
+
+ul.groupListings, ul.groupListings li {
+    list-style: none;
+}
+
+.attndTable td.nameTD {
+    
+}
+
+.attndTable td.roleTD, .attndTable td.roleTD select {
+    font-size: 10pt !important;
+}
+
+tr.descriptor button {
+    font-size: 9pt !important;
+}
+
+table#reportTable {
+    font-size: 9pt;
+}
+
+table#reportTable td, table#reportTable th {
+    min-width: 100px;
+    padding: 4px;
+}

@@ -1,0 +1,81 @@
+<h1 class="float-left"><?php print $this->header . $this->thisForm['name'];?></h1>
+<?php $profileUrl = $this->url(array(
+                        'controller' => 'forms',
+                        'action'     => 'profile',
+                        'id'         => $this->thisForm['id']
+                        ));
+
+
+
+?>
+
+<div class="inline float-right">
+    <a href="<?php print $profileUrl; ?>"> Back to Form Profile </a>
+</div>
+
+<div id="content">
+
+    <div id="content-top">
+        <div id="helparea">
+            Drag names from one column to the other - changes are saved automatically.
+        </div>
+    </div>
+
+    <div id="content-main">
+        <div id="current-users" class="content-block float-left">
+        <h2>Currently associated with this form</h2>
+        
+            <span id="parentID" class="hidden">
+              <?php print $this->thisForm['id']; ?>
+            </span>
+            
+            <span id="recordType" class="hidden">
+                <?php print $this->type; ?>
+            </span>
+        
+            <span id="parentType" class="hidden">
+                form
+            </span>
+        <div id="filterleft"></div>
+        
+      <ul id="add" class="connectedSortable">      
+           <?php foreach ($this->currentRecords as $record) : ?>
+            <li id="<?php print $record['id'];?>" class="draggable in-list ui-icon-arrowthick-2-e-w
+                <?php if (in_array($record['id'],$this->required)) {print ' exclude';} ?>
+                ">
+                 <?php 
+                if ($this->type == 'dept') {
+                   $printName = $record['deptName'];
+                } else {
+                   $printName = $record['name'];
+                }
+               print $printName;
+               ?>
+                 <?php if (in_array($record['id'], $this->required)) : ?>
+                    <span class="list-manager float-right">(Required)</span>
+                <?php endif; ?>
+            </li>
+           <?php endforeach; ?>
+      </ul>
+    </div>
+    
+        <div id="other-users" class="content-block float-right">
+        <h2>Currently not associated</h2>
+        <div id="filterright"></div>
+        <ul id="remove" class="connectedSortable">
+          <?php foreach ($this->addRecords as $record) : ?>
+            <li id="<?php print $record['id'];?>" class="draggable out-list">
+               <?php 
+                if ($this->type == 'dept') {
+                   $printName = $record['deptName'];
+                } else {
+                   $printName = $record['name'];
+                }
+               print $printName;
+               ?>
+            </li>
+          <?php endforeach; ?>
+        </ul>
+    </div>
+    </div>
+</div>

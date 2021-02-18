@@ -1,0 +1,91 @@
+<h1 class="float-left"><?php print $this->header . $this->group['name'];?></h1>
+<?php $profileUrl = $this->url(array(
+                        'controller' => 'groups',
+                        'action'     => 'profile',
+                        'id'         => $this->group['id']
+                        ));
+
+
+
+?>
+<?php 
+  switch ($this->type) {
+      case ('ptcp') : $types = "participants";break;
+      case ('vol')  : $types = "volunteers";break;
+      default: throw new exception ("Invalid type $this->type passed to group enroll view.");
+  }
+?>
+<div class="inline float-right">
+    <a href="<?php print $profileUrl; ?>"> Back to Group Profile </a>
+</div>
+
+<div id="content">
+
+    <div id="content-top">
+        <div id="helparea">
+            Drag names from one column to the other - changes are saved automatically.
+        </div>
+    </div>
+    
+    <div id="content-main">
+        <div id="current-users" class="content-block float-left">
+                <h2>Currently enrolled in <?php print $this->group['name'] ?></h2>
+
+                    <span id="parentID" class="hidden">
+                    <?php print $this->group['id']; ?>
+                    </span>
+
+                    <span id="recordType" class="hidden">
+                        <?php print $this->type; ?>
+                    </span>
+
+                    <span id="parentType" class="hidden">
+                        group
+                    </span>
+
+                <div id="filterleft"></div>   
+
+            <ul id="add" class="connectedSortable">      
+                <?php foreach ($this->currentRecords as $record) : ?>
+                    <li id="<?php print $record['id'];?>" class="draggable in-list ui-icon-arrowthick-2-e-w
+                        <?php if (in_array($record['id'],$this->required)) {print ' exclude';} ?>
+                        ">
+                        <?php 
+                        if (($this->type == 'user') || ($this->type == 'ptcp') || ($this->type == 'vol')) {
+                        $printName = $record['firstName'] . ' ' . $record['lastName'];
+                        } else {
+                        $printName = $record['name'];
+                        }
+                    print $printName;
+                    ?>
+
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+            </div>
+
+        <div id="other-users" class="content-block float-right">
+                <h2>
+                    Other <?php print "$types in $this->dept['deptName']"; ?>
+                </h2>
+
+            <div id="filterright"></div>   
+
+                <ul id="remove" class="connectedSortable">
+                <?php foreach ($this->addRecords as $record) : ?>
+                    <li id="<?php print $record['id'];?>" class="draggable out-list">
+                    <?php 
+                        if (($this->type == 'user') || ($this->type == 'ptcp') || ($this->type == 'vol')) {
+                        $printName = $record['firstName'] . ' ' . $record['lastName'];
+                        } else {
+                        $printName = $record['name'];
+                        }
+                    print $printName;
+                    ?>
+                    </li>
+                <?php endforeach; ?>
+                </ul>
+            </div>
+    </div>
+      
+</div>

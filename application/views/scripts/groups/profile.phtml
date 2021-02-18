@@ -1,0 +1,163 @@
+<?php
+//GROUPS
+$name = $this->group['name'];
+
+$this->title = $name;
+$this->headTitle(" - $this->title");
+$backURL = $this->url(array(
+    'controller' => 'groups',
+    'action' => 'list'
+));
+
+//Set up header counts
+$ptcpCount = count($this->ptcps);
+$meetingCount = count($this->meetings);
+if ($this->vols) {
+    $volCount = count($this->vols);
+} else {
+    $volCount = 0 ; 
+}
+//Set up URLs
+
+$addMeetingToGroupUrl = $this->url(array(
+                               'controller'  =>'groups',
+                               'action'      =>'meetings',
+                               'id'          => $this->group['id']));
+
+$addPtcpToGroupUrl = $this->url(array(
+                               'controller'  =>'groups',
+                               'action'      =>'enroll',
+                               'type'        =>'ptcp',
+                               'id'          => $this->group['id']));
+
+$addVolToGroupUrl = $this->url(array(
+                               'controller'  =>'groups',
+                               'action'      =>'enroll',
+                               'type'        =>'vol',
+                               'id'          => $this->group['id']));
+
+
+// Set up Meetings Tab
+if ($meetingCount == 0) {
+    $mtgList = "<h2>This group hasn't had any recorded meetings yet.</h2>";
+    $mtgList .= "<button class='float-right' id='addMeeting'>Add Meeting Record</button>";
+} else {
+    $mtgList = "<div class='groupfilter'></div>";
+    $mtgList .= "<button class='float-right' id='addMeeting'>Add Meeting Record</button>";
+    $mtgList .= $this->meetingList($this->meetings);
+}
+
+$mtgTab = $mtgList;
+
+// Set up Forms Tab
+if (count($this->forms) == 0) {
+    $formList = "<h2>No forms associated with this group yet.</h2>";
+} else {
+    $formList = $this->formsTable('forms', $this->forms);
+}
+
+$formTab = $formList;
+
+//Set up Volunteers Tab
+if ($volCount == 0) {
+    $volList = "<h2>No volunteers enrolled in this group</h2>";
+} else {
+    $links = array('profile');
+    $volList = '<table class="p-list-table">';
+    foreach ($this->vols as $vol) {
+        $volList .= $this->tableRow('person','volunteers',$vol,$links);
+    }
+    $volList .= '</table>';
+}
+
+$volAddMore = "<a class='add-link' href=" 
+              . $addVolToGroupUrl 
+              . "> Enroll volunteers in " 
+              . $this->title 
+              . "</a>";
+
+$bottomVLinks = "<div class='bottom-links'> $volAddMore </div>";
+
+$volTab = $volList . $bottomVLinks;
+
+//Set up Participants Tab
+if ($ptcpCount == 0) {
+    $ptcpList = "<h2>No participants enrolled in this group</h2>";
+} else {
+    $links = array('profile');
+    $ptcpList = '<table class="p-list-table">';
+    foreach($this->ptcps as $ptcp) {
+        $ptcpList .= $this->tableRow('person','participants',$ptcp,$links);
+    }
+    $ptcpList .= '</table>';
+}
+
+$ptcpAddMore = '<a class="add-link" href=' . $addPtcpToGroupUrl . '>
+                            Enroll participants in ' . $this->title . ' 
+                        </a>
+                ';
+
+$bottomLinks = "<div class='bottom-links'> $ptcpAddMore </div>";
+
+$ptcpTab = $ptcpList . $bottomLinks;
+
+//PASS EVERYTHING TO TABS
+
+$this->tabPane('group', $mtgTab, array('title' => 'Meetings'));
+$this->tabPane('group', $ptcpTab, array('title' => 'Participants'));
+$this->tabPane('group', $volTab, array('title' => 'Volunteers'));
+$this->tabPane('group', $formTab, array('title' => 'Forms'));
+?>
+
+<div id="content">
+    <h1 class='participantProfile float-left' id="<?php print $this->group['id']; ?>">
+        Group Profile: 
+        <span class=p-name>
+            <?php print $name; ?>
+        </span>
+    </h1>
+    
+
+<div class="inline float-right">
+    <a href="<?php print $backURL; ?>"> Back to Group List</a>
+</div>
+
+<div id="content-top">
+    <div class="topbar">
+        Program: <i><?php print $this->progName; ?></i>
+    </div>
+    <span class="third shaded">
+        <span class="gamify-profile"> 
+            <div class="topnum"><?php print $volCount ?></div>
+            <div class="bottom-desc">volunteers</div>
+        </span>
+    </span>
+    
+    <span class="third shaded">
+        <span class="gamify-profile"> 
+            <span class="topnum" id="record-count">
+                <?php print $ptcpCount; ?>
+            </span>
+            <span class="bottom-desc">participants</span>
+        </span>
+    </span>
+    
+    <span class="third shaded">
+        <span class="gamify-profile">
+            <div class="topnum"><?php print $meetingCount; ?></div>
+            <div class="bottom-desc">meetings</div>
+        </span>
+    </span>
+    
+    
+</div>
+
+<div id="content-main">
+
+    <?php print $this->tabContainer('group'); ?>
+    
+</div>
+    
+</div> <!-- /#content -->
+
+<!-- javascript divs go here -->

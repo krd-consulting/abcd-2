@@ -1,0 +1,192 @@
+<?php
+//VOLUNTEERS
+$pName = $this->user['firstName'] . ' ' . $this->user['lastName'];
+$this->pName = $pName;
+
+$this->title = $pName;
+$this->headTitle(" - $this->title");
+$backURL = $this->url(array(
+    'controller' => 'volunteers',
+    'action' => 'list'
+));
+
+$vol = $this->user;
+
+//set up links
+$addVolToProgUrl = $this->url(array(
+                               'controller'  =>'volunteers',
+                               'action'      =>'associate',
+                               'type'        =>'program',
+                               'id'          => $vol['id']));
+
+
+
+// List of departments for header
+$deptNames = array();
+foreach ($this->depts as $dept) {
+    array_push($deptNames, $dept['deptName']);
+}
+$deptList = implode(', ', $deptNames);
+
+$alertsDiv = $this->block('alerts', $vol['id'], 'vol');
+$filesDiv = $this->block('files', $vol['id'], 'vol');
+$notesDiv = $this->block('activities', $vol['id'], 'vol');
+//$notesDiv = '';
+
+$sumtab = $alertsDiv . $filesDiv . $notesDiv;
+
+$this->tabPane('vol', $sumtab, array('title' => 'Summary'));
+
+$depts = $this->depts;
+foreach ($depts as $dept) {
+    $name = $dept['deptName'];
+    //$content = $this->participantProfile($dept['id'],$ptcp['id'],$pName);
+    //$this->tabPane('vol', $content, array('title' => "$name Profile"));
+}
+
+
+//set up calendar tab
+$calTab = "<span id='calButton' class='center-button'> <button data-id='" 
+        . $vol['id']
+        . "' id='Cal'>View " 
+        . $pName . 
+        " Calendar</button> </span>";
+
+
+//set up programs tab
+$progTable = "<table id='progs-table' class='p-list-table'>";
+            $progLinks = array('profile', 'calendar');
+            foreach ($this->programs as $program) {
+                    $progTable .= $this->tableRow('entity', 'programs', $program, $progLinks);
+            }
+$progTable .= "</table>";
+            
+    
+
+
+$volAddMore = '<a class="add-link" href=' . $addVolToProgUrl . '>
+                            Enroll' . $this->name .' in other programs 
+                        </a>
+                ';
+
+$bottomLinks = "<div class='bottom-links'> $volAddMore </div>";
+
+$progTab = $progTable . $bottomLinks;
+
+//$groupTab = $this->ptcpGroupTable($this->groups);
+
+$formTab = $this->formTab($this->forms,'volunteer');
+
+$this->tabPane('vol', $progTab, array('title' => 'Programs'));
+$this->tabPane('vol', $formTab, array('title' => 'Forms'));
+$this->tabPane('vol', $calTab, array('title' => 'Calendar'));
+?>
+
+<div id="content">
+    <h1 class='participantProfile float-left' id='<?php print $vol["id"]?>'>
+        Volunteer Profile: 
+        <span class=p-name>
+            <?php print $pName; ?>
+        </span>
+    </h1>
+    
+
+<div class="inline float-right">
+    <a href="<?php print $backURL; ?>"> Back to Volunteer List</a>
+</div>
+
+<div id="content-top">
+    <span class="third shaded">
+        <span class="gamify-profile">
+            <span class="topnum"><?php print $this->progCount; ?></span>
+            <span class="bottom-desc"> programs helped </span>
+        </span>
+    </span>
+    
+    <span class="third shaded">
+        <span class="gamify-profile">
+            <span class="topnum"><?php print $this->monthlyHours; ?></span>
+            <span class="bottom-desc"> hours this month</span>
+        </span>
+    </span>
+        
+    <span class="third shaded">
+        <span class="gamify-profile">
+            <span class="topnum"><?php print $this->yearlyHours; ?></span>
+            <span class="bottom-desc"> hours this year</span>
+        </span>
+    </span>
+    
+</div>
+
+
+    <div id="content-main">
+        <?php print $this->tabContainer('vol'); ?>
+    </div>
+    
+
+
+<!-- javascript divs -->
+<div id='dialog-form' title="">
+        <?php print $this->statusForm; ?>
+    </div>
+
+<div id='dialog-confirm' title="Purge program records?">
+    <p>
+        <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"/></span>
+        <span id="list">
+            The following records will be purged, along with their status histories:
+            <ul id="deleteList">
+                
+            </ul>
+        </span>
+    </p>
+</div>    
+
+<div id="addAlert-dialog" title="Set new alert">
+    <p class="validateTips">Please fill out all fields</p>
+    <?php print $this->alertForm; ?>
+</div>
+
+<div id="addAct-dialog" title="Track volunteer activity">
+    <p class="validateTips">Please fill out all fields</p>
+    <?php print $this->activityForm; ?>
+</div>
+
+<div id="removeActivity-dialog" title="Delete volunteer activity">
+    <p class="validateTips"></p>
+    <p class="dialog-content"></p>
+</div>
+
+<div id="uploadFile-dialog" title="Upload an attachment">
+    <p class="validateTips">Please choose attachment to upload.</p>
+    
+    
+    <form id="uploadFileForm" enctype="multipart/form-data" class="dialog-form" method="post" action="">
+        <dl class="zend_form">
+           <dt id="targetType-label">&#160;</dt>
+           <dd id="targetType-element">
+               <input type="hidden" name="targetType" value="vol" id="targetType" />
+           </dd>
+           <dt id="targetID-label">&#160;</dt>
+            <dd id="targetID-element">
+                <input type="hidden" name="targetID" value="<?php print $vol["id"]?>" id="targetID" />
+            </dd>
+<!--           <dt id="fileDescription-label"><label for="fileDescription" class="optional">Description</label></dt>
+            <dd id="fileDescription-element">
+                <input type="text" name="fileDescription" id="fileDescription" value="" />
+            </dd>-->
+           <dt id="fileupload-label"><label for="fileupload" class="optional">Select File</label></dt>
+            <dd>
+                <input type="file" name="files[]" id="fileupload" data-url="/ajax/uploadFile" />
+            </dd>
+        </dl>
+    </form>
+    
+    <div id="progress">
+        <div class="bar" style="width: 0%;"></div>
+    </div>
+   
+</div>
+
+</div> <!-- /#content -->
