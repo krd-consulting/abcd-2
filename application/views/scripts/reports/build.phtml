@@ -1,0 +1,37 @@
+<?php
+$this->title = " - Custom Report Generator";
+$this->headTitle($this->title);
+
+$filterTab = $this->filterForm . "<div id='fieldList' class='hidden'></div>"; 
+$dataTab   = $this->dataForm . "<div id='dataFieldList' class='hidden'></div>";
+$reportTab = $this->reportTab();
+
+$this->tabPane('options',$filterTab,array('title' => 'Filters'));
+$this->tabPane('options',$dataTab,array('title' => 'Data'));
+$this->tabPane('options',$reportTab,array('title' => 'Go'));
+
+?>
+<h1>Report Generator</h1>
+
+<div id="formBuilder">
+    
+    <div id="controls" class="scrollable">
+        <?php print $this->tabContainer('options'); ?>
+    </div>
+    
+    <div id="canvas">
+        <div id="top" class="scrollable">
+            <h3>Filters to use</h3>
+            <ul id="filterList" class="connectedFilter connectedSortable">
+                
+            </ul>
+        </div>
+        
+        <div id="bottom" class="scrollable">
+            <h3>Data to show</h3>
+            <ul id="dataList" class="connectedData connectedSortable"></ul>
+        </div>
+    </div> 
+</div>
+
+<div id="reportDisplay"></div>

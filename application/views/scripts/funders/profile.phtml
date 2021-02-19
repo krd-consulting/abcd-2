@@ -1,0 +1,83 @@
+<?php
+$this->title = $this->funder['name'];
+$this->headTitle(" - $this->title");
+$backURL = $this->url(array(
+    'controller' => 'funders',
+    'action' => 'list'
+));
+
+
+$links = array('profile');
+$progs = $this->progs;
+$forms = $this->forms;
+
+
+$addProgToFunderUrl = $this->url(array(
+                                'controller' => 'funders',
+                                'action'     => 'addmember',
+                                'type'       => 'prog',
+                                'id'         => $this->funder['id']));
+
+$addFormToFunderUrl = $this->url(array(
+                                'controller' => 'funders',
+                                'action'     => 'addmember',
+                                'type'       => 'form',
+                                'id'         => $this->funder['id']));
+
+/*
+ * Set up programs
+ */
+
+$progList = '<table class="p-list-table">';
+foreach($progs as $prog) {
+    $origlinks = $links;
+    $links = array_diff($links, array('funderRemove'));
+    array_push($links,'reports');
+    $progList .= $this->tableRow('entity','programs',$prog,$links);
+    $links = $origlinks;
+}
+$progList .= '</table>';
+
+$progAddMore = '<div class="bottom-links">
+                   <a class="add-link" href=' . $addProgToFunderUrl . '>
+                       Add Program to ' . $this->title . ' 
+                   </a>
+                </div>';
+
+$progTab = $progList . $progAddMore;
+
+/*
+ * Set up forms
+ */
+
+
+$formList = $this->formsTable('forms', $forms);
+$formAddMore = '<div class="bottom-links">
+                   <a class="add-link" href=' . $addFormToFunderUrl . '>
+                       Add Form to ' . $this->title . ' 
+                   </a>
+                </div>';
+$formTab = $formList . $formAddMore;
+
+
+$this->tabPane('funders', $progTab, array('title' => 'Programs'));
+$this->tabPane('funders', $formTab, array('title' => 'Forms'));
+
+?>
+
+
+
+<h1 class="float-left" id="<?php print $this->funder['id']; ?>">Funder Profile: 
+    <?php print $this->funder['name']; ?>
+</h1>
+
+<div class="inline float-right">
+    <a href="<?php print $backURL; ?>"> Back to Funder List</a>
+</div>
+
+<div id="content" class="below-header">
+ <div id="content-top" style="background: #fff"></div>
+ <div id="content-main" style="margin-top: -50px">
+    <?php print $this->tabContainer('funders'); ?>
+ </div>
+</div>

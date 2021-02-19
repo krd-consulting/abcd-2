@@ -1,0 +1,70 @@
+<?php
+//FUNDERS LIST VIEW
+$this->title = " - Funders";
+$this->headTitle($this->title);
+?>
+
+<div id="content">
+
+  <h1 class="float-left"> Funders </h1> 
+  <div class="inline float-right">
+      Showing <span id="record-count"><?php print $this->count; ?></span> funder records.
+  </div>
+
+  <div id="content-top">
+        
+        <span id="browse" class="float-left">
+            <h2>Browse</h2>
+        </span>
+        
+        <span id="searchform">
+            
+        </span>
+        
+        <span id="addNew" class="float-right">
+                <button id="addFunder">Add New Funder</button>
+        </span>
+        
+</div>
+
+  <div id="content-main">
+    <table id="funders-table" class="p-list-table">
+        <tbody>
+        <?php foreach ($this->funders as $funder) : ?>
+            <?php
+                $profileURL = $this->url(array(
+                                     'controller'  =>  'funders',
+                                     'action'      =>  'profile',
+                                     'id'          =>  $funder->id));
+            ?>
+
+
+            <tr>
+                <td class="nameLink">
+                  <a href=" <?php print $profileURL; ?> ">
+                   <div class="table-link">
+                    <div class='pName'>
+                        <?php print $this->escape($funder['name']);?>
+                    </div>
+                   </div>
+                  </a>
+                </td>
+            </tr>
+
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+
+
+
+
+<div id="dialog-form" title="Add a Funder">
+	<p class="validateTips">Please enter the funder name.</p>
+            <label for="name">Name</label>
+            <input type="text" name="name" id="nametoadd" class="text ui-widget-content ui-corner-all" />		
+</div>
+
+
+
+</div>
+</div>

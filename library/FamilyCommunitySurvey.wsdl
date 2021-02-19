@@ -1,0 +1,479 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Created by TIBCO WSDL-->
+<wsdl:definitions xmlns:ns2="http://schemas.calgary.ca/xsd/emf/2008/10" xmlns:ns1="http://schemas.calgary.ca/xsd/familycommunitysurvey/2012/08" xmlns:ns4="http://schemas.calgary.ca/xsd/familycommunitysurveycdm/2012/08" xmlns:ns3="http://schemas.calgary.ca/xsd/cdm/emf/2008/10" xmlns:tns="http://schemas.calgary.ca/wsdl/FamilyCommunitySurvey/2012/09" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ns0="http://coc.gov/xsd/ESB/SupplementalData/V1" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" name="Untitled" targetNamespace="http://schemas.calgary.ca/wsdl/FamilyCommunitySurvey/2012/09">
+    <wsdl:types>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://schemas.calgary.ca/xsd/cdm/emf/2008/10" elementFormDefault="qualified" attributeFormDefault="unqualified">
+            <xs:import namespace="http://schemas.calgary.ca/xsd/emf/2008/10"/>
+            <xs:complexType name="ActionType">
+                <xs:sequence>
+                    <xs:element name="ActionID" type="xs:integer"/>
+                    <xs:element name="ErrorID" type="xs:integer" minOccurs="0"/>
+                    <xs:element name="SubstitutionVars" type="ns3:SubstitutionVarsType" minOccurs="0"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="AuditEventType">
+                <xs:complexContent>
+                    <xs:extension base="ns3:EventType">
+                        <xs:sequence>
+                            <xs:element name="Message" type="xs:string"/>
+                            <xs:element name="AuditType" minOccurs="0">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                        <xs:enumeration value="General"/>
+                                        <xs:enumeration value="Replay"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element name="MessageKey" type="xs:string" minOccurs="0"/>
+                        </xs:sequence>
+                    </xs:extension>
+                </xs:complexContent>
+            </xs:complexType>
+            <xs:complexType name="ErrorType">
+                <xs:complexContent>
+                    <xs:extension base="ns3:EventType">
+                        <xs:sequence>
+                            <xs:element name="ErrorCode" type="xs:string"/>
+                            <xs:element name="StackTrace" type="xs:string" minOccurs="0"/>
+                        </xs:sequence>
+                    </xs:extension>
+                </xs:complexContent>
+            </xs:complexType>
+            <xs:complexType name="EventType">
+                <xs:sequence>
+                    <xs:element name="Timestamp" type="xs:dateTime" minOccurs="0"/>
+                    <xs:element name="ComponentName" type="xs:string"/>
+                    <xs:element name="SubcomponentName" type="xs:string"/>
+                    <xs:element name="CorrelationID" type="xs:string" minOccurs="0"/>
+                    <xs:element name="MachineName" type="xs:string" minOccurs="0"/>
+                    <xs:element name="MachineIP" type="xs:string" minOccurs="0"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="FaultType">
+                <xs:sequence>
+                    <xs:element name="Type" type="xs:string"/>
+                    <xs:element name="Subtype" type="xs:string" minOccurs="0"/>
+                    <xs:element name="Severity" type="xs:string"/>
+                    <xs:element name="IsRecoverable" type="xs:boolean"/>
+                    <xs:element name="Description" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="LogEventType">
+                <xs:complexContent>
+                    <xs:extension base="ns3:EventType">
+                        <xs:sequence>
+                            <xs:element name="LogLevel" type="ns3:LogLevelType"/>
+                            <xs:element name="Message" type="xs:string"/>
+                        </xs:sequence>
+                    </xs:extension>
+                </xs:complexContent>
+            </xs:complexType>
+            <xs:simpleType name="LogLevelType">
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="Debug"/>
+                    <xs:enumeration value="Info"/>
+                    <xs:enumeration value="Warn"/>
+                    <xs:enumeration value="Error"/>
+                    <xs:enumeration value="Fatal"/>
+                </xs:restriction>
+            </xs:simpleType>
+            <xs:complexType name="NotificationEventType">
+                <xs:complexContent>
+                    <xs:extension base="ns3:EventType">
+                        <xs:sequence>
+                            <xs:element name="TO" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+                            <xs:element name="CC" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+                            <xs:element name="BCC" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+                            <xs:element name="Subject" type="xs:string"/>
+                            <xs:element name="Message" type="xs:string"/>
+                        </xs:sequence>
+                    </xs:extension>
+                </xs:complexContent>
+            </xs:complexType>
+            <xs:complexType name="SubstitutionVarsType">
+                <xs:sequence>
+                    <xs:element name="ComponentName" type="xs:string"/>
+                    <xs:element name="SubcomponentName" type="xs:string"/>
+                    <xs:element name="StackTrace" type="xs:string" minOccurs="0"/>
+                    <xs:element name="FaultDescription" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="Action" type="ns3:ActionType"/>
+            <xs:element name="AuditEvent" type="ns3:AuditEventType"/>
+            <xs:element name="Error" type="ns3:ErrorType"/>
+            <xs:element name="Event" type="ns3:EventType"/>
+            <xs:element name="Fault" type="ns3:FaultType"/>
+            <xs:element name="LogEvent" type="ns3:LogEventType"/>
+            <xs:element name="Notification" type="ns3:NotificationEventType"/>
+            <xs:element name="SubstitutionVars" type="ns3:SubstitutionVarsType"/>
+        </xs:schema>
+        <xs:schema xmlns="http://schemas.calgary.ca/xsd/familycommunitysurvey/2012/08" xmlns:ns1="http://schemas.calgary.ca/xsd/familycommunitysurveycdm/2012/08" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://schemas.calgary.ca/xsd/familycommunitysurvey/2012/08" elementFormDefault="qualified" attributeFormDefault="unqualified">
+            <xs:import namespace="http://schemas.calgary.ca/xsd/familycommunitysurveycdm/2012/08"/>
+            <xs:element name="Codes" type="ns1:CodeType"/>
+            <xs:element name="GetCodeLookupByNameRequest">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="ns1:Name"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="GetCodelookupByNameResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="Codes" minOccurs="0" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="SubmitSurveyRequest">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="ns1:FamilyCommunitySurvey"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="SubmitSurveyResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="ns1:Result"/>
+                        <xs:element ref="ns1:Errors" minOccurs="0" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:schema>
+        <xs:schema xmlns="http://schemas.calgary.ca/xsd/familycommunitysurveycdm/2012/08" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://schemas.calgary.ca/xsd/familycommunitysurveycdm/2012/08" elementFormDefault="qualified" attributeFormDefault="unqualified">
+            <xs:complexType name="CodeType">
+                <xs:sequence>
+                    <xs:element ref="ns4:Name"/>
+                    <xs:element ref="ns4:Value"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="AgencyCode" type="xs:string"/>
+            <xs:element name="Answer" type="xs:string"/>
+            <xs:element name="ClientID" type="xs:string"/>
+            <xs:element name="ClientIDEstimated" type="xs:string"/>
+            <xs:element name="Code" type="xs:string"/>
+            <xs:element name="CodeBookVersion" type="xs:string"/>
+            <xs:element name="DiscontinueDate" type="xs:date"/>
+            <xs:element name="Errors">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="ns4:SurveyCode"/>
+                        <xs:element ref="ns4:Message"/>
+                        <xs:element ref="ns4:QuestionCode"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="FamilyCommunitySurvey">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="ns4:SubmissionCode"/>
+                        <xs:element ref="ns4:SubmissionDate"/>
+                        <xs:element ref="ns4:ProgramDetails"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="Message" type="xs:string"/>
+            <xs:element name="Name" type="xs:string"/>
+            <xs:element name="OtherProgramName" type="xs:string"/>
+            <xs:element name="ProgramCode" type="xs:string"/>
+            <xs:element name="ProgramDate">
+                <xs:complexType>
+                    <xs:choice>
+                        <xs:element ref="ns4:DiscontinueDate"/>
+                        <xs:element ref="ns4:RegistrationDate"/>
+                        <xs:element ref="ns4:TestDate"/>
+                    </xs:choice>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="ProgramDetails">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="ns4:ProgramCode"/>
+                        <xs:element ref="ns4:OtherProgramName"/>
+                        <xs:element ref="ns4:AgencyCode"/>
+                        <xs:element ref="ns4:ClientID"/>
+                        <xs:element ref="ns4:ClientIDEstimated"/>
+                        <xs:element ref="ns4:CodeBookVersion"/>
+                        <xs:element ref="ns4:SurveyType"/>
+                        <xs:element ref="ns4:ProgramDate"/>
+                        <xs:element ref="ns4:Surveys"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="QuestionCode" type="xs:string"/>
+            <xs:element name="Questionnaire">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="ns4:QuestionCode"/>
+                        <xs:element ref="ns4:Answer"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="RegistrationDate" type="xs:date"/>
+            <xs:element name="Result" type="xs:boolean"/>
+            <xs:element name="SubmissionCode" type="xs:string"/>
+            <xs:element name="SubmissionDate" type="xs:date"/>
+            <xs:element name="Survey">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="ns4:Questionnaire" minOccurs="0" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="SurveyCode" type="xs:string"/>
+            <xs:element name="SurveyType" type="xs:string"/>
+            <xs:element name="Surveys">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="ns4:Survey"/>
+                        <xs:element ref="ns4:Code"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="TestDate" type="xs:date"/>
+            <xs:element name="Value" type="xs:string"/>
+        </xs:schema>
+        <xsd:schema xmlns="http://coc.gov/xsd/ESB/SupplementalData/V1" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://coc.gov/xsd/ESB/SupplementalData/V1" elementFormDefault="qualified" attributeFormDefault="unqualified">
+            <xsd:element name="SupplementalData">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="SourceName" type="xsd:string"/>
+                        <xsd:element name="ServiceProvider">
+                            <xsd:complexType>
+                                <xsd:sequence>
+                                    <xsd:element name="Name" type="xsd:string"/>
+                                    <xsd:element name="OperationName" type="xsd:string"/>
+                                    <xsd:element name="Login" minOccurs="0">
+                                        <xsd:complexType>
+                                            <xsd:sequence>
+                                                <xsd:element name="UserName" type="xsd:string" minOccurs="0"/>
+                                                <xsd:element name="Role" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+                                                <xsd:element name="Password" type="xsd:string" minOccurs="0"/>
+                                                <xsd:element name="PasswordType" type="xsd:string" minOccurs="0"/>
+                                            </xsd:sequence>
+                                        </xsd:complexType>
+                                    </xsd:element>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                        </xsd:element>
+                        <xsd:element name="Addressing" minOccurs="0">
+                            <xsd:complexType>
+                                <xsd:sequence>
+                                    <xsd:element name="To" type="xsd:string" minOccurs="0"/>
+                                    <xsd:element name="ReplyTo" type="xsd:string" minOccurs="0"/>
+                                    <xsd:element name="Action" type="xsd:string" minOccurs="0"/>
+                                    <xsd:element name="RequestType" type="xsd:string" minOccurs="0"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                        </xsd:element>
+                        <xsd:element name="TraceLevel" type="xsd:integer" minOccurs="0"/>
+                        <xsd:element name="SessionID" type="xsd:string" minOccurs="0"/>
+                        <xsd:element name="CorrelationID" type="xsd:string"/>
+                        <xsd:element name="SequenceNumber" type="xsd:string" minOccurs="0"/>
+                        <xsd:element name="EndSequenceFlag" type="xsd:boolean" minOccurs="0"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:schema>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://schemas.calgary.ca/xsd/emf/2008/10" elementFormDefault="qualified" attributeFormDefault="unqualified">
+            <xs:import namespace="http://schemas.calgary.ca/xsd/cdm/emf/2008/10"/>
+            <xs:import namespace="http://schemas.calgary.ca/xsd/cdm/emf/2008/10"/>
+            <xs:complexType name="COCBusinessDataFaultType">
+                <xs:complexContent>
+                    <xs:extension base="ns2:COCBusinessFaultType"/>
+                </xs:complexContent>
+            </xs:complexType>
+            <xs:complexType name="COCBusinessFaultType">
+                <xs:complexContent>
+                    <xs:extension base="ns2:COCFaultType"/>
+                </xs:complexContent>
+            </xs:complexType>
+            <xs:complexType name="COCBusinessStateFaultType">
+                <xs:complexContent>
+                    <xs:extension base="ns2:COCBusinessFaultType"/>
+                </xs:complexContent>
+            </xs:complexType>
+            <xs:complexType name="COCFaultType">
+                <xs:sequence>
+                    <xs:element name="Severity" type="xs:string"/>
+                    <xs:element name="IsRecoverable" type="xs:boolean"/>
+                    <xs:element name="Description" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="COCSystemConfigurationFaultType">
+                <xs:complexContent>
+                    <xs:extension base="ns2:COCSystemFaultType"/>
+                </xs:complexContent>
+            </xs:complexType>
+            <xs:complexType name="COCSystemConnectivityFaultType">
+                <xs:complexContent>
+                    <xs:extension base="ns2:COCSystemFaultType"/>
+                </xs:complexContent>
+            </xs:complexType>
+            <xs:complexType name="COCSystemDataFaultType">
+                <xs:complexContent>
+                    <xs:extension base="ns2:COCSystemFaultType"/>
+                </xs:complexContent>
+            </xs:complexType>
+            <xs:complexType name="COCSystemFaultType">
+                <xs:complexContent>
+                    <xs:extension base="ns2:COCFaultType"/>
+                </xs:complexContent>
+            </xs:complexType>
+            <xs:complexType name="COCSystemSecurityFaultType">
+                <xs:complexContent>
+                    <xs:extension base="ns2:COCSystemFaultType"/>
+                </xs:complexContent>
+            </xs:complexType>
+            <xs:complexType name="COCUnknownFaultType">
+                <xs:complexContent>
+                    <xs:extension base="ns2:COCFaultType"/>
+                </xs:complexContent>
+            </xs:complexType>
+            <xs:element name="AuditRequest">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="ns3:AuditEvent"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="AuditResponse">
+                <xs:complexType/>
+            </xs:element>
+            <xs:element name="COCBusinessDataFault" type="ns2:COCBusinessDataFaultType"/>
+            <xs:element name="COCBusinessFault" type="ns2:COCBusinessFaultType"/>
+            <xs:element name="COCBusinessStateFault" type="ns2:COCBusinessStateFaultType"/>
+            <xs:element name="COCFault" type="ns2:COCFaultType"/>
+            <xs:element name="COCSystemConfigurationFault" type="ns2:COCSystemConfigurationFaultType"/>
+            <xs:element name="COCSystemConnectivityFault" type="ns2:COCSystemConnectivityFaultType"/>
+            <xs:element name="COCSystemDataFault" type="ns2:COCSystemDataFaultType"/>
+            <xs:element name="COCSystemFault" type="ns2:COCSystemFaultType"/>
+            <xs:element name="COCSystemSecurityFault" type="ns2:COCSystemSecurityFaultType"/>
+            <xs:element name="COCUnknownFault" type="ns2:COCUnknownFaultType"/>
+            <xs:element name="DiagnoseAndRemedyRequest">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="ns3:Error"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="DiagnoseAndRemedyResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="ns3:Fault"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="DiagnoseRequest">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="ns3:Error"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="DiagnoseResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="ns3:Fault"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="LogRequest">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="ns3:LogEvent"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="LogResponse">
+                <xs:complexType/>
+            </xs:element>
+            <xs:element name="NotificationRequest">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="ns3:Notification"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="NotificationResponse">
+                <xs:complexType/>
+            </xs:element>
+            <xs:element name="RemedyRequest">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="ns3:Error"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="RemedyResponse">
+                <xs:complexType/>
+            </xs:element>
+        </xs:schema>
+    </wsdl:types>
+    <wsdl:service name="FamilyCommunitySurvey.serviceagent">
+        <wsdl:port name="FamilyCommunitySurveyPortTypeEndpoint1" binding="tns:FamilyCommunitySurveyPortTypeEndpoint1Binding">
+            <soap:address location="http://dieaiesb3b.gov.calgary.ab.ca:50134/WebServices/FamilyCommunitySurvey.serviceagent/FamilyCommunitySurveyPortTypeEndpoint1"/>
+        </wsdl:port>
+    </wsdl:service>
+    <wsdl:portType name="FamilyCommunitySurveyPortType">
+        <wsdl:operation name="SubmitSurvey">
+            <wsdl:input message="tns:SubmitSurveyRequest"/>
+            <wsdl:output message="tns:SubmitSurveyResponse"/>
+            <wsdl:fault name="fault1" message="tns:COCFault"/>
+        </wsdl:operation>
+        <wsdl:operation name="GetCodeLookupsByName">
+            <wsdl:input message="tns:GetLookupsByNameRequest"/>
+            <wsdl:output message="tns:GetLookupsByNameResponse"/>
+            <wsdl:fault name="fault1" message="tns:COCFault"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="FamilyCommunitySurveyPortTypeEndpoint1Binding" type="tns:FamilyCommunitySurveyPortType">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="SubmitSurvey">
+            <soap:operation style="document" soapAction="/WebServices/FamilyCommunitySurvey.serviceagent/FamilyCommunitySurveyPortTypeEndpoint1/SubmitSurvey"/>
+            <wsdl:input>
+                <soap:body use="literal" parts="part1"/>
+                <soap:header use="literal" message="tns:HeaderMessage" part="part1"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" parts="part1"/>
+                <soap:header use="literal" message="tns:HeaderMessage" part="part1"/>
+            </wsdl:output>
+            <wsdl:fault name="fault1">
+                <soap:fault use="literal" name="fault1"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        <wsdl:operation name="GetCodeLookupsByName">
+            <soap:operation style="document" soapAction="/WebServices/FamilyCommunitySurvey.serviceagent/FamilyCommunitySurveyPortTypeEndpoint1/GetCodeLookupsByName"/>
+            <wsdl:input>
+                <soap:body use="literal" parts="part1"/>
+                <soap:header use="literal" message="tns:HeaderMessage" part="part1"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal" parts="part1"/>
+                <soap:header use="literal" message="tns:HeaderMessage" part="part1"/>
+            </wsdl:output>
+            <wsdl:fault name="fault1">
+                <soap:fault use="literal" name="fault1"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:message name="HeaderMessage">
+        <wsdl:part name="part1" element="ns0:SupplementalData"/>
+    </wsdl:message>
+    <wsdl:message name="SubmitSurveyRequest">
+        <wsdl:part name="part1" element="ns1:SubmitSurveyRequest"/>
+    </wsdl:message>
+    <wsdl:message name="SubmitSurveyResponse">
+        <wsdl:part name="part1" element="ns1:SubmitSurveyResponse"/>
+    </wsdl:message>
+    <wsdl:message name="COCFault">
+        <wsdl:part name="part1" element="ns2:COCFault"/>
+    </wsdl:message>
+    <wsdl:message name="GetLookupsByNameRequest">
+        <wsdl:part name="part1" element="ns1:GetCodeLookupByNameRequest"/>
+    </wsdl:message>
+    <wsdl:message name="GetLookupsByNameResponse">
+        <wsdl:part name="part1" element="ns1:GetCodelookupByNameResponse"/>
+    </wsdl:message>
+</wsdl:definitions>

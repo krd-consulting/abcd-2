@@ -1,0 +1,158 @@
+<?php
+//USERS
+$name = $this->user['firstName'] . " " . $this->user['lastName'];
+$fName = $this->user['firstName'];
+
+$this->title = $name;
+$this->headTitle(" - $this->title");
+$backURL = $this->url(array(
+    'controller' => 'users',
+    'action' => 'list'
+));
+
+//Set up header counts
+$ptcpCount = count($this->ptcps);
+
+//Set up URLs
+$addStaffToProgUrl = $this->url(array(
+                               'controller'  =>'users',
+                               'action'      =>'associate',
+                               'type'        =>'prog',
+                               'id'          => $this->user['id']));
+
+$addStafftoPtcpUrl = $this->url(array(
+                               'controller'  =>'users',
+                               'action'      =>'associate',
+                               'type'        =>'ptcp',
+                               'id'          => $this->user['id']));
+
+//Set up programs tab
+$links = array('profile');
+    
+if (count($this->programs) == 0) {
+    $progList = "<h2>This account is not associated with any program yet.</h2>";
+} else {
+    $progList = '<table class="p-list-table">';
+    foreach ($this->programs as $program) {
+        $progList .= $this->tableRow('entity','programs',$program,$links);
+    }
+    $progList .= '</table>';
+}
+
+if ($this->mgr) {
+    $progAddMore = '<div class="bottom-links">
+               <a class="add-link" href=' . $addStaffToProgUrl . '>
+                   Manage ' . $fName . '\'s program enrolment  
+               </a>
+            </div>';
+$progTab = $progList . $progAddMore;
+} else {
+    $progTab = $progList;
+}
+
+//Set up case load tab
+$links = array('profile');
+
+if ($ptcpCount == 0) {
+    $ptcpList = "<h2>No participants on this caseload yet.</h2>";
+} else {
+    $ptcpList = $this->ptcpTable('caseload',$this->user['id'], $this->ptcps);
+}
+
+$ptcpAddMore = '<a class="add-link" href=' . $addStafftoPtcpUrl . '>
+                            Add/remove from ' . $this->user['firstName'] . '\'s caseload  
+                        </a>
+                ';
+
+$ptcpPurge = '<a class="minus-link" data-ptype="user" data-pid="' . $this->user['id'] . '" id="purge" href="#">
+                  Clear "concluded" from caseload. 
+              </a>
+              ';
+
+$bottomLinks = "<div class='bottom-links'> $ptcpAddMore $ptcpPurge </div>";
+
+$ptcpTab = $ptcpList . $bottomLinks;
+
+
+// Set up Forms Tab
+//if (count($this->forms) == 0) {
+//    $formList = "<h2>No forms associated with this program yet.</h2>";
+//} else {
+//    $formList = $this->formsTable('forms', $this->forms);
+//}
+//    $formAddMore = '<div class="bottom-links">
+//                        <a class="add-link" href=' . $addFormToProgUrl . '>
+//                            Add New Form to ' . $this->title . ' 
+//                        </a>
+//                    </div>';
+//if ($this->mgr) {
+//    $formTab = $formList . $formAddMore;
+//} else {
+//    $formTab = $formList;
+//}
+
+$formTab = '';
+
+
+
+
+//PASS EVERYTHING TO TABS
+
+$this->tabPane('user', $progTab, array('title' => 'Programs'));
+$this->tabPane('user', $ptcpTab, array('title' => 'Case Load'));
+
+?>
+
+<div id="content">
+    <h1 class='participantProfile float-left' id="<?php print $this->user['id'];?>">
+        Staff Profile: 
+        <span class=p-name>
+            <?php print $name; ?>
+        </span>
+    </h1>
+    
+
+<div class="inline float-right">
+    <a href="<?php print $backURL; ?>"> Back to User List</a>
+</div>
+
+<div id="content-top">
+    <span class="third shaded">
+        <strong>Departments:</strong> <?php print $this->deptName; ?>
+    </span>
+    
+    <span class="shaded">
+        <strong>Case load:</strong> 
+            <span id="record-count">
+                <?php print $ptcpCount; ?>
+            </span>
+    </span>
+        
+    
+</div>
+
+<div id="content-main">
+
+    <?php print $this->tabContainer('user'); ?>
+    
+</div>
+    
+</div> <!-- /#content -->
+
+<!-- javascript divs go here -->
+
+<div id='dialog-form' title="">
+        <?php print $this->statusForm; ?>
+    </div>
+
+<div id='dialog-confirm' title="Clear participant records?">
+    <p>
+        <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"/></span>
+        <span id="list">
+            The following records will be cleared from your caseload and returned to the program pool:
+            <ul id="deleteList">
+                
+            </ul>
+        </span>
+    </p>
+</div>

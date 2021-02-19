@@ -1,0 +1,96 @@
+<h1 class="float-left"><?php print $this->header . $this->thisProgram['name'];?></h1>
+<?php $profileUrl = $this->url(array(
+                        'controller' => 'programs',
+                        'action'     => 'profile',
+                        'id'         => $this->thisProgram['id']
+                        ));
+
+
+
+?>
+
+<div class="inline float-right">
+    <a href="<?php print $profileUrl; ?>"> Back to Program Profile </a>
+</div>
+
+<div id="content">
+    <div id="content-top">
+        <div id="helparea">
+            Drag names from one column to the other - changes are saved automatically.
+        </div>
+        <?php if ($this->job) : ?>
+        <div style="margin: -49px 10px 0 0;">    <span id="addNew" class="float-right">
+                  <button id="addJob">Add New Job</button>
+            </span>
+        </div>
+        <?php endif ; ?>
+    </div>
+    
+    <div id="content-main">
+
+        <div id="current-users" class="content-block float-left">
+                <h2>Currently associated with this program</h2>
+
+                    <span id="parentID" class="hidden">
+                    <?php print $this->thisProgram['id']; ?>
+                    </span>
+
+                    <span id="recordType" class="hidden">
+                        <?php print $this->type; ?>
+                    </span>
+
+                    <span id="parentType" class="hidden">
+                        prog
+                    </span>
+
+            <div id="filterleft"></div>  
+            <ul id="add" class="connectedSortable">      
+                <?php foreach ($this->currentRecords as $record) : ?>
+                    <li id="<?php print $record['id'];?>" class="draggable in-list ui-icon-arrowthick-2-e-w
+                        <?php if (in_array($record['id'],$this->required)) {print ' exclude';} ?>
+                        ">
+                        <?php 
+                        if (($this->type == 'user') || ($this->type == 'ptcp') || $this->type == 'volunteer') {
+                        $printName = $record['firstName'] . ' ' . $record['lastName'];
+                        } else {
+                        $printName = $record['name'];
+                        }
+                    print $printName;
+                    ?>
+                        <?php if (in_array($record['id'], $this->required)) : ?>
+                            <span class="list-manager float-right">(Not 'concluded')</span>
+                        <?php endif; ?>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+            </div>
+
+        <div id="other-users" class="content-block float-right">
+                <h2>Available:</h2>
+                <div id="filterright"></div>
+                <ul id="remove" class="connectedSortable">
+                <?php foreach ($this->addRecords as $record) : ?>
+                    <li id="<?php print $record['id'];?>" class="draggable out-list">
+                    <?php 
+                        if (($this->type == 'user') || ($this->type == 'ptcp' || $this->type == 'volunteer')) {
+                        $printName = $record['firstName'] . ' ' . $record['lastName'];
+                        } else {
+                        $printName = $record['name'];
+                        }
+                    print $printName;
+                    ?>
+                    </li>
+                <?php endforeach; ?>
+                </ul>
+            </div>
+    
+    </div><!-- end content-main -->
+    <?php if ($this->job) : ?>
+        <div id='dialog-form' title="Add a Volunteer Job">
+            <p class="validateTips"></p>
+            <?php print $this->jobForm; ?>
+        </div>
+    <?php endif; ?>
+      
+    
+</div>

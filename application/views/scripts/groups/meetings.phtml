@@ -1,0 +1,89 @@
+<?php
+//GROUPS
+$this->headLink()->prependStylesheet('../../../js/timepicker/jquery.timepicker.min.css');
+print $this->headLink();
+
+$name = $this->group['name'];
+
+$this->title = $name;
+$this->headTitle(" - $this->title");
+$backURL = $this->url(array(
+    'controller' => 'groups',
+    'action' => 'profile',
+    'id'    => $this->group['id']
+));
+
+$switchButton = '<div class="slider-button float-right">
+                    <span class="text float-left">Group Enrollment Only</span>
+                    <label class="switch">
+                        <input id="list-switch" type="checkbox" checked="yes">
+                        <span class="slider round"></span>
+                    </label>
+                </div>';
+        
+
+$ptcpTable = $this->meetingTable($this->enrolledList);
+$ptcpTab = "<div class='input-home-wrapper attendance-table'>" . $ptcpTable . "</div>";
+
+$groupVolTable = $this->meetingTableVols($this->volunteerListByGroup,"group");
+$progVolTable = $this->meetingTableVols($this->volunteerListByProg,"prog");
+$volTab = $switchButton . "<div class='input-home-wrapper attendance-table' id='group-vols'>" . $groupVolTable . "</div>";
+$volTab .= "<div class='input-home-wrapper attendance-table hidden' id='prog-vols'>" . $progVolTable . "</div>";
+
+$otherTab ='<div class="input-home-wrapper">
+            <div class="input-home float-left">' . 
+                $this->unenrolledElement 
+            . '</div><div class="input-home float-right">' . 
+                $this->volunteersElement
+            . '</div>
+        </div>
+        
+        <div class="input-home-wrapper">' . 
+            $this->notesElement . 
+        '</div>';
+
+$this->tabPane('groups', $ptcpTab, array('title' => 'Participants'));
+$this->tabPane('groups', $volTab, array('title' => 'Volunteers'));
+$this->tabPane('groups', $otherTab, array('title' => 'Guests & Notes'));
+
+?>
+<div id="progid" class="hidden" data-id="<?php print $this->progid;?>"></div>
+<div id="content">
+    <h1 class='participantProfile float-left' id="<?php print $this->group['id']; ?>">
+        Add a 
+        <span class=p-name>
+            <?php print '"' . $this->group['name'] . '"'; ?>
+        </span> Event
+    </h1>
+    
+    <div class="inline float-right">
+        <a href="<?php print $backURL; ?>"> Back to Group Profile</a>
+    </div>
+        <form id="wrapper-form">
+    <div id="content-top">
+        <div class="input-home-wrapper">
+            <div class="input-home float-left third">
+                <?php print $this->dateElement; ?>
+            </div>
+            
+            <div class="input-home float-left third">
+                <?php print $this->nameElement; ?>
+            </div>
+            
+            <div class="input-home float-right third">
+                <?php print $this->durationElement; ?>
+            </div>
+        </div>
+    </div>
+
+    <div id="content-main">
+        <div class="tabContainer">
+            <?php print $this->tabContainer('groups'); ?>
+        </div>
+    </div>
+        </form>
+    <button class="savebutton side" id="saveData">Save</button>  
+    
+</div> <!-- /#content -->
+
+<!-- javascript divs go here -->

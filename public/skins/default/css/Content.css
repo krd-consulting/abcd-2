@@ -1,0 +1,86 @@
+/*
+
+CSS for ABCD
+
+Theme: Default
+
+Copyright:
+	Copyright (c) 2011 Roman Katsnelson, Katsnelson Research & Design
+
+License:
+	Free & Libre: GNU
+
+*/
+
+/* Reset */
+
+ul,ol,dl,li,dt,dd,h1,h3,h4,h5,h6,form,body,html,p,blockquote,fieldset,input,object,iframe { 
+    margin: 0; 
+    padding: 0; 
+}
+
+a img,:link img,:visited img { 
+    border: none; 
+}
+table { 
+    border-collapse: collapse; 
+    border-spacing: 0; 
+}
+input:focus { 
+    outline: none; 
+    background: palegoldenrod;
+    box-shadow: 0 0 8px #444444;
+}
+
+/* Structure */
+
+body {
+	text-align: left;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 10pt;
+	line-height: 18px;
+	color: #333;	
+}
+
+/* Typography */
+h1 {
+    font-size: 23pt;
+    font-weight: bold;
+    padding: 8px;
+    border-bottom: solid 1px #333333;
+    margin-bottom: 5px;
+}
+
+h2 {
+	font-size: 16pt;
+	font-weight: bold;
+}
+	
+h3 {
+	font-size: 13pt;
+	font-weight: bold;
+        margin: 4px 4px 8px 1px;
+}
+
+h4 {
+	font-size: 11px;
+}
+
+a {
+	color: #096DD1;
+	cursor: pointer;
+        text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+p {
+	margin: 0;
+	padding: 0 0 9px 0;
+}
+
+.dhx_menu_icon.icon_enroll{
+  background: rgba(0, 0, 0, 0) url("../images/Add16.png") no-repeat local 0 0;
+}

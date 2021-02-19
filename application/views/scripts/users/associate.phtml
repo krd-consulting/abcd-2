@@ -1,0 +1,194 @@
+<h1 class="float-left"><?php print $this->header . $this->thisUser['firstName'] . " " . $this->thisUser['lastName'];?></h1>
+<?php $profileUrl = $this->url(array(
+                        'controller' => 'users',
+                        'action'     => 'profile',
+                        'id'         => $this->thisUser['id']
+                        ));
+
+?>
+
+
+<div class="inline float-right">
+    <a href="<?php print $profileUrl; ?>"> Back to Staff Profile </a>
+</div>
+
+<div id="content">
+    <div id="content-top">
+        <div id="helparea">
+            Drag names from one column to the other - changes are saved automatically.
+        </div>
+    </div>
+    
+    <div id="content-main">
+
+        <div id="current-users" class="content-block float-left">
+                <h2>Currently associated with this user</h2>
+
+                    <span id="parentID" class="hidden">
+                    <?php print $this->thisUser['id']; ?>
+                    </span>
+
+                    <span id="recordType" class="hidden">
+                        <?php print $this->type; ?>
+                    </span>
+
+                    <span id="parentType" class="hidden">
+                        user
+                    </span>
+
+            <div id="filterleft"></div>  
+                <?php if ($this->type != 'ptcp') : ?>
+                  <ul id="add" class="connectedSortable">      
+                    <?php foreach ($this->currentRecords as $record) : ?>
+
+                        <li id="<?php print $record['id'];?>" class="draggable in-list ui-icon-arrowthick-2-e-w
+                            <?php if (in_array($record['id'],$this->required)) {print ' exclude';} ?>
+                            ">
+                            <?php 
+                                    $printName = $record['name'];
+                                    print $printName;
+                            ?>
+                            <?php if (in_array($record['id'], $this->required)) : ?>
+                                <span class="list-manager float-right">(Not 'concluded')</span>
+                            <?php endif; ?>
+                        </li>
+                    <?php endforeach; ?>
+                  </ul>
+
+                <?php elseif ($this->type == 'ptcp') : ?>
+                    <ul id="add" class="connectedSortable">
+                        
+                    <?php foreach ($this->currentRecords as $keyID => $record) : ?>
+                        <?php 
+                            $progName = $record['name'];
+                            $progID = $keyID;
+                        ?>
+                        <h3><?php print $progName;?></h3>
+                         <?php if ($record['count'] > 0) : ?>
+                        
+                            <?php foreach ($record['ptcps'] as $ptcpRecord) : ?>
+                                <?php 
+                                    $printName = $ptcpRecord['firstName'] . " " . $ptcpRecord['lastName'];  
+                                    $required = $ptcpRecord['disableClass'];
+                                    $myStatus = $ptcpRecord['status'];    
+                                ?>
+                                <li 
+                                    id='<?php print $ptcpRecord['id'];?>' 
+                                    class="draggable in-list ui-icon-arrowthick-2-e-w 
+                                      <?php if ($required) print ' exclude'; ?>
+                                    "
+                                    data-progid='<?php print $progID;?>'
+                                > 
+                                    <?php print $printName; ?>
+                                    <span class="list-manager float-right">(
+                                        <?php print "'" . $myStatus . "' in $progName";?>
+                                    )</span>
+                                </li>
+                            <?php endforeach; ?>
+                        
+                         <?php else : ?>
+                        
+                                <span class="alert">No participants on caseload</span>
+                        
+                         <?php endif; ?>
+                        
+                    <br><br>
+
+                    <?php endforeach; ?>
+                </ul>
+                <?php endif; ?>
+            
+            </div>
+
+        <div id="other-users" class="content-block float-right">
+                <h2>Available:</h2>
+                <div id="filterright"></div>
+                
+                <?php if ($this->type != 'ptcp') : ?>
+                  <ul id="remove" class="connectedSortable">      
+                    <?php foreach ($this->addRecords as $record) : ?>
+
+                        <li id="<?php print $record['id'];?>" class="draggable in-list ui-icon-arrowthick-2-e-w
+                            <?php if (in_array($record['id'],$this->required)) {print ' exclude';} ?>
+                            ">
+                            <?php 
+                                    $printName = $record['name'];
+                                    print $printName;
+                            ?>
+                            <?php if (in_array($record['id'], $this->required)) : ?>
+                                <span class="list-manager float-right">(Not 'concluded')</span>
+                            <?php endif; ?>
+                        </li>
+                    <?php endforeach; ?>
+                  </ul>
+
+                <?php elseif ($this->type == 'ptcp') : ?>
+                    <ul id="remove" class="connectedSortable">
+                        
+                    <?php foreach ($this->addRecords as $keyID => $record) : ?>
+                        <?php 
+                            $progName = $record['name'];
+                            $progID = $keyID;
+                        ?>
+                        <h3><?php print $progName;?></h3>
+                         <?php if ($record['count'] > 0) : ?>
+                        
+                            <?php foreach ($record['ptcps'] as $ptcpRecord) : ?>
+                                <?php 
+                                    $printName = $ptcpRecord['firstName'] . " " . $ptcpRecord['lastName'];
+                                    $required = $ptcpRecord['disableClass'];
+                                        
+                                ?>
+                                <li 
+                                    id='<?php print $ptcpRecord['id'];?>' 
+                                    class='draggable in-list ui-icon-arrowthick-2-e-w
+                                     <?php if ($required) print " exclude"; ?>
+                                    '
+                                    data-progid='<?php print $progID;?>'
+                                >
+                                    <?php print $printName; ?>
+                                    
+                                    <span class="list-manager float-right">(
+                                        <?php print $progName;?>
+                                        <?php if ($required) print "(On another's caseload)"; ?>
+                                    )</span>
+                                </li>
+                            <?php endforeach; ?>
+                        
+                         <?php else : ?>
+                        
+                                <span class="alert">No available participants in program</span>
+                        
+                         <?php endif; ?>
+                        
+                    <br><br>
+
+                    <?php endforeach; ?>
+                </ul>
+                <?php endif; ?>
+            
+                
+                <?php 
+                /*
+                <ul id="remove" class="connectedSortable">
+                <?php foreach ($this->addRecords as $record) : ?>
+                    <li id="<?php print $record['id'];?>" class="draggable out-list">
+                    <?php 
+                        if (($this->type == 'user') || ($this->type == 'ptcp')) {
+                        $printName = $record['firstName'] . ' ' . $record['lastName'];
+                        } else {
+                        $printName = $record['name'];
+                        }
+                    print $printName;
+                    ?>
+                    </li>
+                <?php endforeach; ?>
+                </ul>
+                 * 
+                 */?>
+            </div>
+    
+    </div>
+      
+    
+</div>

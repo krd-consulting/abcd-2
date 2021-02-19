@@ -1,0 +1,80 @@
+<?php
+$this->title = " - Schedule Sets";
+$this->headTitle($this->title);
+?>
+
+<div id="content">
+
+  <h1 class="float-left"> Schedule Sets </h1> 
+  <div class="inline float-right">
+      Showing <span id="record-count"><?php print $this->count; ?></span> program records.
+  </div>
+
+  <div id="content-top">
+        
+        <span id="browse" class="float-left">
+            <h2>Browse</h2>
+        </span>
+        
+        <span id="searchform">
+            
+        </span>
+        
+     <?php if ($this->mgr) : ?>
+        <span id="addNew" class="float-right">
+              <button id="addSet">Add New Schedule Set</button>
+        </span>
+     <?php endif ; ?>
+</div>
+
+  <div id="content-main">
+      <?php if ($this->count == 0) :  ?>
+        <h2>You haven't created any schedule sets yet. Please add some now.</h2>
+     <?php endif; ?>
+      
+      
+    <table id="sets-table" class="p-list-table">
+            <?php 
+                $links = array('profile');
+                if ($this->mgr) {
+                    //array_push($links, 'edit');
+                    array_push($links, 'delete');
+                    
+                }
+                foreach ($this->sets as $set) {
+                    print $this->tableRow('entity', 'schedule', $set, $links);
+                }
+            ?>
+    </table>
+
+  <?php if ($this->mgr) : ?>
+    <div id="dialog-form-set" title="Add a Schedule Set">
+        <p class="validateTips"></p>
+        <?php print $this->form; ?>
+        <div id='resource-list' class = 'hidden'>
+            <h3>Adding the following resources:</h3>
+            <hr>
+            <div id='resource-list-items'>
+                
+            </div>
+        </div>
+    </div>
+    
+    <div id="dialog-form-edit" class="dialog-form" title="Edit schedule set">
+        <p class="validateTips">Please update values below.</p>
+    </div>    
+        
+        
+    <div id='dialog-confirm' title="Archive Schedule Set?">
+        <p>
+            <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"/></span>
+            <span id="list">
+                There are <span id="activenum"></span> active appointments in this schedule set.<br><br>
+                If you archive this set, you will not be able to change those appointments any longer. Appointments will remain available for reports.<br><br>
+                Are you sure?
+            </span>
+        </p>
+    </div>
+  <?php endif; ?>    
+  </div>
+</div>

@@ -1,0 +1,91 @@
+<h1 class="float-left"><?php print $this->header . $this->dept['deptName'];?></h1>
+<?php $profileUrl = $this->url(array(
+                        'controller' => 'depts',
+                        'action'     => 'profile',
+                        'id'         => $this->dept['id']
+                        ));
+?>
+
+<div class="inline float-right">
+    <a href="<?php print $profileUrl; ?>"> Back to Department Profile </a>
+</div>
+
+<div id="content">
+
+    <div id="content-top">
+        <div id="helparea">
+            Drag names from one column to the other - changes are saved automatically.
+        </div>
+    </div>
+
+    <div id="content-main">
+        <div id="current-users" class="content-block float-left">
+            <h2>Currently in this department</h2>
+
+                <span id="parentID" class="hidden">
+                <?php print $this->dept['id']; ?>
+                </span>
+
+                <span id="recordType" class="hidden">
+                    <?php print $this->type; ?>
+                </span>
+
+                <span id="parentType" class="hidden">
+                    dept
+                </span>
+        <div id="filterleft"></div>  
+        <ul id="add" class="connectedSortable">      
+            <?php foreach ($this->currentRecords as $record) : ?>
+                <li id="<?php print $record['id'];?>" class="draggable in-list ui-icon-arrowthick-2-e-w
+                    <?php if ($record['id'] == $this->manager) {print ' exclude';} ?>
+                    <?php if (in_array($record['id'],$this->requiredIDs)) {print ' exclude';} ?>
+                    ">
+                    <?php 
+                    if ($this->type == 'form') {
+                    $printName = $record['name'];
+                    } else {
+                    $printName = $record['firstName'] . " " . $record['lastName'];
+                    }
+                print $printName;
+
+                ?>
+                    <?php if ($record['id'] == $this->manager) : ?>
+                        <span class="list-manager float-right">(Manager)</span>
+                    <?php endif; ?>
+
+                    <?php if ($this->requiredIds) : ?> 
+                        <?php if (in_array($record['id'],$this->requiredIDs)) : ?>
+                        <span class="list-manager float-right">(Required)</span>
+                        <?php endif; ?>
+                    <?php endif; ?>
+
+                </li>
+            <?php endforeach; ?>
+        </ul>
+        </div>
+
+        <div id="other-users" class="content-block float-right">
+        <h2>Currently not in this department</h2>
+        <?php if (count( $this->addRecords ) == 0) : ?>
+            <h3>No other entities exist yet.</h3>
+        <?php endif; ?>
+        <div id="filterright"></div>    
+        <ul id="remove" class="connectedSortable">
+          <?php foreach ($this->addRecords as $record) : ?>
+            <li id="<?php print $record['id'];?>" class="draggable out-list">
+               <?php 
+                if ($this->type == 'form') {
+                   $printName = $record['name'];
+                } else {
+                   $printName = $record['firstName'] . " " . $record['lastName'];
+                }
+               print $printName;
+               ?>
+            </li>
+          <?php endforeach; ?>
+        </ul>
+    </div>    
+    </div>
+      
+    
+</div>

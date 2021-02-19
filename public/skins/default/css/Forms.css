@@ -1,0 +1,449 @@
+
+form { 
+  font-size: 13pt;
+}
+
+form#needsForm, .dhx_form_repeat form {
+    font-size: 9pt;
+}
+
+form dd {
+    margin-top: 3px;
+}
+
+form#login label, form#addParticipant label {    
+    width: 130px; 
+    line-height: 20pt;
+    text-align: right; 
+}
+
+form#search label {
+    margin: 0 35px 0 5px;
+} 
+
+form label {
+    text-transform: capitalize;
+    color: #555;
+    float: left;    
+}
+
+form input, input, form select, select  {
+    background: none repeat scroll 0 0 #FAFAFA;
+    border: 1px solid #999999;
+    border-radius: 0.3em 0.3em 0.3em 0.3em;
+    font: bold 1em arial,sans-serif;
+    padding: 0.15em 0.3em;
+    width: 13em;
+}
+
+input:disabled {
+    background: #eee;
+}
+
+.scheduler-span {
+    display: inline-block;
+    text-align: start;
+    width: 30%;
+}
+
+select {
+    width: auto !important;
+}
+
+form input[type='radio'], form input[type='checkbox'],
+input[type='radio'], input[type='checkbox'] {
+    border: none;
+    width: auto;
+    background: transparent;
+}
+
+form#search input.search-types {
+    background: transparent !important;
+    width: auto !important;
+    margin-right: 2px;
+}
+
+form input.abcd-submit {
+    border: none;
+    background: #00B6FF;
+    color: #fff;
+    font-size: 12pt;
+    font-family: "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif;
+    cursor: pointer;
+    padding: 5px 10px;
+    font-weight: bold;
+    border-radius: 5px;
+    text-shadow: 0 -1px 0 rgba(0,0,0,0.15);
+    box-shadow:
+        0 0 0 1px #0086ba inset, /* Outer bevel */
+        0 0 0 2px #6cdcea inset, /* Inner bevel */
+        0 30px 20px -18px rgba(255,255,255,0.65) inset, /* Inner gradient */
+        1px 1px 3px rgba(0,0,0,0.2) /* Drop shadow */
+    ;
+    width: auto;
+
+    -webkit-border-radius: 5px;
+    -webkit-text-shadow: 0 -1px 0 rgba(0,0,0,0.15);
+    -webkit-box-shadow:
+        0 0 0 1px #0086ba inset, /* Outer bevel */
+        0 0 0 2px #6cdcea inset, /* Inner bevel */
+        0 30px 20px -18px rgba(255,255,255,0.65) inset, /* Inner gradient */
+        1px 1px 3px rgba(0,0,0,0.2) /* Drop shadow */
+    ;
+}
+
+input#password {
+    font-family: Verdana;
+    letter-spacing: 2pt;
+    padding-left: 2pt;
+}
+
+input.abcd-submit#go {
+    float: right;
+}
+
+input.search-types {
+    margin-right: 4px;
+}
+
+input.dash-search {
+    font-size: 15pt;
+    width: 400px;
+    float: left;
+    margin-top: 10px;
+    padding: 3px 10px;
+    
+}
+
+dd#Go-element {
+    margin-top: -8px;
+}
+
+form#login dd {
+    text-align: center;
+    margin: 8px 0;
+}
+
+form#login dt#login-label {
+    display: none;
+}
+
+input.ui-widget-content {
+    font-size: 12pt !important;
+}
+
+p.validateTips {
+    margin-bottom: 10px;
+}
+
+#dialog-form label, .dialog-form label {
+    width: 35%;
+    text-align: right;
+    line-height: 23px;
+    padding-right: 5px;
+}
+
+input.filterinput {
+    color: #1C94C4;
+    font-size: 14pt;
+    margin: 13px 0 0 160px;
+    width: 13em;
+}
+
+
+
+div#filterright, div#filterleft {
+    margin: -10px 0 15px !important;
+}
+
+div#filterright input.filterinput, 
+div#filterleft input.filterinput, 
+div#programPtcpSearch input.filterinput, 
+div#groupVolSearch input.filterinput, 
+div#progVolSearch input.filterinput 
+{
+    font-size: 11pt !important;
+    margin: 0 0 4px 0 !important;
+    width: 15em !important;
+}
+
+div.groupfilter input.filterinput {
+    font-size: 11pt;
+    margin: 1px;
+    width: 15em;
+}
+
+form#dynamicForm {
+    font-size: 13px;
+}
+
+form#dynamicForm label {
+    width: 150px;
+    float: left;
+    text-align: right;
+    padding-right: 10px;
+    line-height: 12px;
+}
+
+form#dynamicForm label.invert {
+    text-align: left;
+    padding-left: 5px;
+    width: auto;
+}
+
+form#dynamicForm ul li {
+    list-style: none;
+    margin-bottom: 5px;
+}
+
+form#dynamicForm input[type='text'] {
+    width: 15em;
+}
+
+form#dynamicForm input[type='radio'],
+form#dynamicForm input[type='checkbox']
+{
+    float: left;
+}
+
+form#formOptions {
+    color: #777;
+    font-size: 10pt;
+}
+
+form#formOptions label {
+    display: block;
+    margin-bottom: 3px;
+    width: 250px;
+}
+
+div.external-title {
+    float: left;
+    text-align: right;
+    padding-right: 10px;
+    width: 150px;
+}
+
+
+div.radio-buttons-list, div.checkbox-list {
+    display: inline-block;
+    padding-top: 3px;
+}
+
+span.box-list {
+    display: table;
+    margin-bottom: 10px;
+}
+
+.form-radio, .form-checkbox {
+    vertical-align: middle;
+}
+
+input.timepicker {
+    width: 45pt;
+}
+
+input.timepicker.start {
+    float: left;
+}
+
+#toTime-label label {
+    width: 60pt !important;
+}
+
+form.dataEntry {
+    
+}
+
+form.dataEntry li {
+    list-style: none;
+    padding: 10px 0;
+    width: 700px;
+    margin: 4px auto;
+    background: #e3e3e3;
+    border-radius: 4px;
+    position: relative;
+    overflow-y: auto;
+}
+
+form.dataEntry label {
+    float: left;
+    width: 200px;
+    text-align: right;
+    padding-right: 5px;
+    color: #111;
+    text-transform: unset;
+}
+
+form.dataEntry label.invert {
+    float: right;
+    text-align: left;
+    padding-left: 5px;
+    width: 450px;
+}
+
+form.dataEntry div.external-title {
+    width: 200px;
+    color: #111;
+}
+
+input.numeric{
+    width: 2em;
+}
+
+span.reqtext {
+    font-size: 9px;
+    font-style: italic;
+}
+
+li.dynamicElement span.reqtext, li.skeletonElements span.reqtext {
+    float: right;
+    margin-right: 230px;
+    margin-top: 3px;
+    text-align: left;
+}
+
+li.customElement span.reqtext, form.dataEntry span.reqtext {
+    position: absolute;
+    right: 19px;
+}
+
+form#statusFilter label{
+    font-size: 11pt;
+    line-height: 24px;
+    padding-left: 3px;
+    text-align: right;
+    width: 55px;
+}
+
+form#statusFilter select{
+    font-size: 8.5pt;
+    width: 88px;
+    height: 25px;
+    margin-left: 20px;
+}
+
+span#ui-error {
+    border: 1px solid;
+    border-radius: 2px;
+    font-size: 9.5pt;
+    left: 400px;
+    padding: 2px 1px 2px 5px;
+    position: absolute;
+    top: -1px;
+    width: 137px;
+    box-shadow: 1px 1px 3px #ccc;
+}
+
+div.field-select {
+    border-top: 1px solid #777;
+    border-bottom: 1px solid #777;
+    padding: 10px 0;
+}
+
+div#report input {
+    margin: 5px;
+}
+
+.bar {
+    height: 18px;
+    background: #f6a828 url("../images/ui-bg_gloss-wave_35_f6a828_500x100.png") repeat-x scroll 50% 50%;
+    border: 1px solid #e78f08;
+    color: #ffffff;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.input-home dt, .input-home dd {
+    display: table;
+    margin: auto;
+}
+
+.input-home-dd {
+    margin: 4px 0 0 8px;
+}
+
+textarea.centred {
+    display: block;
+    margin: 0px auto;
+}
+
+.savebutton.side .ui-button-text {
+    padding: 0.23em 1.1em;
+}
+
+.savebutton.side {
+    top: 65px;
+    right: 10px;
+}
+
+ /* The switch - the box around the slider */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {display:none;}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+} 
+
+.slider-button .text {
+    line-height: 2em;
+    margin: 0 5px;
+    font-size: 13pt;
+}
+
+.slider-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}

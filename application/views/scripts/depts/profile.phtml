@@ -1,0 +1,170 @@
+<?php
+//DEPARTMENTS
+$this->title = $this->dept['deptName'];
+$this->headTitle(" - $this->title");
+$backURL = $this->url(array(
+    'controller' => 'depts',
+    'action' => 'list'
+));
+
+
+$links = array('profile');
+$users = $this->users;
+$vols = $this->vols;
+$ptcps = $this->ptcps;
+$progs = $this->progs;
+$forms = $this->forms;
+$numPtcps = count($ptcps);
+$numProgs = count($progs);
+$numGroups = $this->numGroups;
+
+
+$addUserToDeptUrl = $this->url(array(
+                               'controller'  =>'depts',
+                               'action'      =>'addmember',
+                               'type'        =>'user',
+                               'id'          => $this->dept['id']));
+
+$addVolToDeptUrl = $this->url(array(
+                               'controller'  =>'depts',
+                               'action'      =>'addmember',
+                               'type'        =>'vol',
+                               'id'          => $this->dept['id']));
+
+$addPtcpToDeptUrl = $this->url(array(
+                                'controller' => 'depts',
+                                'action'     => 'addmember',
+                                'type'       => 'ptcp',
+                                'id'         => $this->dept['id']));
+
+$addProgToDeptUrl = $this->url(array(
+                                'controller' => 'depts',
+                                'action'     => 'addmember',
+                                'type'       => 'prog',
+                                'id'         => $this->dept['id']));
+
+$addFormToDeptUrl = $this->url(array(
+                                'controller' => 'depts',
+                                'action'     => 'addmember',
+                                'type'       => 'form',
+                                'id'         => $this->dept['id']));
+
+/*
+ * Set up users
+ */
+$userList = '<table class="p-list-table">';
+foreach ($users as $user) {
+    $userList .= $this->tableRow('person','users',$user,$links);
+}
+$userList .= '</table>';
+$userAddMore = '<div class="bottom-links">
+                   <a class="add-link" href=' . $addUserToDeptUrl . '>
+                       Add New Staff to ' . $this->title . ' 
+                   </a>
+                </div>';
+$userTab = $userList . $userAddMore;
+
+/*
+ * Set up volunteers
+ */
+$volList = '<table class="p-list-table">';
+foreach ($vols as $vol) {
+    $volList .= $this->tableRow('person','volunteers',$vol,$links);
+}
+$volList .= '</table>';
+$volAddMore = '<div class="bottom-links">
+                   <a class="add-link" href=' . $addVolToDeptUrl . '>
+                       Add Volunteers to ' . $this->title . ' 
+                   </a>
+                </div>';
+$volTab = $volList . $volAddMore;
+
+/*
+ * Set up participants
+ */
+
+$ptcpList = '<table class="p-list-table">';
+foreach($ptcps as $ptcp) {
+    $ptcpList .= $this->tableRow('person','participants',$ptcp,$links);
+}
+$ptcpList .= '</table>';
+$ptcpAddMore = '<div class="bottom-links">
+                   <a class="add-link" href=' . $addPtcpToDeptUrl . '>
+                       Add Participant to ' . $this->title . ' 
+                   </a>
+                </div>';
+$ptcpTab = $ptcpList . $ptcpAddMore;
+
+/*
+ * Set up programs
+ */
+
+$progList = '<table class="p-list-table">';
+foreach($progs as $prog) {
+    $origlinks = $links;
+    $links = array_diff($links, array('deptRemove'));
+    array_push($links,'reports');
+    $progList .= $this->tableRow('entity','programs',$prog,$links);
+    $links = $origlinks;
+}
+$progList .= '</table>';
+
+$progAddMore = '<button id="addProg">Add New Program</button>';
+$progAddForm = '<div id="dialog-form"><p class="validateTips"></p>' . $this->addProgForm . '</div>';
+$progTab = $progAddForm . $progList . $progAddMore;
+
+/*
+ * Set up forms
+ */
+if (count($this->defaultForm) == 1) {
+    $this->defaultID = $this->defaultForm[0];       
+}
+
+$formList = '<table class="p-list-table">';
+array_push($links, 'setDefault');
+foreach($forms as $form) {
+    $formList .= $this->tableRow('entity','forms',$form,$links);
+}
+$formList .= '</table>';
+$formAddMore = '<div class="bottom-links">
+                   <a class="add-link" href=' . $addFormToDeptUrl . '>
+                       Add Form to ' . $this->title . ' 
+                   </a>
+                </div>';
+$formTab = $formList . $formAddMore;
+
+
+$this->tabPane('dept', $userTab, array('title' => 'Staff'));
+$this->tabPane('dept', $ptcpTab, array('title' => 'Participants'));
+$this->tabPane('dept', $volTab, array('title' => 'Volunteers'));
+$this->tabPane('dept', $progTab, array('title' => 'Programs'));
+$this->tabPane('dept', $formTab, array('title' => 'Forms'));
+
+?>
+
+    <h1 class="float-left">Department Profile: 
+        <?php print $this->dept['deptName']; ?>
+    </h1>
+
+    <div class="inline float-right">
+        <a href="<?php print $backURL; ?>"> Back to Department List</a>
+    </div>
+
+<div id="content-top">
+    <span class="third">
+        <?php print $numProgs; ?> programs
+    </span>
+    
+    <span class="third">
+        <?php print $numGroups; ?> groups
+    </span>
+    
+    <span class="third">
+        <?php print $numPtcps; ?> participants
+    </span>
+    
+</div>
+    
+<div id="content-main">
+    <?php print $this->tabContainer('dept'); ?>
+</div>

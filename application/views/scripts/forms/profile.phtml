@@ -1,0 +1,123 @@
+<?php
+$fName = $this->thisForm['name'];
+$desc  = $this->thisForm['description'];
+$id    = $this->thisForm['id'];
+
+$this->title = $fName;
+$this->headTitle(" - $this->title");
+$backURL = $this->url(array(
+    'controller' => 'forms',
+    'action' => 'list'
+));
+
+$depts = $this->depts;
+$progs = $this->progs;
+$funders = $this->funders;
+
+/*
+ * Set up Entries Tab
+ */
+$entryTab = $this->formTab($this->entries,'forms');
+
+
+/*
+ * Set up Departments Tab
+ */
+
+$associateDeptUrl = $this->url(array(
+                               'controller'  =>'forms',
+                               'action'      =>'associate',
+                               'type'        =>'dept',
+                               'id'          => $this->thisForm['id']),
+                               NULL, TRUE);
+
+$deptAssociate = '<div class="bottom-links">
+                   <a class="add-link" href=' . $associateDeptUrl . '>
+                       Add New Department to ' . $this->title . ' 
+                   </a>
+                 </div>';
+
+
+$deptTab = $this->formsTable('depts', $depts);
+if ($this->mgr) {
+ $deptTab .= $deptAssociate;
+}
+/*
+ * Set up Programs Tab
+ */
+
+$associateProgUrl = $this->url(array(
+                               'controller'  =>'forms',
+                               'action'      =>'associate',
+                               'type'        =>'prog',
+                               'id'          => $this->thisForm['id']),
+                               NULL, TRUE);
+
+$progAssociate = '<div class="bottom-links">
+                   <a class="add-link" href=' . $associateProgUrl . '>
+                       Add New Program to ' . $this->title . ' 
+                   </a>
+                 </div>';
+
+
+$progTab = $this->formsTable('progs', $progs);
+if ($this->mgr) {
+  $progTab .= $progAssociate;
+}
+/*
+ * Set up Funders Tab
+ */
+
+$associateFundUrl = $this->url(array(
+                               'controller'  =>'forms',
+                               'action'      =>'associate',
+                               'type'        =>'funder',
+                               'id'          => $this->thisForm['id']),
+                               NULL, TRUE);
+
+$fundAssociate = '<div class="bottom-links">
+                   <a class="add-link" href=' . $associateFundUrl . '>
+                       Add New Funder to ' . $this->title . ' 
+                   </a>
+                 </div>';
+
+
+$funderTab = $this->formsTable('funders', $funders);
+if ($this->mgr) {
+    $funderTab .= $fundAssociate;
+}
+/*
+ * Pass tabs to tabPane
+ */
+
+$this->tabPane('form', $deptTab, array('title' => 'Departments'));
+$this->tabPane('form', $progTab, array('title' => 'Programs'));
+$this->tabPane('form', $funderTab, array('title' => 'Funders'));
+$this->tabPane('form', $entryTab, array('title' => 'Entries'));
+
+
+?>
+
+<div id="content">
+    <h1 class='participantProfile float-left' id='<?php print $id; ?>'>
+        <?php print 'Form Profile: ' . $fName; ?>
+    </h1>
+    
+
+<div class="inline float-right">
+    <a href="<?php print $backURL; ?>"> Back to Form List</a>
+</div>
+    
+<div id="content-top">
+    <span class="third">
+        <?php print $desc; ?>
+    </span>
+</div>
+
+<div id="content-main">
+
+    <?php print $this->tabContainer('form'); ?>
+
+</div>
+    
+</div> <!-- /#content -->

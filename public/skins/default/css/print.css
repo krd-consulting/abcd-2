@@ -1,0 +1,17 @@
+div#pageWrapper {
+    margin-top: 0 !important;
+}
+
+ul.ui-tabs-nav {
+    display: none !important;
+}
+
+div#content-main {
+    height: auto !important;
+}
+
+div#topWrapper, div#desktopFooterWrapper {
+    display: none !important;
+}
+
+

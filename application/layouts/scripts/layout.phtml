@@ -1,0 +1,67 @@
+<?php
+print $this->doctype();
+print "\n";
+print '<?xml version="1.0" encoding="UTF-8" ?>';
+?>
+
+<html>
+<head>
+  <?php 
+	print $this->headTitle();
+	print $this->headMeta();
+	print $this->headScript();
+	$this->loadSkin($this->skin);
+	print $this->headLink();
+        print $this->jQuery();
+        print $this->headScript()->appendFile('/js/jquery.cookie.js');
+        print $this->headScript()->appendFile('/js/timeout/js/timeout-dialog.js');
+        print $this->headScript()->appendFile('/js/setHeight.js');
+
+        print $this->layout()->customJS;
+  ?>
+</head>
+
+<body>
+
+<div id="desktop">
+
+        <div id="topWrapper">
+                <div id="desktopTitlebarWrapper">
+                        <div id="desktopTitlebar">
+                            <div class="left"><h1 class="applicationTitle">abcd!</h1></div>
+                            <div class="center">
+                                <h2 class="tagline">A Better Community Database
+                                   <?php if ($this->agency()) : ?>
+                                       for <span class="taglineEm">
+                                              <?php print $this->agency(); ?>
+                                           </span>
+                                   <?php endif; ?>
+                                </h2>
+                            </div>
+                            <div class="right" id="topNav">
+                                <?php print $this->loggedInAs(); ?>
+                            </div>
+                        </div>
+                </div>
+
+                <div id="desktopNavbar">
+                    <?php print $this->navigation()->menu(); ?>
+                    
+                </div><!-- desktopNavbar end -->
+        </div><!-- topWrapper end -->
+
+        <div id="pageWrapper">
+                <div id="mainColumn">
+                <?php print $this->layout()->content;?>
+                </div>
+        </div>
+
+        <div id="desktopFooterWrapper">
+                <div id="desktopFooter">
+		<?php print $this->footer(); ?>
+                </div>
+        </div>
+</div><!-- desktop end -->
+
+</body>
+</html>

@@ -1,0 +1,18 @@
+<?php
+
+$this->title = 'Delete Department';
+$this->headTitle($this->title);
+
+$deptName = $this->escape($this->dept['deptName']);
+
+?>
+
+<p>Are you sure you want to delete <b> <?php print $deptName; ?> </b>?</p>
+
+<form action="<?php echo $this->url(array('action'=>'delete'));?>" method="post">
+<div>
+<input type="hidden" name="id" value="<?php print $this->dept['id'];?>">
+<input type="submit" name="del" value="Yes">
+<input type="submit" name="del" value="No">
+</div>
+</form>

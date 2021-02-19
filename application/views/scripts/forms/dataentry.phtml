@@ -1,0 +1,38 @@
+<?php
+
+$name = $this->formData['name'];
+$this->title = "$name";
+$this->headTitle(" - $this->title");
+?>
+
+<h1>
+  <?php print $name; ?>
+</h1>
+    
+<div id="content">
+<div id="content-top">
+    <span class="third">
+        
+    </span>
+    
+    <span class="third">
+        
+    </span>
+    
+    <span class="third">
+    
+    </span>  
+</div>
+
+<div id="content-main">
+
+    <?php print $this->formHTML; ?>
+    <button class="addForm">Enter</button>
+
+</div>
+   
+</div>
+
+<div id="dialog-message" class="dialog-form hidden" title="Data Entry Status">
+    <p id="msg" class="validateTips">Your data was submitted successfully.</p>
+</div>
