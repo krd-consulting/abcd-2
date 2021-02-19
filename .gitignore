@@ -4,4 +4,6 @@ data/sessions/*
 data/uploaded-files/*
 public/files/*
 scripts/img/*
+/vendor/
 *.swp
+.DS_Store
