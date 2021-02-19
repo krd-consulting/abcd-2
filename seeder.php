@@ -189,7 +189,7 @@ $program_participant = array();
 $department_participant = array();
 
 $group_participant_columns = ['participantID', 'groupID', 'enrollDate'];
-$program_participant_columns = ['participantID', 'programID', 'enrollDate', 'status', 'prevStsatus', 'statusDate'];
+$program_participant_columns = ['participantID', 'programID', 'enrollDate', 'status', 'statusDate'];
 $department_participant_columns = ['participantID', 'deptID'];
 foreach($participants as $participant) {
     $groupIndex = array_rand($groups, 1);
@@ -197,7 +197,7 @@ foreach($participants as $participant) {
     $department = $programs[$program]['deptID'];
 
     $department_participant[] = [$participant['id'], $department];
-    $program_participant[] = [$participant['id'], $program, date("Y-m-d"), 'waitlist', null, date("Y-m-d H:i:s")];
+    $program_participant[] = [$participant['id'], $program, date("Y-m-d"), 'waitlist', date("Y-m-d H:i:s")];
     $group_participant[] = [$participant['id'], $groups[$groupIndex]['id'], date("Y-m-d"), $faker->dateTimeBetween('now', '+2 months')];
 }
 $seeder->table('participantDepts')->data($department_participant, $department_participant_columns)->rowQuantity(count($department_participant));
