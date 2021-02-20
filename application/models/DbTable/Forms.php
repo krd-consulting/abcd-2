@@ -378,16 +378,16 @@ class Application_Model_DbTable_Forms extends Zend_Db_Table_Abstract
         return $result;
     }
 
-    public function getRecord ($id,$allowDisabled=FALSE) {
+    public function getRecord($id,$allowDisabled=FALSE) {
         $id = (int)$id;
         $row = $this->fetchRow('id = ' . $id);
         if (!$row) {
                throw New Exception("Could not find a form with that ID.");
         }
 
-	if (($row['enabled'] != 1) && (!$allowDisabled)) {
-		throw new exception("This form is not enabled in the system and cannot be used.");
-	}
+    	if (($row['enabled'] != 1) && (!$allowDisabled)) {
+    		throw new exception("This form is not enabled in the system and cannot be used.");
+    	}
 
         return $row->toArray();
     }

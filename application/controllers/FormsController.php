@@ -594,18 +594,12 @@ private $auth = NULL;
             $entriesSelect =  $this->db->query("SELECT * FROM " . $form['tableName']);
             $numEntries = count($entriesSelect->fetchAll());
             $form['numEntries'] = $numEntries;
-	    if ($form['enabled'] == 1) {
-            	array_push($enabledForms,$form);
-	    } else {
-		array_push($disabledForms,$form);
-	    }
+    	    if ($form['enabled'] == 1) {
+        	   array_push($enabledForms,$form);
+    	    } else {
+                array_push($disabledForms,$form);
+    	    }
         }
-//        print_r($enabledForms); die();
-//        function alphabetize($a,$b) {
-//            return strcmp($a->name,$b->name);
-//        }
-//
-//        usort($enabledForms,"alphabetize");
         
         $this->view->permittedIDs = $formsArray;//$formDB->getStaffForms();
         $this->view->forms = $enabledForms;
@@ -858,9 +852,9 @@ private $auth = NULL;
     }
     
     public function ajaxAction()                 {
-      $this->_helper->viewRenderer->setNoRender();
-	$this->getHelper('layout')->disableLayout();
-	$j = TRUE;
+        $this->_helper->viewRenderer->setNoRender();
+        $this->getHelper('layout')->disableLayout();
+        $j = TRUE;
         $task = $_POST['task'];
         
         switch ($task) {
@@ -959,7 +953,7 @@ private $auth = NULL;
                 $value = $this->_setReminder($_POST);
                 print ucfirst($value);
                 $jsonReturn = '';
-		$j = FALSE;
+                $j = FALSE;
                 break;
             
             case 'getform':
@@ -1023,7 +1017,6 @@ private $auth = NULL;
         }
                
        if ($j) $this->_helper->json($jsonReturn);
-       //print_r($jsonReturn);
     }
 
     public function addAction()                  {
