@@ -31,16 +31,17 @@ $faker = Faker\Factory::create();
 // Generate staff
 $staff = array();
 $numberOfStaff = 10;
-$usersColumns = ['userName', 'firstName', 'lastName', 'password', 'eMail', 'createdDate', 'role'];
-$staff[] = ['admin', 'Admin', 'User', md5('betterdatabase'), 'info@hellokrd.net', date("Y-m-d H:i:s"), 40];
+$usersColumns = ['id', 'userName', 'firstName', 'lastName', 'password', 'eMail', 'createdDate', 'role'];
+$staff[1] = [1, 'admin', 'Admin', 'User', md5('betterdatabase'), 'info@hellokrd.net', date("Y-m-d H:i:s"), 40];
 
 // Generate other staff
-for($i = 1; $i <= $numberOfStaff; $i++) {
+for($i = 1; $i < $numberOfStaff; $i++) {
     $firstName = $faker->firstName;
     $lastName = $faker->lastName;
     $username = strtolower($firstName . '.' . $lastName);
 
-    $staff[] = [
+    $staff[$i + 1] = [
+        'id' => $i + 1,
         'userName' => strtolower($username),
         'firstName' => $firstName,
         'lastName' => $lastName,
@@ -54,14 +55,15 @@ for($i = 1; $i <= $numberOfStaff; $i++) {
 // Generate volunteers
 $volunteers = array();
 $numberOfVolunteers = 100;
-$volunteerColumns = ['userName', 'firstName', 'lastName', 'password', 'eMail', 'createdDate', 'role'];
+$volunteerColumns = ['id', 'userName', 'firstName', 'lastName', 'password', 'eMail', 'createdDate', 'role'];
 
 for($i = 0; $i < $numberOfVolunteers; $i++) {
     $firstName = $faker->firstName;
     $lastName = $faker->lastName;
     $username = strtolower($firstName . '.' . $lastName);
 
-    $volunteers[] = [
+    $volunteers[$numberOfStaff + $i + 1] = [
+        'id' => $numberOfStaff + $i + 1,
         'userName' => strtolower($username),
         'firstName' => $firstName,
         'lastName' => $lastName,
@@ -73,6 +75,8 @@ for($i = 0; $i < $numberOfVolunteers; $i++) {
 }
 
 $users = array_merge($staff, $volunteers);
+
+var_dump($users);
 
 $seeder->table('users')->data($users, $usersColumns)->rowQuantity($numberOfStaff + $numberOfVolunteers);
 
@@ -202,8 +206,7 @@ foreach($participants as $participant) {
     $program_participant[] = [$participant['id'], $program, date("Y-m-d"), 'waitlist', date("Y-m-d H:i:s")];
     $group_participant[] = [$participant['id'], $groups[$groupIndex]['id'], date("Y-m-d"), $faker->dateTimeBetween('now', '+2 months')];
 }
-// $seeder->table('participantDepts')->data($department_participant, $department_participant_columns)->rowQuantity(count($department_participant));
-// $seeder->table('participantPrograms')->data($program_participant, $program_participant_columns)->rowQuantity(count($program_participant));
+// Set participants for the groups.
 $seeder->table('participantGroups')->data($group_participant, $group_participant_columns)->rowQuantity(count($group_participant));
 
 /**
@@ -224,9 +227,32 @@ foreach($participants as $participant) {
     $program_participant[] = [$participant['id'], $program, date("Y-m-d"), 'waitlist', date("Y-m-d H:i:s")];
 }
 
+// Add participants to programs (with and without groups) and respective departments.
 $seeder->table('participantDepts')->data($department_participant, $department_participant_columns)->rowQuantity(count($department_participant));
 $seeder->table('participantPrograms')->data($program_participant, $program_participant_columns)->rowQuantity(count($program_participant));
 
+/**
+ * Associate volunteers with groups
+ */
+$group_volunteer = array();
+$program_user = array();
+$department_user = array();
+
+$group_volunteer_columns = ['volunteerID', 'groupID', 'enrollDate'];
+$program_user_columns = ['userID', 'programID'];
+$department_user_columns = ['userID', 'deptID'];
+foreach($volunteers as $volunteer) {
+    $groupIndex = array_rand($groups, 1);
+
+    $group_volunteer[] = [$volunteer['id'], $groups[$groupIndex]['id'], date("Y-m-d"), $faker->dateTimeBetween('now', '+2 months')];
+    $program_user[] =   [$volunteer['id'], $groups[$groupIndex]['programID']];
+    $department_user[] = [$volunteer['id'], $programs[$groups[$groupIndex]['programID']]['deptID']];
+}
+
+// Set volunteers for the groups.
+$seeder->table('volunteerGroups')->data($group_volunteer, $group_volunteer_columns)->rowQuantity(count($group_volunteer));
+$seeder->table('userPrograms')->data($program_user, $program_user_columns)->rowQuantity(count($program_user));
+$seeder->table('userDepartments')->data($department_user, $department_user_columns)->rowQuantity(count($department_user));
 
 // Seed!
 $seeder->refill();
