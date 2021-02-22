@@ -98,28 +98,28 @@ $seeder->table('departments')->data($departments, $departmentColumns)->rowQuanti
 $programs = [
     1 => [
         'id' => 1, 'deptID' => $departments[1]['id'], 
-        'name' => 'Direct Counselling', 'oneToOne'],
+        'name' => 'Direct Counselling', 'type' => 'oneToOne'],
     2 => [
         'id' => 2, 'deptID' => $departments[1]['id'], 
-        'name' => 'Parenting Skills', 'group'],
+        'name' => 'Parenting Skills', 'type' => 'group'],
     3 => [
         'id' => 3, 'deptID' => $departments[1]['id'], 
-        'name' => 'Life Skills', 'group'], 
+        'name' => 'Life Skills', 'type' => 'group'], 
     4 => [
         'id' => 4, 'deptID' => $departments[2]['id'], 
-        'name' => 'Youth and Families', 'group'],
+        'name' => 'Youth and Families', 'type' => 'group'],
     5 => [
         'id' => 5, 'deptID' => $departments[2]['id'], 
-        'name' => 'Healthy Neighbourhoods', 'group'],
+        'name' => 'Healthy Neighbourhoods', 'type' => 'group'],
     6 => [
         'id' => 6, 'deptID' => $departments[2]['id'], 
-        'name' => 'Aging Well', 'group'],
+        'name' => 'Aging Well', 'type' => 'group'],
     7 => [
         'id' => 7, 'deptID' => $departments[3]['id'], 
-        'name' => 'In-home Supports', 'oneToOne'],
+        'name' => 'In-home Supports', 'type' => 'oneToOne'],
     8 => [
         'id' => 8, 'deptID' => $departments[3]['id'], 
-        'name' => 'Food Hampers', 'oneToOne'],
+        'name' => 'Food Hampers', 'type' => 'oneToOne'],
 ];
 $programColumns = ['id', 'deptID', 'name', 'volunteerType'];
 $seeder->table('programs')->data($programs, $programColumns)->rowQuantity(count($programs));
@@ -183,6 +183,8 @@ $seeder->table('groups')->data($groups, $groupColumns)->rowQuantity(count($group
 
 /**
  * Associate participants with groups
+ * Since some programs have no groups, those programs and their departments
+ * don't have participants.
  */
 $group_participant = array();
 $program_participant = array();
@@ -200,9 +202,30 @@ foreach($participants as $participant) {
     $program_participant[] = [$participant['id'], $program, date("Y-m-d"), 'waitlist', date("Y-m-d H:i:s")];
     $group_participant[] = [$participant['id'], $groups[$groupIndex]['id'], date("Y-m-d"), $faker->dateTimeBetween('now', '+2 months')];
 }
+// $seeder->table('participantDepts')->data($department_participant, $department_participant_columns)->rowQuantity(count($department_participant));
+// $seeder->table('participantPrograms')->data($program_participant, $program_participant_columns)->rowQuantity(count($program_participant));
+$seeder->table('participantGroups')->data($group_participant, $group_participant_columns)->rowQuantity(count($group_participant));
+
+/**
+ * Associate participants with programs with no groups
+ */
+$program_ids = array_keys($programs);
+$program_ids_with_groups = array_unique(array_column($groups, 'programID'));
+$program_ids_with_no_groups = array_diff($program_ids, $program_ids_with_groups); 
+
+$program_participant_columns = ['participantID', 'programID', 'enrollDate', 'status', 'statusDate'];
+$department_participant_columns = ['participantID', 'deptID'];
+foreach($participants as $participant) {
+    $index = array_rand($program_ids_with_no_groups, 1);
+    $program = $program_ids_with_no_groups[$index];
+    $department = $programs[$program]['deptID'];
+
+    $department_participant[] = [$participant['id'], $department];
+    $program_participant[] = [$participant['id'], $program, date("Y-m-d"), 'waitlist', date("Y-m-d H:i:s")];
+}
+
 $seeder->table('participantDepts')->data($department_participant, $department_participant_columns)->rowQuantity(count($department_participant));
 $seeder->table('participantPrograms')->data($program_participant, $program_participant_columns)->rowQuantity(count($program_participant));
-$seeder->table('participantGroups')->data($group_participant, $group_participant_columns)->rowQuantity(count($group_participant));
 
 
 // Seed!
