@@ -311,49 +311,47 @@ class Application_Model_DbTable_Forms extends Zend_Db_Table_Abstract
         
     }
     
-    public function addForm($id, $name,$tableName,$desc,$type,$target) 
-    {
-    $data = array(
-        'id'                => $id,
-                'name'              => $name,
-                'tableName'         => $tableName,
-                'description'       => $desc,
-                'type'              => $type,
-                'target'            => $target
+    public function addForm($id, $name,$tableName,$desc,$type,$target) {
+        $data = array(
+            'id'                => $id,
+            'name'              => $name,
+            'tableName'         => $tableName,
+            'description'       => $desc,
+            'type'              => $type,
+            'target'            => $target
         );
         
-    return $this->insert($data);
+        return $this->insert($data);
     }
 
     public function updateForm($id,$name,$tableName,$desc,$type,$target)
     {
         $data = array(
-                'id'                => $id,
-        'name'              => $name,
-                'tableName'         => $tableName,
-                'description'       => $desc,
-                'type'              => $type,
-                'target'              => $target
+            'id' => $id,
+            'name' => $name,
+            'tableName' => $tableName,
+            'description' => $desc,
+            'type' => $type,
+            'target' => $target
         );
-    $this->update($data, 'id = ' . (int)$id);
+        $this->update($data, 'id = ' . (int)$id);
     }
     
-    public function deleteForm($id)
-    {
-    $data = array(
-        'enabled' => 0
-    );
+    public function deleteForm($id) {
+        $data = array(
+            'enabled' => 0
+        );
 
-    $this->update($data, 'id = '. (int)$id);
-        $restoreRow = $this->fetchRow("id = $id")->toArray();
-    $this->delete('id = ' . (int)$id);
-    $this->insert($restoreRow);
+        $this->update($data, 'id = '. (int)$id);
+            $restoreRow = $this->fetchRow("id = $id")->toArray();
+        $this->delete('id = ' . (int)$id);
+        $this->insert($restoreRow);
 
     }
    
     public function enable($id) {
-    $data = array ('enabled' => 1);
-    return $this->update($data, "id = $id");
+        $data = array ('enabled' => 1);
+        return $this->update($data, "id = $id");
     }
  
     public function getIDs($target=FALSE,$status="enabled") {
@@ -385,9 +383,9 @@ class Application_Model_DbTable_Forms extends Zend_Db_Table_Abstract
                throw New Exception("Could not find a form with that ID.");
         }
 
-    if (($row['enabled'] != 1) && (!$allowDisabled)) {
-        throw new exception("This form is not enabled in the system and cannot be used.");
-    }
+        if (($row['enabled'] != 1) && (!$allowDisabled)) {
+            throw new exception("This form is not enabled in the system and cannot be used.");
+        }
 
         return $row->toArray();
     }
