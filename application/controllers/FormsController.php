@@ -568,12 +568,6 @@ private $auth = NULL;
                 array_push($disabledForms,$form);
             }
         }
-//        print_r($enabledForms); die();
-//        function alphabetize($a,$b) {
-//            return strcmp($a->name,$b->name);
-//        }
-//
-//        usort($enabledForms,"alphabetize");
         
         $this->view->permittedIDs = $formsArray;//$formDB->getStaffForms();
         $this->view->forms = $enabledForms;
