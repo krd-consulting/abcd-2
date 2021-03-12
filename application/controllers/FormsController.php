@@ -220,13 +220,6 @@ private $auth = NULL;
         
         if ($formTarget == 'group') {
             $verifyName = $record['name'];
-        } else if ($formTarget == 'participant') {
-            $fullName = $record['firstName'] . " " . $record['lastName'];
-            if (strlen($fullName) > 1) {
-                $verifyName = $record['liftID'] . ": " . $fullName;
-            } else {
-                $verifyName = $record['liftID'];
-            }
         } else {
             $verifyName = $record['firstName'] . " " . $record['lastName'];
         }
