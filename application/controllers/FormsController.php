@@ -550,23 +550,31 @@ private $auth = NULL;
         $formDB = new Application_Model_DbTable_Forms;
         //$forms = $formDB->fetchAll(null, 'name');
         //$formsArray = $forms->toArray();
-        $formsArray = $formDB->getStaffForms();
+        $formsArray = $formDB->getStaffForms(FALSE,"all");
         $num = count($formsArray);
         $enabledForms = array();
         $disabledForms = array();
         
+        
         //check for entries and sort disabled
         foreach ($formsArray as $formID) {
-            $form=$formDB->getRecord($formID);
+            $form=$formDB->getRecord($formID,TRUE);
             $entriesSelect =  $this->db->query("SELECT * FROM " . $form['tableName']);
             $numEntries = count($entriesSelect->fetchAll());
             $form['numEntries'] = $numEntries;
-	    if ($form['enabled'] == 1) {
-            	array_push($enabledForms,$form);
-	    } else {
-		array_push($disabledForms,$form);
-	    }
+            if ($form['enabled'] == 1) {
+                    array_push($enabledForms,$form);
+            } else {
+                array_push($disabledForms,$form);
+            }
         }
+//        print_r($enabledForms); die();
+//        function alphabetize($a,$b) {
+//            return strcmp($a->name,$b->name);
+//        }
+//
+//        usort($enabledForms,"alphabetize");
+        
         $this->view->permittedIDs = $formsArray;//$formDB->getStaffForms();
         $this->view->forms = $enabledForms;
         $this->view->dForms = $disabledForms;

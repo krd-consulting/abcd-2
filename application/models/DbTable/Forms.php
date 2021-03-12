@@ -213,12 +213,12 @@ class Application_Model_DbTable_Forms extends Zend_Db_Table_Abstract
         return $forms;
     }
     
-    public function getStaffForms($target=FALSE) {
+    public function getStaffForms($target=FALSE,$status="enabled") {
         $root = Zend_Registry::get('root');
         $eval = Zend_Registry::get('evaluator');
         $uid = Zend_Registry::get('uid');
         
-        $appropriateIDs = $this->getIDs($target);
+        $appropriateIDs = $this->getIDs($target,$status);
         
         if ($root || $eval) {
             $result = $appropriateIDs;
@@ -313,56 +313,64 @@ class Application_Model_DbTable_Forms extends Zend_Db_Table_Abstract
     
     public function addForm($id, $name,$tableName,$desc,$type,$target) 
     {
-	$data = array(
-		'id'                => $id,
+    $data = array(
+        'id'                => $id,
                 'name'              => $name,
                 'tableName'         => $tableName,
                 'description'       => $desc,
                 'type'              => $type,
                 'target'            => $target
-		);
+        );
         
-	return $this->insert($data);
+    return $this->insert($data);
     }
 
     public function updateForm($id,$name,$tableName,$desc,$type,$target)
     {
-    	$data = array(
+        $data = array(
                 'id'                => $id,
-		'name'              => $name,
+        'name'              => $name,
                 'tableName'         => $tableName,
                 'description'       => $desc,
                 'type'              => $type,
                 'target'              => $target
-		);
-	$this->update($data, 'id = ' . (int)$id);
+        );
+    $this->update($data, 'id = ' . (int)$id);
     }
     
     public function deleteForm($id)
     {
-	$data = array(
-		'enabled' => 0
-	);
+    $data = array(
+        'enabled' => 0
+    );
 
-	$this->update($data, 'id = '. (int)$id);
+    $this->update($data, 'id = '. (int)$id);
         $restoreRow = $this->fetchRow("id = $id")->toArray();
-	$this->delete('id = ' . (int)$id);
-	$this->insert($restoreRow);
+    $this->delete('id = ' . (int)$id);
+    $this->insert($restoreRow);
 
     }
    
     public function enable($id) {
-	$data = array ('enabled' => 1);
-	return $this->update($data, "id = $id");
+    $data = array ('enabled' => 1);
+    return $this->update($data, "id = $id");
     }
  
-    public function getIDs($target=FALSE) {
-        $condition = "enabled = 1";
+    public function getIDs($target=FALSE,$status="enabled") {
+        switch ($status) {
+            case 'enabled': $condition = "enabled = 1"; break;
+            case 'disabled': $condition = "enabled = 0"; break;
+            case 'all' : $condition = "enabled in (0,1)"; break;
+            default: throw new Exception("Unintelligible form status $status passed to Model_Forms->getIDs"); 
+        }
+        
+        
         if ($target) {
             $condition .= " AND target = '$target'";
         }
         
-        $row = $this->fetchAll($condition);
+        $row = $this->fetchAll($condition,"name ASC");
+        
         $result = array();
         foreach ($row as $formRecord) {
             array_push($result, $formRecord['id']);
@@ -370,16 +378,16 @@ class Application_Model_DbTable_Forms extends Zend_Db_Table_Abstract
         return $result;
     }
 
-    public function getRecord ($id) {
+    public function getRecord ($id,$allowDisabled=FALSE) {
         $id = (int)$id;
         $row = $this->fetchRow('id = ' . $id);
         if (!$row) {
                throw New Exception("Could not find a form with that ID.");
         }
 
-	if ($row['enabled'] != 1) {
-		throw new exception("This form is not enabled in the system and cannot be used.");
-	}
+    if (($row['enabled'] != 1) && (!$allowDisabled)) {
+        throw new exception("This form is not enabled in the system and cannot be used.");
+    }
 
         return $row->toArray();
     }
