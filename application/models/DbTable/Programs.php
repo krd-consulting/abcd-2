@@ -5,15 +5,6 @@ class Application_Model_DbTable_Programs extends Zend_Db_Table_Abstract
 
     protected $_name = 'programs';
 
-    public function programAllowed($userID,$programID) {
-        $list = $this->getStaffPrograms($userID);
-        if (in_array($programID,$list)) { 
-            return TRUE; 
-        } else {
-            return FALSE;
-        }
-    }
-    
     public function getStaffPrograms($userID) {
         $root = Zend_Registry::get('root');
         $evaluator = Zend_Registry::get('evaluator');
@@ -77,22 +68,20 @@ class Application_Model_DbTable_Programs extends Zend_Db_Table_Abstract
         return $result->toArray();
     }
     
-    public function addProg($name,$deptID,$volType) 
+    public function addProg($name,$deptID) 
     {
 	$data = array(
 		'name' => $name,
-                'deptID' => $deptID,
-                'volunteerType' => $volType
+                'deptID' => $deptID
 		);
 	return $this->insert($data);
     }
 
-    public function updateProg($id,$name,$deptID,$volType)
+    public function updateProg($id,$name,$deptID)
     {
     	$data = array(
 		'name' => $name,
-                'deptID' => $deptID,
-                'volunteerType' => $volType
+                'deptID' => $deptID
 		);
 	$this->update($data, 'id = ' . (int)$id);
     }

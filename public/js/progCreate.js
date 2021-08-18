@@ -2,7 +2,6 @@ $(function() {
 		
             var name        =   $( "#pname" ),
                 dept        =   $( "#deptField"),
-                voltype     =   $( "#voltype"),
                 tips        =   $( ".validateTips" );
 
 
@@ -56,11 +55,13 @@ $(function() {
                 );             
             }
             
-            function checkDuplicate() {
+            function checkDuplicate(n,d) {
+                var name = n.val();
+                var dept = d.val();
                 
                 $.get(
                       "/programs/add",
-                      {name: name.val(), voltype: voltype.val(), dept: dept.val()},
+                      {name: name, dept: dept},
                       function(data){
                           if (data.success == 'yes') {
                              $(this).parent().dialog( "close" );
@@ -79,7 +80,7 @@ $(function() {
             $( "#dialog-form" ).dialog({
                     autoOpen: false,
                     height: 290,
-                    width: 500,
+                    width: 400,
                     modal: true,
                     buttons: {
                             "Create It!": function() {

@@ -26,14 +26,16 @@ class Zend_View_Helper_FormTab extends Zend_View_Helper_Abstract {
                                     $targetName = $ptcpTable->getName($targetID);
                                     $displayName = $targetName;
                                     break;
-            case 'volunteer':
             case 'staff' :          $staffTable = new Application_Model_DbTable_Users;
                                     $targetName = $staffTable->getName($targetID);
                                     $displayName = $targetName;
-                                    //**CCECA Customization**//
-                                    if ($formID == '12') {
+                                    
+                                    //WILL FIX LATER WHEN ENTITIES ARE ADDED
+                                    if ($formID == 13) {
                                         $displayName = $myData['field_1'];
                                     }
+                                    
+                                    
                                     break;
             case 'group' :          $groupTable = new Application_Model_DbTable_Groups;
                                     $targetName = $groupTable->getName($targetID);
@@ -43,11 +45,13 @@ class Zend_View_Helper_FormTab extends Zend_View_Helper_Abstract {
         }                    
 
         //set identifier type
-        if ($source == 'ptcp' || $source == 'volunteer') {
+        if ($source == 'ptcp') {
             $identifier = $record['responseDate'];
         } elseif ($source == 'forms') {
             $identifier = $displayName;
         }
+        
+        
         
         //build row
         $divMeat = "<span class='date'><a href='#' class='toggleRecord'>" . $identifier . "</a></span>";
@@ -62,7 +66,6 @@ class Zend_View_Helper_FormTab extends Zend_View_Helper_Abstract {
             
             if (($type == 'singleuse') && ($fcssID == NULL)) {
                     $divMeat .= "<button class='editLatest' data-formid='$formID' data-entryid='$id' data-userid='$targetID' data-username='$targetName'>Edit Data</button>";
-                    $divMeat .= "<button class='deleteDynamicForm' data-formid='$formID' data-entryid='$id' data-userid='$targetID' data-username='$targetName'>Delete Record</button>";
                 }
               
                 
@@ -87,7 +90,7 @@ class Zend_View_Helper_FormTab extends Zend_View_Helper_Abstract {
                 $v = nl2br($v);
                 
                 //fix encoding wackiness
-                //$v = ABCD_Encoding::filterTextOther($v);
+                $v = ABCD_Encoding::filterTextOther($v);
                 
                 $contentLineTitle = "<span class='title'>$printName</span>\n";
                 $contentLineValue = "<span class='value' id='$k'>$v</span>\n";
@@ -101,7 +104,6 @@ class Zend_View_Helper_FormTab extends Zend_View_Helper_Abstract {
         $divMeat .= "</div><!-- .content-data -->"; 
                 
         $tr = $trTop . $tdTop . $divMeat . $tdBottom . $trBottom;
-        
         return $tr;
     }
     
@@ -120,7 +122,6 @@ class Zend_View_Helper_FormTab extends Zend_View_Helper_Abstract {
         $trans_tbl[chr(142)] = '&eacute;';
        
         return strtr ($string, $trans_tbl);
-        //return $string;
     } 
     
     protected function _processEditedForms($dataArray) {
@@ -139,10 +140,12 @@ class Zend_View_Helper_FormTab extends Zend_View_Helper_Abstract {
     
     $trArray = NULL;
     
-    if ($source == 'ptcp' || $source == 'volunteer') {
+    if ($source == 'ptcp') {
         $tableHeader = 'Form Name';
+        $buttonClass = 'addRecord';
     } else {
         $tableHeader = 'Department';
+        $buttonClass = 'addRecordForm';
     }
     
     $tableTopWrapper    = "<table class='formsTable' id='forms'>";
@@ -167,7 +170,7 @@ class Zend_View_Helper_FormTab extends Zend_View_Helper_Abstract {
         } else {
             $numEntries = 0;
         }
-        $addEntry = "<button data-path='/forms/dataentry/id/$id' class='addRecord'>Add Entry</button>";
+        $addEntry = "<button data-path='/forms/dataentry/id/$id' class='$buttonClass'>Add Entry</button>";
 
         if ($numEntries > 0) {
                 $mostRecentRow = reset($rowData['data']);
@@ -176,7 +179,6 @@ class Zend_View_Helper_FormTab extends Zend_View_Helper_Abstract {
                 $trArray = array();
                 foreach ($validEntries as $record) {
                     $tr2 = $this->_dataTR($record,$id,$type,$source);
-                    if ($source == 'volunteer') {print ("<div class='hidden'>$tr2</div>");} //WITHOUT THIS, CHINESE ENCODING GETS WACKY.
                     array_push($trArray, $tr2);
                 }
         } else {

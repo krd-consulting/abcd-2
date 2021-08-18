@@ -13,7 +13,7 @@ $desc=array (
 );
 $up=-100;
 $ut=50;
-$ttffile='/var/www/abcd/cceca-new/scripts/MPDF57/ttfonts/ocrb10.ttf';
+$ttffile='/var/www/abcd/escc/scripts/MPDF57/ttfonts/ocrb10.ttf';
 $TTCfontID='0';
 $originalsize=23112;
 $sip=false;

@@ -3,24 +3,6 @@ jQuery.event.add(window, "load", tabSelect);
 jQuery.event.add(window, "resize", resizeHeight);
 jQuery.event.add(window, "load", checkBrowser);
 
-if (window.location.pathname != "/auth") {
- jQuery.event.add(window, "load", showTimeOut);
-}
-
-function showTimeOut() {
-    $.timeoutDialog(
-            {
-                'timeout': 3600, //60 minutes
-                'countdown': 300,
-                'title': "Auto-Logout Warning",
-                'question': "Please click below to renew your session.",
-                'keep_alive_button_text': "Renew",
-                'sign_out_button_text': "Log out",
-                'keep_alive_url': "/ajax/sessionrenew",
-                'logout_url': "/auth/logout",
-                'logout_redirect_url': "/auth/logout?q=timeout"
-            });
-}
 
 function resizeHeight() {
 var fullHeight = $(window).height();

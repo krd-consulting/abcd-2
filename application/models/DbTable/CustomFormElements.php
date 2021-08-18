@@ -31,7 +31,6 @@ class Application_Model_DbTable_CustomFormElements extends Zend_Db_Table_Abstrac
     }
     
     public function getElementName($eID,$fID) {
-        //die ("Getting ElementID $eID, formID $fID");
         $element = $this->fetchRow("elementID = '$eID' and formID = $fID")->toArray();
         return $element['elementName'];
     }
@@ -46,7 +45,7 @@ class Application_Model_DbTable_CustomFormElements extends Zend_Db_Table_Abstrac
         }
     }
     
-    public function addElement($id,$formID,$name,$type,$options=array(),$schedulerID='') 
+    public function addElement($id,$formID,$name,$type,$options=array()) 
     {
         $optionString = json_encode($options, JSON_FORCE_OBJECT);
         
@@ -55,8 +54,7 @@ class Application_Model_DbTable_CustomFormElements extends Zend_Db_Table_Abstrac
                 'formID'            => $formID,
                 'elementName'       => $name,
                 'elType'            => $type,
-                'options'           => $optionString,
-                'schedulerID'       => $schedulerID
+                'options'           => $optionString        
 		);
         
 	$this->insert($data);        

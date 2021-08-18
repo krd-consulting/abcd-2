@@ -2,7 +2,7 @@
 $this->title = " - Custom Report Generator";
 $this->headTitle($this->title);
 
-$filterTab = $this->filterForm . "<div id='fieldList' class='hidden'></div>"; 
+$filterTab = /*"<p>Use Department Filter<p><div id='deptFilterDrag'></div>" . */$this->filterForm . "<div id='fieldList' class='hidden'></div>"; 
 $dataTab   = $this->dataForm . "<div id='dataFieldList' class='hidden'></div>";
 $reportTab = $this->reportTab();
 
@@ -22,6 +22,7 @@ $this->tabPane('options',$reportTab,array('title' => 'Go'));
     <div id="canvas">
         <div id="top" class="scrollable">
             <h3>Filters to use</h3>
+            <div id="deptSelector"><input type="checkbox"> Filter by Department</input></div>
             <ul id="filterList" class="connectedFilter connectedSortable">
                 
             </ul>

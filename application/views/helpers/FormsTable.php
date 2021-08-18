@@ -69,7 +69,9 @@ class Zend_View_Helper_FormsTable extends Zend_View_Helper_Abstract {
         
     $requiredCell = "<td>
                         <span>
-                           <input type='checkbox' class='isRequired $disableClass' name='isRequired' $requireCheck value='yes'/>
+                           
+                             <input type='checkbox' class='isRequired $disableClass' name='isRequired' $requireCheck value='yes'/>
+                           
                         </span>
                      </td>";
     

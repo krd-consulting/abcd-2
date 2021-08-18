@@ -5,6 +5,53 @@ $(function() {
     
     var filterType = $("#filterForm").data('filtertype');
     
+    var deptsOn = false;
+    
+    function toggleDepts() {
+        if (deptsOn) {
+            $("#deptList").remove();
+            deptsOn = false;
+            //enableTab();
+        } else {   
+            $.post (
+                "/ajax/getuserdepts",
+                function(data) {
+                    deptFilterLiOpen = "<li id=deptList class=draggable ";
+                    dataOptions = '"{';
+                    
+                    //$.each(data.deptlist, function(index,department) {
+                    //    dataOptions = dataOptions + "'" + department.id + "':'" + department.deptName + "',";
+                    //});
+                    //dataOptions = dataOptions.slice(0,-1);
+                    dataOptions += '}"';
+                    
+                    deptFilterLiOpen = deptFilterLiOpen + "data-options=" + dataOptions + ' data-type="checkbox" data-formname="DPTSELECT" data-formid="999" data-elementid="999" style="">';
+                    
+                    deptFilterSpan = "<span class='filterName'>Department</span>";
+                    deptFilterIncludeSelector = '<select class="middleSelect" \n\
+                                                        id="999_field_999-selector" data-type="checkbox">\n\
+                                                <option value="includes">includes</option>\n\
+                                                <option value="excludes">excludes</option>\n\
+                                          </select>';
+                    deptFilterSelector = '<select id="999_field_999" multiple="" data-formid="999" data-fieldid="field_999"></select>';
+                    deptFilterLiClose = "</li>";
+                    
+                    deptFilter = deptFilterLiOpen + deptFilterSpan + deptFilterIncludeSelector + deptFilterSelector + deptFilterLiClose;
+                    $("ul#filterList").prepend(deptFilter);
+                    
+                    $.each(data.deptlist, function(index,department) {
+                        $("#999_field_999").append('<option value="' + department.id + '">' + department.deptName + '</option>');
+
+                    });
+                    //enableTab();
+                }
+                );
+                
+            deptsOn = true;
+        }
+        
+    }
+    
     function enableTab() {
         var numFilters = $("#filterList li").length;
         var numFields = $("#dataList li").length;
@@ -625,5 +672,9 @@ $(function() {
                        .click(function(){
                           buildReport(); 
                        });
+                       
+    $("#deptSelector input").change(function() {
+        toggleDepts();
+    })
     
 }); 

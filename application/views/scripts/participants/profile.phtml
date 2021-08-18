@@ -1,5 +1,4 @@
 <?php
-//PARTICIPANTS
 $pName = $this->participant['firstName'] . ' ' . $this->participant['lastName'];
 $this->pName = $pName;
 
@@ -19,6 +18,12 @@ $addPtcpToProgUrl = $this->url(array(
                                'type'        =>'program',
                                'id'          => $ptcp['id']));
 
+$addPtcpToDeptUrl = $this->url(array(
+                               'controller' => 'participants',
+                               'action'     => 'associate',
+                               'type'       => 'dept',
+                               'id'         => $ptcp['id']
+));
 
 
 // List of departments for header
@@ -30,9 +35,8 @@ $deptList = implode(', ', $deptNames);
 
 $alertsDiv = $this->block('alerts', $ptcp['id']);
 $notesDiv = $this->block('activities', $ptcp['id']);
-$filesDiv = $this->block('files', $ptcp['id']);
 
-$sumtab = $alertsDiv . $notesDiv . $filesDiv;
+$sumtab = $alertsDiv . $notesDiv;
 
 $this->tabPane('ptcp', $sumtab, array('title' => 'Summary'));
 
@@ -47,6 +51,20 @@ $dob = date('F d, Y', strtotime($ptcp['dateOfBirth']));
 $age = $ptcp['age'] . " y.o.";
 $doc = date('F d, Y', strtotime($ptcp['createdOn']));
 
+//set up departments tab
+
+$deptTabList = '<table class="p-list-table">';
+foreach ($this->partDepts as $partDept) {
+    $deptTabList .= $this->tableRow('entity','depts',$partDept,'');
+    //$deptTabList .= "<tr><td>" . $partDept['deptName'] . "</td></tr>";
+}
+$deptTabList .= '</table>';
+$deptAddMore = '<div class="bottom-links">
+                   <a class="add-link" href=' . $addPtcpToDeptUrl . '>
+                       Manage departments for ' . $this->title . ' 
+                   </a>
+                </div>';
+$deptTab = $deptTabList . $deptAddMore;
 
 
 //set up programs tab
@@ -72,6 +90,7 @@ $formTab = $this->formTab($this->forms);
 
 $this->tabPane('ptcp', $progTab, array('title' => 'Programs'));
 $this->tabPane('ptcp', $groupTab, array('title' => 'Groups'));
+$this->tabPane('ptcp', $deptTab, array('title' => 'Departments'));
 $this->tabPane('ptcp', $formTab, array('title' => 'Forms'));
 ?>
 
@@ -99,8 +118,7 @@ $this->tabPane('ptcp', $formTab, array('title' => 'Forms'));
     </span>
     
     <?php if ($ptcp['createdOn']) : ?>
-    <!--<span style="min-width: 0 !important; margin-right: 5px" class="third shaded float-right">-->
-    <span class="third shaded">
+    <span style="min-width: 0 !important; margin-right: 5px" class="third shaded float-right">
         <strong>Since:</strong> <?php print $doc; ?>
     </span>
     <?php endif; ?>
@@ -138,37 +156,6 @@ $this->tabPane('ptcp', $formTab, array('title' => 'Forms'));
 <div id="addAct-dialog" title="Add a one-on-one activity">
     <p class=".validateTips">Please fill out all fields</p>
     <?php print $this->activityForm; ?>
-</div>
-
-<div id="uploadFile-dialog" title="Upload an attachment">
-    <p class=".validateTips">Please choose attachment to upload.</p>
-    
-    
-    <form id="uploadFileForm" enctype="multipart/form-data" class="dialog-form" method="post" action="">
-        <dl class="zend_form">
-           <dt id="targetType-label">&#160;</dt>
-           <dd id="targetType-element">
-               <input type="hidden" name="targetType" value="ptcp" id="targetType" />
-           </dd>
-           <dt id="targetID-label">&#160;</dt>
-            <dd id="targetID-element">
-                <input type="hidden" name="targetID" value="<?php print $ptcp["id"]?>" id="targetID" />
-            </dd>
-<!--           <dt id="fileDescription-label"><label for="fileDescription" class="optional">Description</label></dt>
-            <dd id="fileDescription-element">
-                <input type="text" name="fileDescription" id="fileDescription" value="" />
-            </dd>-->
-           <dt id="fileupload-label"><label for="fileupload" class="optional">Select File</label></dt>
-            <dd>
-                <input type="file" name="files[]" id="fileupload" data-url="/ajax/uploadFile" />
-            </dd>
-        </dl>
-    </form>
-    
-    <div id="progress">
-        <div class="bar" style="width: 0%;"></div>
-    </div>
-   
 </div>
 
 </div> <!-- /#content -->

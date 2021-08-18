@@ -7,18 +7,17 @@ class DashController extends Zend_Controller_Action
     private $root = FALSE;
     private $mgr = FALSE;
     private $evaluator = FALSE;
-    private $volunteer = FALSE;
     private $role = NULL;
+    private $referringFormID = NULL;
     
     public function init()
     {
         $this->auth = Zend_Auth::getInstance();
-        $this->uid = Zend_Registry::get('uid');
-        $this->root = Zend_Registry::get('root');
-        $this->mgr = Zend_Registry::get('mgr');
-        $this->evaluator = Zend_Registry::get('evaluator');
-        $this->volunteer = Zend_Registry::get('volunteer');
-        $this->role = Zend_Registry::get('role');
+        $this->uid = $this->auth->getIdentity()->id;
+        $this->role = $this->auth->getIdentity()->role;
+        if ($this->role == 4) {$this->root = TRUE; $this->mgr = TRUE;};
+        if ($this->role == 3) {$this->mgr = TRUE;};
+        if ($this->role == 1) {$this->evaluator = TRUE;};
     }
 
     protected function _process($values) {
@@ -27,10 +26,9 @@ class DashController extends Zend_Controller_Action
         
         switch ($type) {
             case 'participant' : $model = new Application_Model_DbTable_Participants; $controller = 'participants'; break;
-            case 'volunteer' : $model = new Application_Model_DbTable_Users; $controller = 'volunteers'; break;
             case 'group' : $model = new Application_Model_DbTable_Groups; $controller = 'groups'; break;
             case 'staff' : $model = new Application_Model_DbTable_Users; $controller = 'users'; break;
-            default: throw new Exception("QuickSearch only works with participants, volunteers, groups or staff.");      
+            default: throw new Exception("QuickSearch only works with participants, groups or staff.");      
         }
         
         $result = $model->search($key);
@@ -63,12 +61,8 @@ class DashController extends Zend_Controller_Action
         } else {
             if ($this->evaluator) {
                 $this->_helper->redirector('index','reports');
-            } elseif ($this->volunteer) {
-                $this->_helper->redirector('index','my');
-            } else {
-                $this->showDash();
             }
-            //print_r($this->role);
+            $this->showDash();
         }
     }    
     public function showDash() 
@@ -84,6 +78,23 @@ class DashController extends Zend_Controller_Action
              
     }
 
+    private function _filterFormPermissions($data,$formID) {
+        $formDeptTable = new Application_Model_DbTable_DeptForms;
+        $ptcpDeptTable = new Application_Model_DbTable_ParticipantDepts;
+        $goodData = array();
+        
+        $deptList = $formDeptTable->getList('depts',$formID);
+        foreach ($data as $ptcpRec) {
+            $ptcpID = $ptcpRec['id'];
+            $ptcpDepts = $ptcpDeptTable->getList('depts',$ptcpID);
+            if (count(array_intersect($deptList,$ptcpDepts)) > 0) {
+                array_push($goodData,$ptcpRec);
+            }
+        }
+        
+        return $goodData;
+    }
+    
     private function _getReferenceResults($table,$field) {
         $db = $this->getInvokeArg('bootstrap')->getResource('db');
         $agency = $db->query("SELECT value from customValues where descriptor='agency'")->fetchAll();
@@ -104,6 +115,11 @@ class DashController extends Zend_Controller_Action
             $selectQuery = "SELECT DISTINCT $field,enteredBy FROM $table WHERE $field IS NOT NULL AND enteredBy = $myID";
         }
         
+        $selectQuery .= " AND doNotDisplay = 0";
+        
+        if ($table == 'form_13' && $this->referringFormID == '18') {
+             $selectQuery .= " AND field_24 = 'Active' ";
+        }
         $query = $db->query($selectQuery);
         
         return ($query);
@@ -113,9 +129,7 @@ class DashController extends Zend_Controller_Action
     {
      $this->filter = $_GET['term'];
      $type = $_GET['type'];
-     $vtype = $_GET['vtype'];
      $db = $this->getInvokeArg('bootstrap')->getResource('db');
-     $addOnSql = '';
      
      $sourceIsForm = FALSE;
      $extraSelect = "";
@@ -128,12 +142,8 @@ class DashController extends Zend_Controller_Action
          $s = explode("/",$referer);
          $formID = $s[6];
          $extraFrom = ", deptForms df ";
-         $extraWhere = "AND pd.deptID = df.deptID AND df.formID = $formID ";
-     }
-     
-     
-     if ($type == NULL && $vtype != NULL) {
-         $type = $vtype;
+         $extraWhere = "AND pd.deptID = df.deptID AND df.formID = $formID "; 
+         $this->referringFormID = $formID;
      }
      
      switch ($type) {
@@ -150,7 +160,7 @@ class DashController extends Zend_Controller_Action
              
              break;
          
-         case 'ptcp' : case 'participant' : 
+         case 'participant' : 
              $minSelect = 'SELECT firstName, lastName, id, dateOfBirth ';
              $select = $minSelect . $extraSelect;
              
@@ -173,38 +183,19 @@ class DashController extends Zend_Controller_Action
              } else {
                 $select = $db->query($queryText);
              }
+             
              break;
              
          case 'group' : 
-             if (array_key_exists("progid",$_GET)) {
-                 $progID = $_GET['progid'];
-                 $addOnSql = 'g.programID = ' . $progID . ' AND ';
-             } else {
-                 $progID = 0;
-                 $addOnSql = "";
-             }
-         
+             $select = $db->query('SELECT name,id FROM
+                                   groups, userPrograms WHERE
+                                   groups.programID = userPrograms.programID AND
+                                   userPrograms.userID = ' . $this->uid);
              if ($this->root) {
-                 $selectSQL = "SELECT g.name, g.id FROM groups as g WHERE ";
-                 $permSQL = "1";
-             } elseif ($this>-mgr) {
-                 $selectSQL = "SELECT g.name, g.id FROM groups as g, programs as p, userDepartments as uD WHERE ";
-                 $permSQL = 'g.programID = p.id' .
-                            ' AND p.deptID = uD.deptID' .
-                            ' AND uD.userID = ' . $this->uid;
-                 
-             } else {
-                 $selectSQL = "SELECT g.name, g.id FROM groups as g, userPrograms as uP WHERE ";
-                 $permSQL = 'g.programID = uP.programID AND uP.userID = ' . $this->uid;
+                 $select = $db->query('SELECT name, id from groups');
              }
-             
-             $select = $db->query($selectSQL . $addOnSql . $permSQL);
-             //throw new exception("Query: $select");
              break; 
          
-         case 'vol': case 'volunteer' :
-             $addOnSql = " AND `users`.`role`='15'";
-             //no break! fallthrough to staff loop. 
          case 'staff' : 
              $sqlText = "SELECT firstName, lastName, id, eMail 
                          FROM users 
@@ -224,43 +215,23 @@ class DashController extends Zend_Controller_Action
              }
              
              if ($this->root) {
-                 $sqlText = "SELECT firstName, lastName, id, eMail FROM users WHERE `lock`=0";
+                 $sqlText = "SELECT firstName, lastName, id, eMail FROM users";
              }
-             
-             if ($type != 'volunteer') {
-                 $addOnSql = " AND `users`.`role` != '15'";
-             }
-             
-             $fullSql = $sqlText . $addOnSql;
-             
-             //throw new exception ("$fullSql");
-             
-             $select = $db->query($fullSql);
+             $select = $db->query($sqlText);
              break;
          
          case 'community' :
              $select = $db->query('SELECT id, name, quadrant from communities');
              break;
          
-            
-         
          default: throw new Exception('QuickSearch only works with participants, groups, and users.');
      }
-     //in Calendar / Resource adding, only use Volunteers and Staff from appropriate program
-        $sourceIsCalendar = FALSE;
-        $referer = $_SERVER['HTTP_REFERER'];
-        if (strpos($referer, "programs/calendar") == TRUE) {
-            $sourceIsCalendar = TRUE;
-            $s = explode("/",$referer);
-            $calProgID = $s[6];
-            $progStaffTable = new Application_Model_DbTable_UserPrograms;
-            $programRecords = $progStaffTable->getList('users',$calProgID);
-            //print_r($programRecords);
-        }
-     
-     
-     
+
      $rawValues = $select->fetchAll();
+     
+//     if ($sourceIsForm) {
+//         $rawValues = $this->_filterFormPermissions($rawValues,$formID);
+//     }
      
      //Format for JSON
      $values = array();
@@ -269,12 +240,7 @@ class DashController extends Zend_Controller_Action
      $extraTail = "</span>";
 
      foreach ($rawValues as $rawValue) {
-         $userID = $rawValue['id'];
-         if ($sourceIsCalendar && !in_array($userID,$programRecords)) {
-             continue;
-            }
-            
-         if ($type == 'participant' || $type == 'staff' || $type == 'volunteer') {
+         if ($type == 'participant' || $type == 'staff') {
             $values[$i]['label'] = $rawValue['firstName'] . ' ' . $rawValue['lastName'];
          } else if ($type == 'reference') {
              $values[$i]['label'] = $rawValue[$field];
@@ -290,7 +256,6 @@ class DashController extends Zend_Controller_Action
          
 	 if ($type == 'participant') {$extra = "Date of Birth: " . $rawValue['dateOfBirth'];}
 	 if ($type == 'staff') {$extra = "Email: " . $rawValue['eMail'];}
-	 if ($type == 'volunteer') {$extra = "Phone: " . $rawValue['eMail'];}
 	 if ($type == 'community') {$extra = ucfirst($rawValue['quadrant']);}
          if ($type == 'group' || $type == 'reference') {$extra = '';}
         
@@ -313,9 +278,8 @@ class DashController extends Zend_Controller_Action
 	$matchValues[0]['extra']='';
      }
 
-    
-    
-    
+     
+     
      //Return to browser
      $this->_helper->json(array_values($matchValues));
     }

@@ -56,10 +56,5 @@ $("span.dbUpdate").not(".disabled")
                   
                   );
                   })
-                  
-                  $("#Cal").button()
-                            .click(function() {
-                            window.location = "/programs/calendar/id/" + $(this).data('id');
-                    });
 
 })

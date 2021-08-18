@@ -74,15 +74,7 @@ class Zend_View_Helper_PtcpTable extends Zend_View_Helper_Abstract {
             $disableClass = '';
             $linkClass = 'ptcpStatus';
             $smallText = "<span class='ac-extra'>Enrolled on $enrolledSince </span>";
-            //$sinceText = "<span class='ac-extra'>Since $statusDate </span>";
-            
-            if (array_key_exists('statusProg',$rowData)) {
-                $sinceText =  "<span class='ac-extra'>" . $rowData['statusProg'] . ", since ". $statusDate . "</span>";
-            } else {
-                $sinceText = "<span class='ac-extra'> Since " . $statusDate . "</span";
-            }
-           
-            
+            $sinceText = "<span class='ac-extra'>Since $statusDate </span>";
         }
         $status = ucfirst($status);
         if ($statusNote == '') {

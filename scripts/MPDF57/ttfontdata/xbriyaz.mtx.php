@@ -13,7 +13,7 @@ $desc=array (
 );
 $up=-278;
 $ut=29;
-$ttffile='/var/www/abcd/cceca-new/scripts/MPDF57/ttfonts/XB Riyaz.ttf';
+$ttffile='/var/www/abcd/escc/scripts/MPDF57/ttfonts/XB Riyaz.ttf';
 $TTCfontID='0';
 $originalsize=1144764;
 $sip=false;

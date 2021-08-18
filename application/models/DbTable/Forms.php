@@ -14,28 +14,6 @@ class Application_Model_DbTable_Forms extends Zend_Db_Table_Abstract
         return $orig;
     }
     
-    protected function _getVolFormData($volID,$requiredOnly = 0) {
-        $forms = array();
-        
-        $volDepts = new Application_Model_DbTable_UserDepartments;
-        $volProgs = new Application_Model_DbTable_UserPrograms;
-        
-        $myDepts = $volDepts->getList('depts',$volID);
-        $myProgs = $volProgs->getList('progs',$volID);
-        
-        foreach ($myDepts as $deptID) {
-            $deptForms = $this->_getDeptFormData($deptID,$requiredOnly);
-            $forms = $this->_collateFormRecords($forms, $deptForms);
-        }
-        
-        foreach ($myProgs as $progID) {
-            $progForms = $this->_getProgFormData($progID,$requiredOnly);
-            $forms = $this->_collateFormRecords($forms, $progForms);
-        }
-        
-        return $forms;
-    }
-    
     protected function _getPtcpFormData($ptcpID,$requiredOnly = 1) {
         $forms = array();
         
@@ -275,42 +253,6 @@ class Application_Model_DbTable_Forms extends Zend_Db_Table_Abstract
         return $finalForms;
     }
     
-    public function getVolForms($volID) {
-        $id = $volID;
-        $allForms = $this->_getVolFormData($id,0);
-        $formData = new Application_Model_DbTable_DynamicForms;
-        $finalForms = array();
-        
-        foreach ($allForms as $fid => $frequency) //frequency not needed, but that's what's in array
-        {    
-           if ($fid < 10) {
-              $table = "form_0" . $fid;
-           } else {
-              $table = "form_" . $fid;
-           }
-          
-           $name = $this->getName($fid);
-           
-           $formRecord = array(
-              'id' => $fid,
-              'frequency' => $frequency,
-              'name' => $name
-           );
-          
-           $myData = $formData->getRecords($id, $table);
-          
-           foreach ($myData as $datapoint) {
-              $dataID = $datapoint['id'];
-              $formRecord['data'][$dataID] = $datapoint;
-           }        
-           
-           array_push($finalForms,$formRecord);
-        }
-        
-        return $finalForms;    
-        
-    }
-    
     public function addForm($id, $name,$tableName,$desc,$type,$target) 
     {
 	$data = array(
@@ -382,6 +324,13 @@ class Application_Model_DbTable_Forms extends Zend_Db_Table_Abstract
 	}
 
         return $row->toArray();
+    }
+    
+    public function getTableName($id) {
+        $id = (int)$id;
+        $record = $this->getRecord($id);
+        $table = $record['tableName'];
+        return $table;
     }
     
 }

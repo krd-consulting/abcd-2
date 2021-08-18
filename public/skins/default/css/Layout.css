@@ -144,10 +144,6 @@ body {
         background-image: url('../images/participant.png');
 }
 
-#desktopNavbar ul li a.volunteers {
-        background-image: url('../images/volunteer.png');
-}
-
 #desktopNavbar ul li a.groups {
         background-image: url('../images/groups-small.png');
 }
@@ -162,10 +158,6 @@ body {
 
 #desktopNavbar ul li a.depts {
         background-image: url('../images/depts.png');
-}
-
-#desktopNavbar ul li a.schedules {
-        background-image: url('../images/schedule-icon.png');
 }
 
 #desktopNavbar ul li a.funders {
@@ -295,14 +287,6 @@ li.divider {
 	background: #f2f2f2;
 }
 
-.topbar {
-    background: white none repeat scroll 0 0;
-    border: 1px solid #73879c;
-    font-weight: 500;
-    margin: 3pt auto -5pt;
-    text-align: center;
-    width: 80%;
-}
 
 .linespace {
     margin-left: 15px;
@@ -352,10 +336,6 @@ div#desktopTitleBar div.right {
     padding-bottom: 12px;
 }
 
-.half {
-    width: 50%;
-}
-
 .bottom-links {
     margin-top: 10px;
     line-height: 20pt;
@@ -387,8 +367,8 @@ a.minus-link {
 }
 
 div#dashboard {
-    width: 1000px;
-    height: 240px;
+    width: 760px;
+    height: 200px;
     margin: 30px auto;
 }
 
@@ -420,7 +400,6 @@ p.description {
     font-size: 9pt;
     color: #555555;
     margin-top: 3px;
-    display: flex;
 }
 
 div#dash-search {
@@ -460,7 +439,7 @@ div.content-block {
     float: left;
 }
 
-.float-right, .css_right, .right {
+.float-right, .css_right {
     float: right;
 }
 
@@ -478,7 +457,7 @@ div.content-block h2 {
     font-size: 13pt;
 }
 
-li.draggable, div.draggable {
+li.draggable {
     border: 1px solid;
     border-radius: 3px 3px 3px 3px;
     list-style: none outside none;
@@ -487,18 +466,6 @@ li.draggable, div.draggable {
     background: url("../images/arrow-e-w.png") no-repeat scroll 0px 1px transparent;
     font-weight: bold;
     font-size: 11pt;
-}
-
-div.draggable {
-    background-image: none !important;
-    padding: 3px 5px!important;
-    margin-right: 13px;
-    width: 44%;
-    float: left;
-}
-
-div.draggable .remove-pic {
-    float: right;
 }
 
 ul.meeting-list li.draggable {
@@ -586,55 +553,27 @@ div#content-top{
     border-style: solid solid none;
     border-width: 1px 0px medium;
     display: inline-block;
-    min-height: 50px;
+    height: 50px;
     width: 100%;
 }
 
 #content-top span {
-    background: transparent none repeat scroll 0 0;
-    display: inline-flex;
+    display: inline-block;
     font-size: 11pt;
-    margin-left: 15px;
-    text-align: center;
+    margin-left: 10px;
+    *display:inline; /*IE7 fix*/
 }
 
 #content-top span.third {
-    margin-top: 10px;
-    max-width: 35%;
-    min-width: 33%;
-    margin-left: auto !important;
-}
-
-#content-top span.fifth {
-    min-width: 18%;
-    max-width: 20%;
-    margin-top: 13px;
-    display: inline-flex;
+    min-width: 30%;
+    margin-top: 17px;
+    text-align: center;
+    text-decoration: underline;
+    background: none repeat scroll 0 0 transparent;
 }
 
 .shaded {
     background-color: #EDEDED;
-}
-
-.gamify-profile {
-    width: 130px;
-    margin: 8px auto !important;
-    background: white !important;
-    padding: 5px 10px 10px 0px;
-    height: 50px;
-    position: relative;
-    display: block !important;
-    border-radius: 0px;
-    border: 1px solid #73879C;
-}
-
-.topnum {   
-    font-size: 40px !important;
-    line-height: 40px;
-    font-weight: 600;
-    color: #73879C;
-    font-family: "Helvetica Neue";
-
 }
 
 #content-main {
@@ -654,8 +593,7 @@ div#content-top{
     padding-top: 3px;
     text-align: center;
     width: 120px;
-    margin-top: 12px;
-    margin-bottom: 0px;
+    *margin-top: 12px;
 }
 
 span#addNew {
@@ -697,16 +635,25 @@ span#addNew {
 
 #controls {
     float: left;
-    width: 250px;
+    width: 300px;
     color: #777;
     font-size: 10pt;
     height: 100%;
     overflow: hidden; 
     border-radius: 5px 0 0 5px;
-    border-right: 1px solid #999999;
+    border-right: 1px solid #999999; 
 }
 
 div#elementButtons {
+}
+
+div#options-frag-1 {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+dd#filterForm-element {
+    margin-bottom: 7px;
 }
 
 h2.canvasHead {
@@ -978,7 +925,7 @@ div.input-home-wrapper {
 }
 
 div.input-home {
-    width: 33%;
+    width: 340px;
     overflow: auto;
 }
 
@@ -1044,21 +991,21 @@ ul.ui-tabs-nav {
 }
 
 div.block {
-    width: 31% !important;
+    width: 45%;
     float: left;
     border: 1px solid #CCC;
     margin-right: 15px;
     position: relative;
 }
 
-#vol-frag-1 .block {
-    width: 24% !important;
-    margin-right: 10px;
+div.reportBuilder {
+    width: 30% !important;
+    min-height: 210px;
+    padding: 5px;
 }
 
-div.reportBuilder {
-    min-height: 190px;
-    padding: 5px;
+div.reportBuilder.quarter {
+    width: 22% !important;
 }
 
 div.block-header {
@@ -1069,7 +1016,7 @@ div.block-header {
     padding-left: 10px;
 }
 
-div.block ul:not(.plain-block) li {
+div.block ul li {
     list-style: none;
     padding: 3px;
     padding-left: 40px;
@@ -1078,20 +1025,8 @@ div.block ul:not(.plain-block) li {
     position: relative;
 }
 
-div.block ul:not(.plain-block) li:hover {
+div.block ul li:hover {
     border: 1px solid #333;
-}
-
-div.block ul.plain-block li {
-    list-style: none;
-    padding: 1px 3px 1px 40px;
-    background: transparent no-repeat 3px 6px;
-    min-height: 16px;
-    position: relative;
-}
-
-div.block ul.plain-block li:hover {
-    border: none;
 }
 
 div#alerts-block ul li {
@@ -1151,21 +1086,12 @@ ul#filterList li * {
     margin-top: 5px;
 }
 
-span#list {
-    display: table;
+#fromDate-label, #toDate-label {
+    float: left;
+    text-align: right;
+    width: 40pt;
 }
 
-.center-button button {
-    display: block;
-    margin: 40px auto;
-}
-
-#button-release {
-    margin-left: 10px;
-    font-size: 9pt;
-}
-
-button.deleteDynamicForm {
-    margin: -72px 0 0 345px;
-    display: table;
+#dateBoxes {
+    margin-top: 20px;
 }

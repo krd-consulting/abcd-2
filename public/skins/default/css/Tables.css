@@ -101,6 +101,14 @@ table.p-list-table div.locked {
     background-image: url('../images/lock.png');
 }
 
+table.p-list-table div.homedept {
+    background-image: url('../images/homedept.png');
+    background-size: 2.5em 2.5em;
+    background-position-x: 0px;
+    background-position-y: 0px;
+    line-height: 2.5em;
+}
+
 table.p-list-table div.alert {
     background-image: url('../images/flag-red.png');
 }
@@ -185,7 +193,7 @@ tr.disabled {
 }
 
 .shortCol {
-    width: 15%;
+    width: 20%;
 }
 
 .longCol {

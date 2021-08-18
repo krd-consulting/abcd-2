@@ -18,12 +18,6 @@
         <div id="helparea">
             Drag names from one column to the other - changes are saved automatically.
         </div>
-        <?php if ($this->job) : ?>
-        <div style="margin: -49px 10px 0 0;">    <span id="addNew" class="float-right">
-                  <button id="addJob">Add New Job</button>
-            </span>
-        </div>
-        <?php endif ; ?>
     </div>
     
     <div id="content-main">
@@ -50,7 +44,7 @@
                         <?php if (in_array($record['id'],$this->required)) {print ' exclude';} ?>
                         ">
                         <?php 
-                        if (($this->type == 'user') || ($this->type == 'ptcp') || $this->type == 'volunteer') {
+                        if (($this->type == 'user') || ($this->type == 'ptcp')) {
                         $printName = $record['firstName'] . ' ' . $record['lastName'];
                         } else {
                         $printName = $record['name'];
@@ -72,7 +66,7 @@
                 <?php foreach ($this->addRecords as $record) : ?>
                     <li id="<?php print $record['id'];?>" class="draggable out-list">
                     <?php 
-                        if (($this->type == 'user') || ($this->type == 'ptcp' || $this->type == 'volunteer')) {
+                        if (($this->type == 'user') || ($this->type == 'ptcp')) {
                         $printName = $record['firstName'] . ' ' . $record['lastName'];
                         } else {
                         $printName = $record['name'];
@@ -84,13 +78,7 @@
                 </ul>
             </div>
     
-    </div><!-- end content-main -->
-    <?php if ($this->job) : ?>
-        <div id='dialog-form' title="Add a Volunteer Job">
-            <p class="validateTips"></p>
-            <?php print $this->jobForm; ?>
-        </div>
-    <?php endif; ?>
+    </div>
       
     
 </div>

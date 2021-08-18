@@ -11,18 +11,23 @@
  */
 class Application_Model_DbTable_UserDepartments extends Zend_Db_Table_Abstract {
     protected $_name = 'userDepartments';
+        
+   
+    public function getCurrentUserDeptsWithNames() {
+    }
     
-    public function getManagerDepts($uid) {
-        $select = "`userID` = $uid AND `manager` = 1";
-        $rowset = $this->fetchAll($select)->toArray();
-        
-        $result = array();
-        foreach ($rowset as $row) {
-            $deptID = $row['deptID'];
-            array_push($result,$deptID);
+    public function manageHome($deptID,$userID,$value) {
+        $data = array('homeDept' => $value);
+        return $this->update($data,"deptID = $deptID AND userID = $userID");       
+    }
+    
+    public function getHomeDepts($userID) {
+        $deptIDs = array();
+        $rows = $this->fetchAll("userID = $userID AND homeDept = 1")->toArray();
+        foreach ($rows as $dept) {
+            array_push($deptIDs,$dept['deptID']);
         }
-        
-        return $result;
+        return $deptIDs;
     }
     
     public function getList($column,$id) /* $column = 'users' or 'depts' */ 

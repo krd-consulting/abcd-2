@@ -3,10 +3,6 @@ form {
   font-size: 13pt;
 }
 
-form#needsForm, .dhx_form_repeat form {
-    font-size: 9pt;
-}
-
 form dd {
     margin-top: 3px;
 }
@@ -18,13 +14,13 @@ form#login label, form#addParticipant label {
 }
 
 form#search label {
-    margin: 0 35px 0 5px;
+    margin: 0 70px 0 5px;
 } 
 
 form label {
     text-transform: capitalize;
     color: #555;
-    float: left;  
+    float: left;    
 }
 
 form input, input, form select, select  {
@@ -33,17 +29,7 @@ form input, input, form select, select  {
     border-radius: 0.3em 0.3em 0.3em 0.3em;
     font: bold 1em arial,sans-serif;
     padding: 0.15em 0.3em;
-    width: 13em;
-}
-
-input:disabled {
-    background: #eee;
-}
-
-.scheduler-span {
-    display: inline-block;
-    text-align: start;
-    width: 30%;
+    width: 10em;
 }
 
 select {
@@ -137,7 +123,7 @@ p.validateTips {
 }
 
 #dialog-form label, .dialog-form label {
-    width: 35%;
+    width: 125px;
     text-align: right;
     line-height: 23px;
     padding-right: 5px;
@@ -158,10 +144,7 @@ div#filterright, div#filterleft {
 
 div#filterright input.filterinput, 
 div#filterleft input.filterinput, 
-div#programPtcpSearch input.filterinput, 
-div#groupVolSearch input.filterinput, 
-div#progVolSearch input.filterinput 
-{
+div#programPtcpSearch input.filterinput {
     font-size: 11pt !important;
     margin: 0 0 4px 0 !important;
     width: 15em !important;
@@ -239,27 +222,6 @@ span.box-list {
     vertical-align: middle;
 }
 
-input.timepicker {
-    width: 45pt;
-}
-
-input.timepicker.start {
-    float: left;
-}
-
-.ui-timepicker-container {
-    position: relative !important;
-    z-index: 99999 !important;
-}
-
-.ui-timepicker-container ul {
-   list-style: none;
-}
-
-#toTime-label label {
-    width: 60pt !important;
-}
-
 form.dataEntry {
     
 }
@@ -301,7 +263,7 @@ input.numeric{
 }
 
 span.reqtext {
-    font-size: 12px;
+    font-size: 9px;
     font-style: italic;
 }
 
@@ -354,38 +316,6 @@ div#report input {
     margin: 5px;
 }
 
-.bar {
-    height: 18px;
-    background: #f6a828 url("../images/ui-bg_gloss-wave_35_f6a828_500x100.png") repeat-x scroll 50% 50%;
-    border: 1px solid #e78f08;
-    color: #ffffff;
-    font-weight: bold;
-    margin-top: 10px;
-}
-
-.input-home dt, .input-home dd {
-    display: table;
-    margin: auto;
-}
-
-.input-home-dd {
-    margin: 4px 0 0 8px;
-}
-
-textarea.centred {
-    display: block;
-    margin: 0px auto;
-}
-
-.savebutton.side .ui-button-text {
-    padding: 0.23em 1.1em;
-}
-
-.savebutton.side {
-    top: 65px;
-    right: 10px;
-}
-
  /* The switch - the box around the slider */
 .switch {
   position: relative;
@@ -431,9 +361,9 @@ input:focus + .slider {
 }
 
 input:checked + .slider:before {
-  -webkit-transform: translateX(26px);
-  -ms-transform: translateX(26px);
-  transform: translateX(26px);
+  -webkit-transform: translateX(18px);
+  -ms-transform: translateX(18px);
+  transform: translateX(18px);
 }
 
 /* Rounded sliders */
@@ -452,7 +382,11 @@ input:checked + .slider:before {
 }
 
 .slider-button {
-    position: absolute;
+    position: relative;
     top: 10px;
     right: 10px;
+}
+
+span#switchbutton {
+    width: 40%;
 }

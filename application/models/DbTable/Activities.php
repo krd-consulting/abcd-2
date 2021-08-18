@@ -3,60 +3,6 @@
 class Application_Model_DbTable_Activities extends Zend_Db_Table_Abstract {
     protected $_name = 'activities';
     
-    
-    public function formatActivities(array $activityArray) {
-        //$activityArray is numeric array of associative arrays:
-        //[id]
-        //[userID]
-        //[eventID]
-        //[meetingID]
-        //[participantID]
-        //[date]
-        //[duration]
-        //[note]
-        
-        
-        $formatted = array();
-        $mtgTable = new Application_Model_DbTable_GroupMeetings;
-        $ptcpTable = new Application_Model_DbTable_Participants;  
-        $userTable = new Application_Model_DbTable_Users;
-                
-        foreach ($activityArray as $activity) {
-            $clean = array_filter($activity); //removes empty columns, so we can check type easily
-            unset($userName,$entID,$entName,$entType);
-            
-            $userName = $userTable->getName($clean['userID']);
-            
-            if (array_key_exists('meetingID',$clean)) {
-                $entType = 'group';
-                $mtgID = $clean['meetingID'];
-                $group = $mtgTable->getGroup($mtgID);
-                $entID = $group['id'];
-                $entName = $group['name'];                
-            } elseif (array_key_exists('participantID', $clean)) {
-                $entType = 'participant';
-                $entID = $clean['participantID'];
-                $entName = $ptcpTable->getName($entID);                
-            } else {
-                throw new exception("Neither participant nor group meeting found in activity record id " . $clean['id'] . ". ");
-            }
-            
-            $activityRecord = array(
-                'actID'     => $clean['id'],
-                'userID'    => $clean['userID'],
-                'userName'  => $userName,
-                'entity'    => $entType,
-                'entityID'  => $entID,
-                'name'      => $entName,
-                'date'      => $clean['date'],
-                'duration'  => $clean['duration'],
-                'note'      => $clean['note']
-            );
-            array_push($formatted,$activityRecord);
-        }
-        return $formatted;
-    }
-    
     public function getActivitiesTimeRange($target, $targetID,
                                            $secTarget='', $secTargetID='', 
                                            $startDate='', $endDate='') {
@@ -131,8 +77,6 @@ class Application_Model_DbTable_Activities extends Zend_Db_Table_Abstract {
        } else {
             $select = "userID = $id";
        }
-       
-       //$select .= " ORDER BY date DESC";
        
        $rowset = $this->fetchAll($select)->toArray();
        return $rowset;

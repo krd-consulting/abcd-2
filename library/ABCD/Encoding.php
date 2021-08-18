@@ -395,9 +395,7 @@ public function filterTextOther($text)
         chr(255) => "&yuml;");
 
 
-//return strtr($string, $convert2);   
-    //FOR CCECA ONLY - PRESERVING CHINESE CHARACTERS:
-    return ($text);
+return strtr($string, $convert2);   
 }
 
 }

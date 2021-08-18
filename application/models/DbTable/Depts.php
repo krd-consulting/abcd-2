@@ -20,8 +20,12 @@ class Application_Model_DbTable_Depts extends Zend_Db_Table_Abstract
     }
     
     public function getName($id) {
-        $dept = $this->getDept($id);
-        $name = $dept['deptName'];
+        if ($id > 0) {
+            $dept = $this->getDept($id);
+            $name = $dept['deptName'];
+        } else {
+            $name = "N/A";
+        }
         return $name;
     }
     

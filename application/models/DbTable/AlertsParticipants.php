@@ -76,8 +76,8 @@ class Application_Model_DbTable_AlertsParticipants extends Zend_Db_Table_Abstrac
                 $ptcps = $model->getList('ptcp',$entityID);
             }
         }
-        print "relevant participants are";
-        print_r($ptcps);
+        //print "relevant participants are";
+        //print_r($ptcps);
         //for each, check if given form is still required:
         $alertsRemoved = 0;
         
@@ -85,12 +85,12 @@ class Application_Model_DbTable_AlertsParticipants extends Zend_Db_Table_Abstrac
             foreach ($ptcps as $ptcpID) {
                 $requiredForms = $formsModel->getAssociatedForms('ptcp', $ptcpID);  
                 if (array_key_exists($fid,$requiredForms)) { //if yes, do nothing
-                    print "Form id $fid is still required.\n";
+                    //print "Form id $fid is still required.\n";
                 } else { //if no, find and remove alert
-                    print "Form id $fid is no longer required, removing alert.";
+                    //print "Form id $fid is no longer required, removing alert.";
                     $alert = $this->checkFormPtcpAlert($fid, $ptcpID);
                     $alertID = $alert['id'];
-                    print "\nFound alert $alertID";
+                    //print "\nFound alert $alertID";
                     $this->unsetFormPtcpAlert($alertID);
                     $alertsRemoved++;
                 } 
@@ -191,7 +191,7 @@ class Application_Model_DbTable_AlertsParticipants extends Zend_Db_Table_Abstrac
     public function setFormPtcpAlert($ptcpID, $formID, $type, $showAfter=''){
         //$type: 1 == missing, 2 == due
         if (strlen($showAfter) == 0) {
-            $showAfter = time();
+            $showAfter = date("Y-m-d",time());
         }
         
         $data = array(
@@ -269,7 +269,7 @@ class Application_Model_DbTable_AlertsParticipants extends Zend_Db_Table_Abstrac
       $alertTable = new Application_Model_DbTable_Alerts;  
       $alerts = array();
       
-      $alertRows = $this->fetchAll("participantID = $pid AND (doNotDisplay IS NULL OR doNotDisplay = 0)")->toArray();
+      $alertRows = $this->fetchAll("participantID = $pid")->toArray();
       
       foreach ($alertRows as $alertInstance) {
           //check whether alert is for some future date
@@ -323,9 +323,6 @@ class Application_Model_DbTable_AlertsParticipants extends Zend_Db_Table_Abstrac
             default : throw new Exception("\"$column\" is not a valid option.");
         }
 
-        $select .= " AND (`doNotDisplay` IS NULL or `doNotDisplay` = 0)";
-
-        
         $rowset = $this->fetchAll($select)->toArray();
         
         $results = array();
@@ -346,15 +343,11 @@ class Application_Model_DbTable_AlertsParticipants extends Zend_Db_Table_Abstrac
             'startDate' => $startDate
         );
         
-        return $this->insert($data);
+        $this->insert($data);
     }
     
     public function unsetAlert($alert,$ptcp) {
         $select = "participantID = " . (int)$ptcp . " and alertID = " . (int)$alert;
-        $data = array (
-            doNotDisplay => 1
-        );
-        
-        return $this->update($data,$select);
+        $this->delete($select);
     }
 }

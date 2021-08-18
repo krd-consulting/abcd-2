@@ -30,24 +30,18 @@
         var filter = $(this).val();
         
         if(filter) {
-
-		  $matches = $(list).find('td.nameLink:Contains(' + filter + ')').parents('tr');
-		  $('tr', list).not($matches)
-			       .not('tr.collapsible')
-                               .not('tr#headTR')
-			       //.slideUp();
-			       .hide();
-		  //$matches.slideDown();
-		  $matches.not('tr.noSearch').show();
-                  var numberGood = $matches.not('tr.noSearch').length;
-                  $("#record-count").text(numberGood);
-                  $("#lock-unlock-count").hide();
-
+            $matches = $(list).find('td.nameLink:Contains(' + filter + ')').parents('tr');
+            $('tr', list).not($matches)
+                         .not('tr.collapsible')
+                         .not('tr#headTR')
+                         .hide();
+            $matches.not('tr.noSearch').show();
+            var numberGood = $matches.not('tr.noSearch').length;
+            $("#record-count").text(numberGood);
         } else {
-          //$(list).find("tr").slideDown();
-          $(list).find("tr").not('tr.noSearch').show();
-          $("#record-count").text(numberOrig);
-          $("#lock-unlock-count").show();
+            $(list).find("tr").not('tr.noSearch').show();
+            $("#record-count").text(numberOrig);
+            $("#lock-unlock-count").show();
         }
         return false;
       })
@@ -59,7 +53,5 @@
   $(function () {
     filterList($("#searchform"), $(".p-list-table"));
     filterList($("#programPtcpSearch"), $(".ptcpTable"));
-    filterList($("#groupVolSearch"), $(".volTable"));
-    filterList($("#progVolSearch"), $(".volTable"));
   });
 }(jQuery));

@@ -28,8 +28,6 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 	protected function _initView() {
 	$view = new Zend_View();
 	$view->doctype('XHTML1_STRICT');
-//        $view->setEncoding('UTF-8');
-//        $view->headMeta()->appendHttpEquiv('Content-Type', 'text/html;charset=utf-8');
 	$view->headTitle('A Better Community Database');
 	$view->skin = 'default';
 
@@ -66,11 +64,10 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
             //$roleID = '0'; use this if 'guest' navigation is needed
             //$roles = array('guest','staff','manager','admin');
             $roles = array(
-                '20' => 'staff',
-                '30' => 'manager',
-                '40' => 'admin',
-                '10' => 'evaluator',
-                '15' => 'volunteer'
+                '2' => 'staff',
+                '3' => 'manager',
+                '4' => 'admin',
+                '1' => 'evaluator'
                 );
             
             $auth = Zend_Auth::getInstance();
@@ -78,6 +75,7 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
                 $roleID = $auth->getIdentity()->role;
                 $role = $roles[$roleID];
                 $config = new Zend_Config_Xml(APPLICATION_PATH . '/configs/navs/' . $role . '.xml', 'nav');
+
                 $navigation = new Zend_Navigation($config);
                 $view->navigation($navigation);
             } 
@@ -87,7 +85,6 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
         $root = FALSE;
         $mgr = FALSE;
         $evaluator = FALSE;
-        $volunteer = FALSE;
         $auth = null;
         $db = '';
         $uid = '';
@@ -100,16 +97,10 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
         $uid = $auth->getIdentity()->id;
         
         /* Set role vars*/
-        $roleID = $auth->getIdentity()->role;
-        switch ($roleID) {
-            case '40' : $root = TRUE; $mgr = TRUE; break;
-            case '30' : $mgr = TRUE; break;
-            case '15' : $volunteer = TRUE; break;
-            case '10' : $evaluator = TRUE; break;
-            case '20' : $staff = TRUE; break;
-            default: throw new exception ("Unknown role id $roleID found in bootstrap."); break;
-        }
-        
+        if ($auth->getIdentity()->role == '4') {$root = TRUE; $mgr = TRUE;}
+        if ($auth->getIdentity()->role == '3') {$mgr = TRUE;}
+        if ($auth->getIdentity()->role == '1') {$evaluator = TRUE;}
+
         /* Set Database */
         $db = $this->getResource('db');
         
@@ -118,8 +109,6 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
         $registry['root'] = $root;
         $registry['mgr'] = $mgr;
         $registry['evaluator'] = $evaluator;
-        $registry['volunteer'] = $volunteer;
-        $registry['role'] = $auth->getIdentity()->role;
         $registry['db'] = $db;
         
         return $registry;

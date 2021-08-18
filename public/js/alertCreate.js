@@ -84,12 +84,10 @@ $(function() {
                     .click(function(){
                         li = $(this).parents('li');
                         id = li.attr('id');
-                        type = $(this).data('type');
-                        
                         pid = $("#mainColumn h1").attr('id');
                         $.post(
                             '/ajax/removealert',
-                            {id: id, pid: pid, type: type},
+                            {id: id, pid: pid},
                             function(data) {
                                 li.remove();
                             }

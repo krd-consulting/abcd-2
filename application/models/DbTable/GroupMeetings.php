@@ -6,7 +6,7 @@ class Application_Model_DbTable_GroupMeetings extends Zend_Db_Table_Abstract {
      *  id
      *  groupID
      *  enrolledIDs (list of participants at this meeting)
-     *  guestCount (how many who're not enrolled)
+     *  unenrolledCount (how many who're not enrolled)
      *  date
      *  duration
      *  notes
@@ -94,17 +94,6 @@ class Application_Model_DbTable_GroupMeetings extends Zend_Db_Table_Abstract {
         return $row;
     }
     
-    public function getGroup($mtgID) {
-        $row = $this->fetchRow("id = $mtgID")->toArray();
-        $groupID = $row['groupID'];
-        $groupTable = new Application_Model_DbTable_Groups;
-        $name = $groupTable->getName($groupID);
-        return array(
-            'id' => $groupID,
-            'name' => $name
-        );
-    }
-    
     public function getAttendance($id) {
         $row = $this->fetchRow($id);
         if (strlen($row['enrolledIDs']) > 0) {
@@ -114,7 +103,7 @@ class Application_Model_DbTable_GroupMeetings extends Zend_Db_Table_Abstract {
             $enrolledNum = 0;
         }    
         
-        $unenrolledNum = (int)$row['guestCount'];
+        $unenrolledNum = (int)$row['unenrolledCount'];
         
         $totalAtt = $enrolledNum + $unenrolledNum;
         
@@ -133,7 +122,7 @@ class Application_Model_DbTable_GroupMeetings extends Zend_Db_Table_Abstract {
             foreach( $myEnrolled as $pID) {
                 array_push($allEnrolled, $pID);
             }
-            $totalUnenrolled += $meeting['guetsCount'];
+            $totalUnenrolled += $meeting['unenrolledCount'];
         }
         
         $allEnrolled = array_unique($allEnrolled);

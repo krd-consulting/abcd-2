@@ -3,7 +3,7 @@
 class Application_Model_DbTable_UserPrograms extends Zend_Db_Table_Abstract {
     protected $_name = 'userPrograms';
     
-    public function getList($column,$id) /* $column = 'users' or 'progs' or 'volunteers' */ 
+    public function getList($column,$id) /* $column = 'users' or 'progs' */ 
     {
         switch ($column) {
             case 'users' : 
@@ -14,7 +14,7 @@ class Application_Model_DbTable_UserPrograms extends Zend_Db_Table_Abstract {
                 $select     = "userID = " . (int)$id;
                 $colname    = "programID";
                 break;
-            default : throw new Exception("Invalid column \"$column\" passed to user-program model.");
+            default : throw new Exception("\"$column\" is not a valid option.");
         }
 
         $rowset = $this->fetchAll($select)->toArray();

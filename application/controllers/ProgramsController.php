@@ -8,23 +8,23 @@ class ProgramsController extends Zend_Controller_Action
     private $mgr = FALSE;
     private $db = NULL;
     
-    public function init() {
+    public function init()
+    {
         /* Get user credentials */
         $this->auth = Zend_Auth::getInstance();
         if (!$this->auth->hasIdentity()) {
             throw new Exception("You are not logged in.");
         }
         
-        /* Set UID and roles */
-        $this->uid = Zend_Registry::get('uid');
-        $this->root = Zend_Registry::get('root');
-        $this->mgr = Zend_Registry::get('mgr');
-        $this->evaluator = Zend_Registry::get('evaluator');
-        $this->volunteer = Zend_Registry::get('volunteer');
+        /* Set UID */
+        $this->uid = $this->auth->getIdentity()->id;
+        
+        /* Set role vars*/
+        if ($this->auth->getIdentity()->role == '4') {$this->root = TRUE; $this->mgr = TRUE;}
+        if ($this->auth->getIdentity()->role == '3') {$this->mgr = TRUE;}
 
         /* Set Database */
         $this->db = $this->getInvokeArg('bootstrap')->getResource('db');
-
     }
 
     public function indexAction()
@@ -32,86 +32,15 @@ class ProgramsController extends Zend_Controller_Action
         $this->_helper->redirector('list');
     }
 
-    public function calendarAction() {
-        $programID = $this->_getParam('id');
-        $progTable = new Application_Model_DbTable_Programs;
-        $name = $progTable->getName($programID);
-        
-        if ($this->evaluator || $this->volunteer) {
-            $readOnly = TRUE;
-        } else {
-            $readOnly = FALSE;
-        }
-        
-        $perm = $progTable->programAllowed($this->uid, $programID);
-        if (!$perm) {
-            throw new exception("Your account does not have access to this program's calendar.");
-        }
-        
-        //get volunteer jobs
-        $vJobsTable = new Application_Model_DbTable_VolunteerJobs;
-        $vJobs = $vJobsTable->getJobsByProgram($programID);
-        $displayJobs = array();
-        
-        foreach ($vJobs as $job) {
-            array_push($displayJobs,array(
-                $job['id'] => $job['name']
-            ));
-        }
-        
-        $eventTable = new Application_Model_DbTable_ProgramEvents;
-        $events = $eventTable->getProgEvents($programID,$this->uid,date('Y-m-d'));
-        $numNeeded = 0;
-        $numWorking = 0;
-        $numEvents = count($events);
-        
-        
-        
-        foreach ($events as $event) {
-            $eventID = $event['id'];
-            $needArray = $eventTable->getEventNeeds($eventID,$this->uid);
-            
-            $numNeeded += (int)$needArray['numberNeeded'];
-            $numWorking += (int)$needArray['numberSignedUp'];
-            }
-        
-            
-        $program = array(
-            'numEvents' => $numEvents,
-            'numVolunteers' => $numWorking,
-            'numNeeded' => $numNeeded,
-            'id' => $programID,
-            'name' => $name
-        );
-        
-        
-        $this->view->program = $program;
-        $this->view->vJobs = $displayJobs;
-        $this->view->enrollVolForm = new Application_Form_EnrollVolunteer;
-        $this->view->readOnly = $readOnly;
-        
-        $this->view->layout()->customJS = 
-                '<script type="text/javascript" src="/js/setHeight.js"></script>' .
-                '<script type="text/javascript" src="/js/scheduler/dhtmlxscheduler.js" charset="utf-8"></script>' .
-                '<script type="text/javascript" src="/js/abcdProgScheduler.js"></script>' .
-                '<script type="text/javascript" src="/js/scheduler/ext/dhtmlxscheduler_cookie.js" charset="utf-8"></script>' .
-                '<script type="text/javascript" src="/js/scheduler/ext/dhtmlxscheduler_recurring.js" charset="utf-8"></script>' .
-
-'';
-        
-        
-    }
-    
     public function addAction()
     {
         $name = $_GET['name'];
         $did = $_GET['dept'];
-        $vType = $_GET['voltype'];
         
         if ($did == 0) {$did = NULL;}
         
         $progTable  =   new Application_Model_DbTable_Programs;
-        $progTable->addProg($name,$did,$vType);
+        $progTable->addProg($name,$did);
         $program = $progTable->fetchRow('name = \'' . $name . '\'');
         $pid = $program->id;
         
@@ -197,33 +126,20 @@ class ProgramsController extends Zend_Controller_Action
         $dept = $deptTable->getRecord($deptID);
         $deptName = $dept['deptName'];
         
-        $volStatus = $program['volunteerType'];
-        
-        //get Staff and volunteers list
+        //get Staff list
         $userPrograms = new Application_Model_DbTable_UserPrograms;
         $userIDs = $userPrograms->getList('users', $id);
         $usersTable = new Application_Model_DbTable_Users;
         $users = array();
-        $vols = array();
-        
         foreach ($userIDs as $uID) {
             $user = $usersTable->getRecord($uID);
-            if ($user['role'] == '15') {
-                array_push($vols,$user);
-            } else {
-                array_push($users,$user);
-            }
+            array_push($users, $user);
         }
-        
-       
         
         //get Participant list
         $ptcpPrograms = new Application_Model_DbTable_ParticipantPrograms;
         $ptcpIDs = $ptcpPrograms->getList('ptcp', $id);
         $ptcpTable = new Application_Model_DbTable_Participants;
-        $ptcpStaffTable = new Application_Model_DbTable_ParticipantUsers;
-        
-        
         $participants = array();
         foreach ($ptcpIDs as $pID) {
             $ptcp = $ptcpTable->getRecord($pID);
@@ -238,7 +154,7 @@ class ProgramsController extends Zend_Controller_Action
             $participants[$pID]['statusNote'] = $ptcpRel['statusNote'];
             
                 //check if assigned to staff
-                
+                $ptcpStaffTable = new Application_Model_DbTable_ParticipantUsers;
                 $psRow = $ptcpStaffTable->fetchAll("participantID = $pID AND programID = $id")->toArray();
                 
                 if (count($psRow) != 0) {
@@ -272,11 +188,6 @@ class ProgramsController extends Zend_Controller_Action
             array_push($funders, $funder);
         }
         
-        //get volunteer jobs
-        $vJobsTable = new Application_Model_DbTable_VolunteerJobs;
-        $volJobs = $vJobsTable->getJobsByProgram($id);
-        
-        //get forms
         $forms = $programTable->getAllForms($id);
         
         $statusForm = new Application_Form_StatusUpdate;
@@ -291,8 +202,6 @@ class ProgramsController extends Zend_Controller_Action
         $this->view->groups     = $groups; 
         $this->view->funders    = $funders;
         $this->view->forms      = $forms;
-        $this->view->volunteers = $vols;
-        $this->view->vJobs      = $volJobs;
         
         $this->view->statusForm = $statusForm;
         $this->view->filterForm = $statusFilterForm;
@@ -304,12 +213,6 @@ class ProgramsController extends Zend_Controller_Action
                 '<script type="text/javascript" src="/js/statusFilter.js"></script>' . 
                 '<script type="text/javascript" src="/js/filter.js"></script>' . 
                 '<script type="text/javascript" src="/js/updateDB3.js"></script>' ; 
-        
-        $this->view->layout()->customJS .= 
-                '<script type="text/javascript" src="/js/scheduler/dhtmlxscheduler.js"></script>' .
-                '<script type="text/javascript" src="/js/abcdProgScheduler.js"></script>' .
-'';
-
         
         if (!$this->mgr) {
             $this->view->layout()->customJS .=
@@ -335,26 +238,14 @@ class ProgramsController extends Zend_Controller_Action
         }
         
         switch ($type) {
-            case 'user' :
-            case 'volunteer' :
+            case 'user' : 
                 $assocTable = new Application_Model_DbTable_UserPrograms;
                 $secondaryAssoc = new Application_Model_DbTable_UserDepartments;
                 $records    = new Application_Model_DbTable_Users;
                 $columnType = 'users';
-                if ($type =='user') {
-                    $header = "Add Staff to ";
-                } else {
-                    $header = "Add Volunteer to ";
-                }
+                $header = "Add Staff to ";
                 break;
             
-            case 'vjob' :
-                $assocTable = new Application_Model_DbTable_ProgramJobs;
-                $records    = new Application_Model_DbTable_VolunteerJobs;
-                $columnType = 'jobs';
-                $header = "Manage Volunteer Jobs for ";
-                break;
-                
             case 'funder' : 
                 $assocTable = new Application_Model_DbTable_ProgramFunders;
                 $records    = new Application_Model_DbTable_Funders;
@@ -386,67 +277,19 @@ class ProgramsController extends Zend_Controller_Action
         
         $currentRecordIDs = $assocTable->getList($columnType, $id);
         $currentRecordIDs = array_unique($currentRecordIDs);
-        
-        
-        //differentiate between staff and volunteers 
-        switch ($type) {
-            case 'user':
-            case 'volunteer':
-                $curVolIDs = array();
-                $curStaffIDs = array();
-                $userTable = new Application_Model_DbTable_Users;
-                foreach ($currentRecordIDs as $idToTest) {
-                    $isVol=$userTable->isVolunteer($idToTest);
-                    
-                    if ($isVol) {
-                        array_push($curVolIDs,$idToTest);
-                    } else {
-                        array_push($curStaffIDs,$idToTest);
-                    } 
-                }
-                if ($type == 'user') $currentRecordIDs = $curStaffIDs;
-                if ($type == 'volunteer') $currentRecordIDs = $curVolIDs;
-                break;
-            default: continue;
-        }
-        
-        
         //**If type is Staff or Participants, we should only 
         //  get list of people in this program's department.
         //  
         //**This holds regardless of role, so we don't wind up 
         //  with participants in programs who are not in departments.
         
-        if (($type == 'user') || ($type == 'ptcp' || $type == 'volunteer')) {
+        if (($type == 'user') || ($type == 'ptcp')) {
             $myDept = $thisProg['deptID'];
-            $allRecordIDs = $secondaryAssoc->getList($columnType, $myDept);            
+            $allRecordIDs = $secondaryAssoc->getList($columnType, $myDept);
         } else {
             $allRecordIDs     = $records->getIDs();
         }
 
-        
-        //differentiate between staff and volunteers 
-        switch ($type) {
-            case 'user':
-            case 'volunteer':
-                $allVolIDs = array();
-                $allStaffIDs = array();
-                $userTable = new Application_Model_DbTable_Users;
-                foreach ($allRecordIDs as $idToTest) {
-                    $isVol=$userTable->isVolunteer($idToTest);
-                    
-                    if ($isVol) {
-                        array_push($allVolIDs,$idToTest);
-                    } else {
-                        array_push($allStaffIDs,$idToTest);
-                    } 
-                }
-                if ($type == 'user') $allRecordIDs = $allStaffIDs;
-                if ($type == 'volunteer') $allRecordIDs = $allVolIDs;
-                break;
-            default: continue;
-        }
-        
         //Trim out existing records from the full list.
         $addRecordIDs     = array_diff($allRecordIDs,$currentRecordIDs);
         
@@ -467,13 +310,6 @@ class ProgramsController extends Zend_Controller_Action
         foreach ($addRecordIDs as $aid) {
             $addRecord = $records->getRecord($aid);
             array_push($addRecords,$addRecord);
-        }
-        
-        if ($type == 'vjob') {
-            $jobForm = new Application_Form_AddJob;
-            $this->view->job = TRUE;
-            $this->view->jobForm = $jobForm;
-            $this->view->layout()->customJS .= '<script type="text/javascript" src="/js/addJob.js"></script>';
         }
         
         $this->view->currentRecords = $currentRecords;

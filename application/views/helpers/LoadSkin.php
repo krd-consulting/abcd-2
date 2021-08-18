@@ -20,8 +20,6 @@ class Zend_View_Helper_LoadSkin extends Zend_View_Helper_Abstract {
 	}
         //append print overrides
         $this->view->headLink()->appendStylesheet('/skins/' . $skin . '/css/print.css', 'print');
-        $this->view->headLink()->appendStylesheet("/js/scheduler/dhtmlxscheduler.css", 'screen,print');
-
         
   } 
 

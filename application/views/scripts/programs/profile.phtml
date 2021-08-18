@@ -1,12 +1,9 @@
 <?php
 //PROGRAMS
 $name = $this->program['name'];
-$vType = $this->program['volunteerType'];
 
 $this->title = $name;
 $this->headTitle(" - $this->title");
-
-
 $backURL = $this->url(array(
     'controller' => 'programs',
     'action' => 'list'
@@ -15,7 +12,6 @@ $backURL = $this->url(array(
 //Set up header counts
 $ptcpCount = count($this->ptcps);
 $groupCount = count($this->groups);
-$volCount = count($this->volunteers);
 
 //Set up URLs
 $addUserToProgUrl = $this->url(array(
@@ -41,18 +37,6 @@ $addPtcpToProgUrl = $this->url(array(
                                'action'      =>'associate',
                                'type'        =>'ptcp',
                                'id'          => $this->program['id']));
-
-$addVolToProgUrl = $this->url(array(
-                                'controller' => 'programs',
-                                'action'    => 'associate',
-                                'type'      => 'volunteer',
-                                'id'        => $this->program['id']));
-
-$addJobToProgUrl = $this->url(array(
-                                'controller' => 'programs',
-                                'action'    => 'associate',
-                                'type'      => 'vjob',
-                                'id'        => $this->program['id']));
 
 
 //Set up staff and funder tabs for managers
@@ -93,58 +77,7 @@ if ($this->mgr) {
                 </div>';
     
     $funderTab = $funderList . $funderAddMore;
-}
-
-//set up Volunteers Tab
-
-if ($vType != 'none') {
-    $volTab = TRUE;
     
-    if (count($this->volunteers) == 0) {
-        $volList = "<h2>No volunteers associated with this program yet.</h2>";
-    } else {
-        $links = array('profile');
-        $volList = "<table class='p-list-table'>";
-        foreach ($this->volunteers as $volunteer) {
-            $volList .= $this->tableRow('person','volunteers',$volunteer,$links);
-        }
-    $volList .= "</table>";
-    }
-    
-    $volAddMore = '<div class="bottom-links">
-                        <a class="add-link" href=' . $addVolToProgUrl . '>
-                            Add Volunteers to ' . $this->title . ' 
-                        </a>
-                      </div>';
-    
-    $volTab = $volList . $volAddMore;
-    
-} else {
-    $volTab = FALSE;
-}
-
-if ($volTab) {
-    $vJobTab = TRUE;
-    if (count($this->vJobs) == 0) {
-        $vJobList = "<h2> No volunteer jobs associated with this program yet.</h2>";
-    } else {
-        $vJobList = "<table class='p-list-table'>";
-        foreach ($this->vJobs as $vJob) {
-            $vJobList .= $this->tableRow('entity','voljobs',$vJob,$links);
-        }
-        $vJobList .= "</table>";
-    }        
-    
-    
-    $vJobAddMore = '<div class="bottom-links">
-                        <a class="add-link" href=' . $addJobToProgUrl . '>
-                            Manage ' . $this->title . '\'s volunteer jobs 
-                        </a>
-                    </div>';
-    
-    $vJobTab = $vJobList . $vJobAddMore; 
-} else {
-    $vJobTab = FALSE;
 }
 
 // Set up Forms Tab
@@ -163,9 +96,6 @@ if ($this->mgr) {
 } else {
     $formTab = $formList;
 }
-//set up Calendar Tab
-$calTab = "<span id='calButton' class='center-button'> <button data-id='" . $this->program['id'] . "' id='Cal'>View " . $name . " Calendar</button> </span>";
-
 
 //Set up Participants Tab
 if ($ptcpCount == 0) {
@@ -196,7 +126,7 @@ if (count($this->groups) == 0) {
 if (count($this->groups) > 0) {
     $groupTab = "<table id='groups-table' class='p-list-table'>
         <tbody>";
-    $links = array('profile', 'meeting');
+    $links = array('profile', 'enroll', 'meeting');
     if ($this->mgr) {
     }
     foreach ($this->groups as $group) {
@@ -204,6 +134,7 @@ if (count($this->groups) > 0) {
     }
     $groupTab .= "</tbody></table>";
 }
+
 
 //PASS EVERYTHING TO TABS
 
@@ -214,17 +145,10 @@ $this->tabPane('prog', $ptcpTab, array('title' => 'Participants'));
         $this->tabPane('prog', $funderTab, array('title' => 'Funders'));
     }
 $this->tabPane('prog', $formTab, array('title' => 'Forms'));
-
-if ($this->mgr && $volTab) {
-    $this->tabPane('prog',$volTab,array('title'=> 'Volunteers'));
-    $this->tabPane('prog',$vJobTab,array('title'=> 'Volunteer Jobs'));
-}
-
-$this->tabPane('prog',$calTab,array('title' => 'Calendar'));
 ?>
 
 <div id="content">
-    <h1 class='participantProfile float-left' <?php print "id=" . $this->program['id'];?>>
+    <h1 class='participantProfile float-left' id="<?php print $this->program['id']; ?>">
         Program Profile: 
         <span class=p-name>
             <?php print $name; ?>
@@ -237,36 +161,19 @@ $this->tabPane('prog',$calTab,array('title' => 'Calendar'));
 </div>
 
 <div id="content-top">
-    <div class="topbar">
-        Program: <i> <?php print $this->deptName; ?></i> || 
-        Volunteer Type: <i> <?php print $vType ?></i>
-    </div>
+    <span class="third shaded">
+        <strong>Department:</strong> <?php print $this->deptName; ?>
+    </span>
     
     <span class="third shaded">
-        <span class="gamify-profile"> 
-            <span class="topnum" id="record-count">
+        <strong>Participants:</strong> 
+            <span id="record-count">
                 <?php print $ptcpCount; ?>
             </span>
-            <span class="bottom-desc">participants</span>
-        </span>    
     </span>
     
     <span class="third shaded">
-        <span class="gamify-profile"> 
-            <span class="topnum" id="record-count">
-                <?php print $groupCount; ?>
-            </span>
-            <span class="bottom-desc">active groups</span>
-        </span> 
-    </span>
-    
-    <span class="third shaded">
-        <span class="gamify-profile"> 
-            <span class="topnum" id="record-count">
-                <?php print $volCount; ?>
-            </span>
-            <span class="bottom-desc">volunteers</span>
-        </span>     
+        <strong>Active Groups:</strong> <?php print $groupCount; ?>
     </span>
     
     
@@ -284,7 +191,7 @@ $this->tabPane('prog',$calTab,array('title' => 'Calendar'));
 
 <div id='dialog-form' title="">
         <?php print $this->statusForm; ?>
-</div>
+    </div>
 
 <div id='dialog-confirm' title="Purge participant records?">
     <p>

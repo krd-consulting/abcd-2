@@ -10,39 +10,24 @@ private $auth = NULL;
     
     public function init()                       {
         /* Get user credentials */
-        /* Get user credentials */
         $this->auth = Zend_Auth::getInstance();
         if (!$this->auth->hasIdentity()) {
             throw new Exception("You are not logged in.");
         }
         
         /* Set UID */
-        $this->uid = Zend_Registry::get('uid');
-        $this->root = Zend_Registry::get('root');
-        $this->mgr = Zend_Registry::get('mgr');
-        $this->evaluator = Zend_Registry::get('evaluator');
-        $this->volunteer = Zend_Registry::get('volunteer');
+        $this->uid = $this->auth->getIdentity()->id;
+        
+        /* Set role vars*/
+        if ($this->auth->getIdentity()->role == '4') {$this->root = TRUE; $this->mgr = TRUE;}
+        if ($this->auth->getIdentity()->role == '3') {$this->mgr = TRUE;}
+
         /* Set Database */
         $this->db = $this->getInvokeArg('bootstrap')->getResource('db');
 
     }
 
-    protected function _filterUsersToVolunteers(array $userIDs) {
-        $usersTable = new Application_Model_DbTable_Users;
-        $volRecords = array();
-        
-        foreach ($userIDs as $uID) {
-            $user = $usersTable->getRecord($uID);
-            if ($user['role'] == '15') {
-                array_push($volRecords,$user);
-            } else {
-                continue;
-            }
-        }
-        
-        return $volRecords;
-        
-    }
+
     public function indexAction()
     {
         $this->_helper->redirector('list');
@@ -151,31 +136,19 @@ private $auth = NULL;
         $id = $this->_getParam('id');
         $groups = new Application_Model_DbTable_Groups;
         $group = $groups->getRecord($id);
-        $type = $this->_getParam('type');
+        $type = 'ptcp';
         
-        $allowedTypes = array('ptcp','vol');
+        $allowedTypes = array('ptcp');
         
         if (!in_array($type,$allowedTypes)) {
-            throw new exception ("Sorry - only participants can be enrolled (you passed $type).");
+            throw new exception ("Sorry - only participants can be enrolled.");
         }
         
-        switch ($type) {
-            case 'ptcp':
-                $assocTable     =   new Application_Model_DbTable_ParticipantGroups;
-                $secondaryAssoc =   new Application_Model_DbTable_ParticipantDepts;
-                $records        =   new Application_Model_DbTable_Participants;
-                $columnType     =   'ptcp';
-                $header         =   "Participant Enrollment in ";
-                    break;
-            case 'vol':
-                $assocTable     =   new Application_Model_DbTable_VolunteerGroups;
-                $secondaryAssoc =   new Application_Model_DbTable_UserPrograms;
-                $records        =   new Application_Model_DbTable_Users;
-                $columnType     =   'users';
-                $header         =   "Volunteer Enrollment in ";
-                    break;
-        }
-        
+        $assocTable     =   new Application_Model_DbTable_ParticipantGroups;
+        $secondaryAssoc =   new Application_Model_DbTable_ParticipantDepts;
+        $records        = new Application_Model_DbTable_Participants;
+        $columnType = 'ptcp';
+        $header = "Participant Enrollment in ";
         
         $currentRecords = array();
         $addRecords     = array();
@@ -183,49 +156,33 @@ private $auth = NULL;
         
         $currentRecordIDs = $assocTable->getList($columnType, $id);
         $currentRecordIDs = array_unique($currentRecordIDs);
-        //**For participants: 
-            //  get list of people in this group's program's department.
-            //  
-            //**This holds regardless of role, so we don't wind up 
-            //  with participants in programs who are not in departments.
+        //**We should only get list of people in this group's program's department.
+        //  
+        //**This holds regardless of role, so we don't wind up 
+        //  with participants in programs who are not in departments.
         
-        //**For volunteers:
-            // get list of volunteers in group's program
+        $programTable = new Application_Model_DbTable_Programs;
+        $deptTable = new Application_Model_DbTable_Depts;
+        $thisProg = $programTable->getRecord($group['programID']);
         
-            $programTable = new Application_Model_DbTable_Programs;
-            $thisProg = $programTable->getRecord($group['programID']);
-
-        if ($type == 'ptcp') {            
-            $deptTable = new Application_Model_DbTable_Depts;
-            $myDept = $thisProg['deptID'];
-            $viewDept = $deptTable->getRecord($myDept);
-            $secondaryID = $myDept;
-        }
-        if ($type == 'vol') {
-            $secondaryID = $group['programID'];   
-        }
+        $myDept = $thisProg['deptID'];
+        $viewDept = $deptTable->getRecord($myDept);
         
-        $allRecordIDs = $secondaryAssoc->getList($columnType,$secondaryID);
-        //die("Firing to userprograms: $columnType column, $secondaryID id.");
-            //Trim out existing records from the full list.
+        $allRecordIDs = $secondaryAssoc->getList($columnType, $myDept);
+        
+        //Trim out existing records from the full list.
         $addRecordIDs     = array_diff($allRecordIDs,$currentRecordIDs);
         
-        if($type == 'vol') {
-            $myVolList = $records->getAllowedVolIDs();
-            $currendRecordIDs = array_intersect($currentRecordIDs,$myVolList);
-            $addRecordIDs = array_intersect($addRecordIDs,$myVolList);
+        foreach ($currentRecordIDs as $cid) {
+            $currentRecord = $records->getRecord($cid);
+            array_push($currentRecords,$currentRecord);    
         }
         
-            foreach ($currentRecordIDs as $cid) {
-                $currentRecord = $records->getRecord($cid);
-                array_push($currentRecords,$currentRecord);    
-            }
-
-            foreach ($addRecordIDs as $aid) {
-                $addRecord = $records->getRecord($aid);
-                array_push($addRecords,$addRecord);
-            }
-            
+        foreach ($addRecordIDs as $aid) {
+            $addRecord = $records->getRecord($aid);
+            array_push($addRecords,$addRecord);
+        }
+        
         $this->view->currentRecords = $currentRecords;
         $this->view->addRecords = $addRecords;
         $this->view->group = $group;
@@ -255,8 +212,6 @@ private $auth = NULL;
         $forms          = new Application_Model_DbTable_Forms;
         $groupForms     = new Application_Model_DbTable_GroupForms;
         $ptcpAlerts     = new Application_Model_DbTable_AlertsParticipants;
-        $groupVols      = new Application_Model_DbTable_VolunteerGroups;
-        $usersTable     = new Application_Model_DbTable_Users;
         
         $group      = $groupTable->getRecord($id);
         $progID     = $group['programID'];
@@ -264,7 +219,6 @@ private $auth = NULL;
         $programName = $program['name'];
         
         $permittedProgs = $programStaff->getList('progs',$this->uid);
-        $permittedVols = $usersTable->getAllowedVolIDs($this->uid);
         
         if ((in_array($progID, $permittedProgs)) || ($this->mgr)) {
             $permission = TRUE;
@@ -285,17 +239,6 @@ private $auth = NULL;
             $record['flag'] = $flags;
             array_push($ptcps, $record);
         }
-        //Vol List
-        $vols = array();
-        $myVols = $groupVols->getList('vols',$id);
-        $myAllowedVols = array_intersect($myVols,$permittedVols);
-        
-        foreach ($myAllowedVols as $volID) {
-            $vrecord = $usersTable->getRecord($volID);
-            array_push($vols,$vrecord);
-        }
-        
-        
         //Form List
         $myForms = $groupForms->getList('forms',$id);
         
@@ -322,7 +265,6 @@ private $auth = NULL;
         $this->view->group      = $group;
         $this->view->meetings   = $meetings; 
         $this->view->ptcps      = $ptcps;
-        $this->view->vols       = $vols;
         $this->view->forms      = $allForms;
         $this->view->mgr        = $this->mgr;
         $this->view->progName   = $programName;
@@ -351,8 +293,6 @@ private $auth = NULL;
         $programTable   = new Application_Model_DbTable_Programs;
         $groupPtcpTable = new Application_Model_DbTable_ParticipantGroups;
         $ptcpTable      = new Application_Model_DbTable_Participants;
-        $groupVolTable  = new Application_Model_DbTable_VolunteerGroups;
-        $usersTable = new Application_Model_DbTable_Users;
                 
         $group      = $groupTable->getRecord($id);
         $progID     = $group['programID'];
@@ -368,25 +308,10 @@ private $auth = NULL;
             throw new exception ("Only staff associated with $programName can work with its groups.");
         }
         
-        //get 2 volunteer lists - program based (if no group enrollment) and group based
-        $groupVolIDs = $groupVolTable->getList('vols',$id);
-        $groupVols = $this->_filterUsersToVolunteers($groupVolIDs);
-
-        $progVolIDs = array_diff($programStaff->getList('users', $progID),$groupVolIDs); //pull only program IDs of those unenrolled
-        //$progVolIDs = $programStaff->getList('users', $progID); 
-        $progVols = $this->_filterUsersToVolunteers($progVolIDs);
-        
-
-        
         $mtgDate = new Zend_Form_Element_Text('date');
         $mtgDate->setAttrib('class','entrydaypicker required')
                 ->setLabel('Meeting Date *');
         $this->view->dateElement = $mtgDate->render();
-        
-        $mtgName = new Zend_Form_Element_Text('eventname');
-        $mtgName->setAttrib('class','top-middle')
-                ->setLabel('Event Name');
-        $this->view->nameElement = $mtgName->render();
         
         $duration = new Zend_Form_Element_Text('duration');
         $duration->setAttrib('class', 'numeric required')
@@ -405,9 +330,8 @@ private $auth = NULL;
         
         $notes = new Zend_Form_Element_Textarea('notes');
         $notes->setAttribs(array(
-                            'rows' => '5',
-                            'cols' => '120',
-                            'class' => 'centred'
+                            'rows' => '4',
+                            'cols' => '80'
                           ))
               ->setLabel('Notes');
         $this->view->notesElement = $notes->render();
@@ -419,19 +343,14 @@ private $auth = NULL;
             array_push($enrolledList, $ptcpRecord);
         }
         $this->view->enrolledList = $enrolledList;
-        $this->view->volunteerListByGroup = $groupVols;
-        $this->view->volunteerListByProg = $progVols;
         $this->view->group = $group;
-        $this->view->progid = $progID;
         
         
         $this->view->layout()->customJS = 
                 "<script type='text/javascript' src='/js/setHeight.js'></script>" .
                 "<script type='text/javascript' src='/js/datePicker.js'></script>" .
-                "<script type='text/javascript' src='/js/filter.js'></script>" .
                 "<script type='text/javascript' src='/js/jquery.alphanumeric.js'></script>" .
                 "<script type='text/javascript' src='/js/jquery.jeditable.js'></script>" .
-                "<script type='text/javascript' src='/js/timepicker/jquery.timepicker.min.js'></script>" .
                 "<script type='text/javascript' src='/js/meetingCreate.js'></script>"
         ;
     }

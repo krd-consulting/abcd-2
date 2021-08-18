@@ -2,35 +2,31 @@
 
 class UsersController extends Zend_Controller_Action
 {
-    private $auth = NULL;
+private $auth = NULL;
     private $uid = NULL;
     private $root = FALSE;
     private $mgr = FALSE;
     private $evaluator = FALSE;
     private $db = NULL;
     
-    public function init() {
+    public function init()
+    {
         /* Get user credentials */
         $this->auth = Zend_Auth::getInstance();
         if (!$this->auth->hasIdentity()) {
             throw new Exception("You are not logged in.");
         }
         
-        /* Set UID and roles */
-        $this->uid = Zend_Registry::get('uid');
-        $this->root = Zend_Registry::get('root');
-        $this->mgr = Zend_Registry::get('mgr');
-        $this->evaluator = Zend_Registry::get('evaluator');
-        $this->volunteer = Zend_Registry::get('volunteer');
+        /* Set UID */
+        $this->uid = $this->auth->getIdentity()->id;
+        
+        /* Set role vars*/
+        if ($this->auth->getIdentity()->role == '4') {$this->root = TRUE; $this->mgr = TRUE;}
+        if ($this->auth->getIdentity()->role == '3') {$this->mgr = TRUE;}
+        if ($this->auth->getIdentity()->role == '1') {$this->evaluator = TRUE;}
 
         /* Set Database */
         $this->db = $this->getInvokeArg('bootstrap')->getResource('db');
-        
-        //get list of deparments for which logged-in user is set as manager
-        if ($this->mgr) {
-            $userDepts = new Application_Model_DbTable_UserDepartments;
-            $this->mgrDeptsList = $userDepts->getManagerDepts($this->uid);
-        }
 
     }
 
@@ -45,8 +41,6 @@ class UsersController extends Zend_Controller_Action
         $depts = new Application_Model_DbTable_Depts;
         $users = new Application_Model_DbTable_Users;
         
-        $myRole = $users->getRole($this->uid);
-        
         //Check if we're getting a list from search
         if ($this->_helper->flashMessenger->getMessages()) {
             $passedList = $this->_helper->flashMessenger->getMessages();
@@ -54,7 +48,7 @@ class UsersController extends Zend_Controller_Action
         
         //If admin, show all users in system     
         } elseif ($this->root) {
-            $list = $users->getIDs(); 
+            $list = $users->getIDs();
         
         //If manager, get list of staff in my depts            
         } elseif ($this->mgr) {
@@ -81,20 +75,14 @@ class UsersController extends Zend_Controller_Action
             } else {
                 array_push($meFirstList,$user);
             }
-        }   
-               
+        }
+        
         foreach ($userlist as $c => $key) {
             $sortLastName[$c] = $key['lastName'];
         }
         
         array_multisort($sortLastName, SORT_ASC, $userlist);
         $viewList = array_merge($meFirstList,$userlist);
-        $viewListWithDepts = array();
-        foreach ($viewList as $user) {
-            $deptID = $userDepts->getList('depts',$user['id']);
-            $user['deptIDs'] = $deptID;
-            array_push($viewListWithDepts,$user);
-        }
         
         //JS + Form for new user;
         $this->view->layout()->customJS = 
@@ -108,15 +96,12 @@ class UsersController extends Zend_Controller_Action
         $unlockForm = new Application_Form_UnlockUser;
         
         $this->view->count = $number;
-        $this->view->list = $viewListWithDepts;
+        $this->view->list = $viewList;
         $this->view->form = $form;
         $this->view->unlockForm = $unlockForm;
         $this->view->admin = $this->root;
         $this->view->mgr = $this->mgr;
-        $this->view->role = $myRole;
         $this->view->myID = $this->uid;
-        $this->view->mgrDeptsList = $this->mgrDeptsList;
-        
     }
 
     public function profileAction()
@@ -187,13 +172,32 @@ class UsersController extends Zend_Controller_Action
             array_push($programs,$record);
         }
         
+        //get dept list
+        $deptTable = new Application_Model_DbTable_Depts;
+        $deptUserTable = new Application_Model_DbTable_UserDepartments;
+        $depts = array();
+        $profileDeptIDs = $deptUserTable->getList('depts',$id);
+//        $allowedDeptIDs = $deptUserTable->getList('depts',$this->uid);
+//        print_r($profileDeptIDs); print_r($allowedDeptIDs); die();
+//        $deptIDs = array_intersect($profileDeptIDs,$allowedDeptIDs);
+        
+        foreach ($profileDeptIDs as $deptID) {
+            $deptRecord = $deptTable->getDept($deptID);
+            array_push($depts,$deptRecord);
+        }
+        
+        //get home depts
+        $homeDepts = $deptUserTable->getHomeDepts($id);
       
       $this->view->root = $this->root;
       $this->view->mgr = $this->mgr;
+      $this->view->uid = $this->uid;
       $this->view->evaluator = $this->evaluator;
       $this->view->user = $user;
       $this->view->ptcps = $participants;
       $this->view->programs = $programs;
+      $this->view->depts = $depts;
+      $this->view->homeDepts = $homeDepts;
       $this->view->filterForm = $statusFilterForm;
       $this->view->statusForm = $statusForm;
 
@@ -202,8 +206,8 @@ class UsersController extends Zend_Controller_Action
                 '<script type="text/javascript" src="/js/setHeight.js"></script>' . 
                 '<script type="text/javascript" src="/js/ptcpNoteCaseLoad.js"></script>' . 
                 '<script type="text/javascript" src="/js/statusFilter.js"></script>' . 
-                '<script type="text/javascript" src="/js/filter.js"></script>' 
-                 
+                '<script type="text/javascript" src="/js/filter.js"></script>' .
+                '<script type="text/javascript" src="/js/userFunctions.js"></script>'
             ;      
     }
     
@@ -272,10 +276,15 @@ class UsersController extends Zend_Controller_Action
         $id       = $this->_getParam('id');
         $type     = $this->_getParam('type');
         $userTable = new Application_Model_DbTable_Users;
+        
         $userProgTable = new Application_Model_DbTable_UserPrograms;
         $progTable = new Application_Model_DbTable_Programs;
         $ptcpProgTable = new Application_Model_DbTable_ParticipantPrograms;
+        
         $ptcpUserTable = new Application_Model_DbTable_ParticipantUsers;
+        
+        $deptTable     = new Application_Model_DbTable_Depts;
+        $userDeptTable = new Application_Model_DbTable_UserDepartments;
         
         $thisUser = $userTable->getRecord($id);
         
@@ -286,7 +295,7 @@ class UsersController extends Zend_Controller_Action
         switch ($type) {
             case 'prog' : 
                 $assocTable = $userProgTable;
-                $secondaryAssoc = new Application_Model_DbTable_UserDepartments;
+                $secondaryAssoc = $userDeptTable;
                 $records    = $progTable;
                 $columnType = 'progs';
                 $header = "Add Program to ";
@@ -300,7 +309,13 @@ class UsersController extends Zend_Controller_Action
                 $header = "Case load for ";
                 break;
             
-            default: throw new Exception("Can only add Participants and Programs to Staff Files.");
+            case 'dept' :
+                $assocTable = $userDeptTable;
+                $columnType = 'depts';
+                $header = "Departments for ";
+                break;
+            
+            default: throw new Exception("Can only add Departments, Participants and Programs to Staff Files.");
         }
         
         $currentRecords = array();
@@ -310,6 +325,7 @@ class UsersController extends Zend_Controller_Action
         
         
         $currentRecordIDs = array_unique($assocTable->getList($columnType, $id));
+        
         
         if ($type == 'ptcp') {
             //**organized by program**
@@ -372,9 +388,9 @@ class UsersController extends Zend_Controller_Action
         }
         
         if ($type == 'prog') {
-            $deptTable = new Application_Model_DbTable_UserDepartments();
-            $allDeptIDs = $deptTable->getList('depts',$id);
-            $allowedDeptIDs = $deptTable->getList('depts',$this->uid);
+            //$deptTable = new Application_Model_DbTable_UserDepartments();
+            $allDeptIDs = $userDeptTable->getList('depts',$id);
+            $allowedDeptIDs = $userDeptTable->getList('depts',$this->uid);
             $deptIDs = array_intersect($allDeptIDs,$allowedDeptIDs);
             
             foreach ($deptIDs as $deptID) {
@@ -387,6 +403,32 @@ class UsersController extends Zend_Controller_Action
                     } else {
                         array_push($addRecords,$progRecord);
                     } 
+                }
+            }
+        }
+        
+        if ($type == 'dept') {
+            
+            if (!$this->root) {
+                $allowedDeptIDs = $userDeptTable->getList('depts',$this->uid);            
+            } else {
+                $allowedDeptIDs = $deptTable->getIDs();
+            }
+            
+            $homeDepts = $userDeptTable->getHomeDepts($id);
+            
+            foreach ($allowedDeptIDs as $deptID) {
+                $deptRecord = $deptTable->getRecord($deptID);
+                $deptRecord['name'] = $deptRecord['deptName'];
+                
+                if (in_array($deptID,$currentRecordIDs)) {
+                    array_push($currentRecords,$deptRecord);
+                } else {
+                    array_push($addRecords,$deptRecord);
+                }
+                
+                if (in_array($deptID,$homeDepts)) {
+                    array_push($requiredIDs,$deptID);
                 }
             }
         }

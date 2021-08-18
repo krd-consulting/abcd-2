@@ -18,11 +18,16 @@ private $auth = NULL;
         }
         
         /* Set UID */
-        $this->uid = Zend_Registry::get('uid');
-        $this->root = Zend_Registry::get('root');
-        $this->mgr = Zend_Registry::get('mgr');
-        $this->evaluator = Zend_Registry::get('evaluator');
-        $this->volunteer = Zend_Registry::get('volunteer');
+        $this->uid = $this->auth->getIdentity()->id;
+        
+        /* Set role vars*/
+        $this->role = $this->auth->getIdentity()->role;
+        switch ($this->role) {
+            case '4' : $this->root = TRUE; $this->mgr = TRUE; break;
+            case '3' : $this->mgr = TRUE; break;
+            case '1' : $this->evaluator = TRUE; break;
+            default: break;
+        }
 
         /* Set Database */
         $this->db = $this->getInvokeArg('bootstrap')->getResource('db');
@@ -130,8 +135,6 @@ private $auth = NULL;
             $eid      =   'field_' . $element['id'];
             $type     =   $element['type'];
             $elName   =   $element['name'];
-            $schedulerID = $element['schedulerID'];
-            
             $options  =   array();
             
             switch ($type) {
@@ -141,7 +144,7 @@ private $auth = NULL;
                 case 'radio'    : $colType = 'varchar'; $optionList='(200)';    break;
                 case 'checkbox' : $colType = 'varchar'; $optionList='(200)';    break;
                 case 'matrix'   : $colType = 'varchar'; $optionList='(200)';    break;
-                case 'textarea' : $colType = 'text';    $optionList='';         break;                
+                case 'textarea' : $colType = 'mediumtext';                      break;                
             }
              
             if ($type != 'matrix') {
@@ -149,7 +152,7 @@ private $auth = NULL;
                     $options    = $element['options'];
                  }
                 //add to elements description table
-                $zElement->addElement($eid, $myID, $elName, $type, $options, $schedulerID);
+                $zElement->addElement($eid, $myID, $elName, $type, $options);
                 //add to SQL call for new table
                 $sqlCreateDataTable .= ",
                     $eid $colType $optionList NULL default NULL";
@@ -206,7 +209,6 @@ private $auth = NULL;
                 $dbTable = new Application_Model_DbTable_Participants;
                 break;
             case 'staff':
-            case 'volunteer':
                 $dbTable = new Application_Model_DbTable_Users;
                 break;
             case 'group':
@@ -221,12 +223,12 @@ private $auth = NULL;
         if ($formTarget == 'group') {
             $verifyName = $record['name'];
         } else {
-            $verifyName = trim($record['firstName']) . " " . trim($record['lastName']);
+            $verifyName = $record['firstName'] . " " . $record['lastName'];
         }
         
-//        if (trim($pairArray['name']) != $verifyName) {
-//            throw new exception ("Form name and ID are mismatched. Looking at .$verifyName. and ." . $pairArray['name'] . ".");
-//        }
+        if ($pairArray['name'] != $verifyName) {
+            throw new exception ("Form name and ID are mismatched. Looking at .$verifyName. and ." . $pairArray['name'] . ".");
+        }
         
         //Set initial values
         $sqlArray = array(
@@ -348,28 +350,9 @@ private $auth = NULL;
         }   
     }
     
-    protected function _enterCalEntry($data) {
-        //ABANDONING - better handled from the front-end, have better access to necessary data (e.g. calendar id!)
-//        
-//        $params = array();
-//        parse_str($data,$params);
-//        extract($params);
-//        die ("Will check $Choose_available_resource for $Appointment_Date, starting at $From and ending at $To");
-//        
-//        $sqlText = "SELECT * FROM `scheduledEvents` " . 
-//                   "WHERE setID = $sID AND doNotDisplay = 0 " . 
-//                    "AND '$date $from:00' < `endDate` " .
-//                    "AND '$date $to:00' > `startDate`";
-//        
-//        $sql = $this->db->query($sqlText . $addlSqlText);
-//        $result = $sql->fetchAll();
-//        
-    }
-    
-    protected function _insertData($table,$rawdata,$isSchedule=false) {
+    protected function _insertData($table,$rawdata) {
         $this->_setFormID($table);
         $dataArray = $this->_htmlToSql($rawdata);
-        $return = array();
         
         if ($this->_isFcssForm()) {
             //will only proceed to enter data locally
@@ -388,14 +371,10 @@ private $auth = NULL;
             if ($result > 0) {
                 $this->_updateReminder($dataArray);
             }
-            $return['success'] = 1;
-            $return['entryID'] = $result;
+            return 1;
         } else {
-           $return['success'] = 0;
-           $return['message'] = $proceed;
+           return $proceed;
         }
-        
-        return $return;
 }
 
     protected function _setRequired($data=array()){
@@ -573,16 +552,14 @@ private $auth = NULL;
 
     public function listAction()                 {        
         $formDB = new Application_Model_DbTable_Forms;
-        //$forms = $formDB->fetchAll(null, 'name');
-        //$formsArray = $forms->toArray();
-        $formsArray = $formDB->getStaffForms();
-        $num = count($formsArray);
+        $forms = $formDB->fetchAll(null, 'name');
+        $formsArray = $forms->toArray();
+        $num = count($forms);
         $enabledForms = array();
         $disabledForms = array();
         
         //check for entries and sort disabled
-        foreach ($formsArray as $formID) {
-            $form=$formDB->getRecord($formID);
+        foreach ($formsArray as $form) {
             $entriesSelect =  $this->db->query("SELECT * FROM " . $form['tableName']);
             $numEntries = count($entriesSelect->fetchAll());
             $form['numEntries'] = $numEntries;
@@ -592,7 +569,7 @@ private $auth = NULL;
 		array_push($disabledForms,$form);
 	    }
         }
-        $this->view->permittedIDs = $formsArray;//$formDB->getStaffForms();
+        $this->view->permittedIDs = $formDB->getStaffForms();
         $this->view->forms = $enabledForms;
         $this->view->dForms = $disabledForms;
         $this->view->count = $num;
@@ -621,6 +598,7 @@ private $auth = NULL;
         
         $this->view->manager = $this->mgr;
         $this->view->admin = $this->root; 
+        $this->view->uid = $this->uid;
         
         $this->view->layout()->customJS = 
                 '<script type="text/javascript" src="/js/formCreate.js"></script>' . 
@@ -885,17 +863,6 @@ private $auth = NULL;
                     }
                     $fieldDropDown->setLabel('Choose Field');
                     $formHtml = $fieldDropDown->render();
-                } else if ($type == 'schedulelist') {
-                    $schedDropDown = new Zend_Form_Element_Select('scheduleList');
-                    $schedTable = new Application_Model_DbTable_ScheduleSets;
-                    $myScheds = $schedTable->fetchAll("doNotDisplay = 0")->toArray();
-                    
-                    foreach ($myScheds as $scheduleRec) {
-                        $schedDropDown->addMultiOption($scheduleRec['id'], $scheduleRec['name']);
-                    }
-                    $schedDropDown->setLabel('Choose a Schedule Set');
-                    $formHtml = $schedDropDown->render();
-                    
                 }
                 
                 $jsonReturn = array('form' => $formHtml); 
@@ -919,33 +886,19 @@ private $auth = NULL;
                 $tableName = $_POST['id'];
                 $formData = $_POST['data'];
                 $oldVersion = $_POST['oldVersion'];
-                $isSchedule = $_POST['isSchedule'];
-                
-                $dataResult = $this->_insertData($tableName, $formData, $isSchedule);
                 
                 
-                if($dataResult['success'] == 1) {
+                
+                $dataResult = $this->_insertData($tableName, $formData);
+                
+                if($dataResult == 1) {
                     if ($oldVersion != 0) {
                         $this->_setDoNotDisplay($tableName,$oldVersion);
                     }
-                
-                    if ($isSchedule == "true") {
-                        $formEntryID = $dataResult['entryID'];
-                        $form = explode("_",$tableName);
-                        $formID = (int)$form[1];
-                        $eventID = $_POST['eventID'];
-                        
-                        $eventTable = new Application_Model_DbTable_ScheduledEvents;
-                        $eventLinkData = array(
-                            'formID' => $formID,
-                            'formEntryID' => $formEntryID
-                        );       
-                        $result = $eventTable->update($eventLinkData,"id = $eventID");
-                    }
                     
-                    $jsonReturn = array('success' => 'yes','formEntryID' => $dataResult['entryID']);
+                    $jsonReturn = array('success' => 'yes');
                 } else {
-                    $jsonReturn = array('success' => $dataResult['message']);
+                    $jsonReturn = array('success' => $dataResult);
                 }
 
                 break;
@@ -973,7 +926,7 @@ private $auth = NULL;
                 $pid = $_POST['pid'];
                 $pType = $_POST['type'];
                 
-                $allowedTypes = array('staff','ptcp','participant','vol','volunteer');
+                $allowedTypes = array('staff','ptcp','participant');
                 if (!in_array($pType, $allowedTypes)) {
                     throw new exception ("Invalid form type $pType passed to department lister.");
                 }
@@ -984,9 +937,7 @@ private $auth = NULL;
                     case 'ptcp' : 
                     case 'participant': $typeDepts = new Application_Model_DbTable_ParticipantDepts;
                         break;
-                    case 'staff': 
-                    case 'vol': 
-                    case 'volunteer': $typeDepts = new Application_Model_DbTable_UserDepartments;
+                    case 'staff': $typeDepts = new Application_Model_DbTable_UserDepartments;
                         break;
                 }
                 
@@ -997,9 +948,11 @@ private $auth = NULL;
                     $s = explode("/",$referer);
                     $formID = $s[6];
                     $formDeptTable = new Application_Model_DbTable_DeptForms;
-                    $formDepts = $formDeptTable->getList('depts',$formID);
+                    $formDepts = $formDeptTable->getLIst('depts',$formID);
                 }
                 
+                
+
                 $deptIDs = $typeDepts->getList('depts', $pid);
                 
                 if($sourceIsForm) {
@@ -1023,7 +976,7 @@ private $auth = NULL;
         }
                
        if ($j) $this->_helper->json($jsonReturn);
-       //print_r($jsonReturn);
+       
     }
 
     public function addAction()                  {
@@ -1106,13 +1059,11 @@ private $auth = NULL;
         $this->view->layout()->customJS = 
                 '<script type="text/javascript" src="/js/ac-communities.js"></script>' .
                 '<script type="text/javascript" src="/js/datePicker.js"></script>' .
-                '<script type="text/javascript" src="/js/timepicker/jquery.timepicker.min.js"></script>' .
                 '<script type="text/javascript" src="/js/setHeight.js"></script>' .
                 '<script type="text/javascript" src="/js/ac2.js"></script>' .
                 '<script type="text/javascript" src="/js/ac-reference.js"></script>' .
                 '<script type="text/javascript" src="/js/formOptions.js"></script>' .
                 '<script type="text/javascript" src="/js/jquery.alphanumeric.js"></script>' .
-                '<script type="text/javascript" src="/js/formToSchedule.js"></script>' .
                 '<script type="text/javascript" src="/js/dataEntry.js"></script>';
         
         if ($this->getRequest()->isPost()) {

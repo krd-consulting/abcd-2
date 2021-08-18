@@ -47,9 +47,11 @@
                         ">
                         <?php 
                         if (($this->type == 'user') || ($this->type == 'ptcp')) {
-                        $printName = $record['firstName'] . ' ' . $record['lastName'];
+                            $printName = $record['firstName'] . ' ' . $record['lastName'];
+                        } elseif ($this->type == 'dept') {
+                            $printName = $record['deptName'];
                         } else {
-                        $printName = $record['name'];
+                            $printName = $record['name'];
                         }
                     print $printName;
                     ?>
@@ -69,9 +71,11 @@
                     <li id="<?php print $record['id'];?>" class="draggable out-list">
                     <?php 
                         if (($this->type == 'user') || ($this->type == 'ptcp')) {
-                        $printName = $record['firstName'] . ' ' . $record['lastName'];
+                            $printName = $record['firstName'] . ' ' . $record['lastName'];
+                        } elseif ($this->type == 'dept') {
+                            $printName = $record['deptName'];
                         } else {
-                        $printName = $record['name'];
+                            $printName = $record['name'];
                         }
                     print $printName;
                     ?>

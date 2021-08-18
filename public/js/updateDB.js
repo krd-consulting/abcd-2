@@ -1,5 +1,7 @@
 $(function()
-{
+
+
+ {
 
 //Make checkbox update database
 $("input.isRequired").click(function() {

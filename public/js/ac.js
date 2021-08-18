@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    $("#searchkey, #volBenef").autocomplete(
+    $("#searchkey").autocomplete(
         { 
             source: function(request, response) {
 
@@ -8,9 +8,7 @@ $(document).ready(function() {
                 dataType: "json",
                 data:   {
                         term: request.term,
-                        type: $("input[@name=acType]:checked").val(),
-                        vtype: $("#volBenef").data('vtype'),
-                        progid: $("#volBenef").data('progid')
+                        type: $("input[@name=acType]:checked").val()
                         },
                 success: function(data) {
                         response(data);
@@ -18,17 +16,15 @@ $(document).ready(function() {
                 });
             },                        
             focus: function( event, ui ) {
-				$(this).val( ui.item.label );
+				$( "#searchkey" ).val( ui.item.label );
 				return false;
             },
             select: function( event, ui ) {
-		 		$(this).val( ui.item.label );
-                                $(this).attr('data-targetid', ui.item.value)
+		 		$( "#searchkey" ).val( ui.item.label );
                                 return false;
             },
-            minLength: 0,
+            minLength: 2,
             delay: 100
        });
 });
-
 

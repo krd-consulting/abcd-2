@@ -2,31 +2,7 @@
 
 class Application_Form_AddAlert extends Zend_Form
 {
-    protected $type = 'ptcp';
-    protected $options = array();
-    
-    
-    public function setType($type) {
-        $this->type = $type;
-    
-        switch ($this->type) {
-            case 'ptcp': 
-                $this->options = array(
-                    'participant' => 'Individual Participant',
-                    'group'       => 'Current group members' 
-                ); 
-                break;
-            case 'vol':
-                $this->options = array(
-                    'volunteer'     => 'Individual Volunteer',
-                    'group'         => 'Current group volunteers',
-                    'program'       => 'All volunteers in a program'
-                );
-                break;
-            default: throw new exception("Invalid target $type passed to Alert Form Creator.");
-        }
-    }
-    
+
     public function init()
     {
 	$this->setName('addAlertForm')
@@ -41,7 +17,10 @@ class Application_Form_AddAlert extends Zend_Form
         
         $assignTo = new Zend_Form_Element_Select('formTarget');
         $assignTo->setLabel('Assign alert to');
-        $assignTo->setMultiOptions($this->options);
+        $assignTo->setMultiOptions(array(
+                'participant' => 'Individual participant',        
+                'group' => 'Current group members'
+        ));
 
         $target = new Zend_Form_Element_Text('name');
         $target->setAttrib('class', 'autocomplete');

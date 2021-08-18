@@ -1,5 +1,3 @@
-//**** FOR SKELETON FIELD ONLY ****//
-
 $(document).ready(function() {
 
 if ($("#formTarget").val() !== "other") {

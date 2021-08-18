@@ -12,11 +12,7 @@ $backURL = $this->url(array(
 //Set up header counts
 $ptcpCount = count($this->ptcps);
 $meetingCount = count($this->meetings);
-if ($this->vols) {
-    $volCount = count($this->vols);
-} else {
-    $volCount = 0 ; 
-}
+
 //Set up URLs
 
 $addMeetingToGroupUrl = $this->url(array(
@@ -29,13 +25,6 @@ $addPtcpToGroupUrl = $this->url(array(
                                'action'      =>'enroll',
                                'type'        =>'ptcp',
                                'id'          => $this->group['id']));
-
-$addVolToGroupUrl = $this->url(array(
-                               'controller'  =>'groups',
-                               'action'      =>'enroll',
-                               'type'        =>'vol',
-                               'id'          => $this->group['id']));
-
 
 // Set up Meetings Tab
 if ($meetingCount == 0) {
@@ -57,28 +46,6 @@ if (count($this->forms) == 0) {
 }
 
 $formTab = $formList;
-
-//Set up Volunteers Tab
-if ($volCount == 0) {
-    $volList = "<h2>No volunteers enrolled in this group</h2>";
-} else {
-    $links = array('profile');
-    $volList = '<table class="p-list-table">';
-    foreach ($this->vols as $vol) {
-        $volList .= $this->tableRow('person','volunteers',$vol,$links);
-    }
-    $volList .= '</table>';
-}
-
-$volAddMore = "<a class='add-link' href=" 
-              . $addVolToGroupUrl 
-              . "> Enroll volunteers in " 
-              . $this->title 
-              . "</a>";
-
-$bottomVLinks = "<div class='bottom-links'> $volAddMore </div>";
-
-$volTab = $volList . $bottomVLinks;
 
 //Set up Participants Tab
 if ($ptcpCount == 0) {
@@ -105,7 +72,6 @@ $ptcpTab = $ptcpList . $bottomLinks;
 
 $this->tabPane('group', $mtgTab, array('title' => 'Meetings'));
 $this->tabPane('group', $ptcpTab, array('title' => 'Participants'));
-$this->tabPane('group', $volTab, array('title' => 'Volunteers'));
 $this->tabPane('group', $formTab, array('title' => 'Forms'));
 ?>
 
@@ -123,30 +89,19 @@ $this->tabPane('group', $formTab, array('title' => 'Forms'));
 </div>
 
 <div id="content-top">
-    <div class="topbar">
-        Program: <i><?php print $this->progName; ?></i>
-    </div>
     <span class="third shaded">
-        <span class="gamify-profile"> 
-            <div class="topnum"><?php print $volCount ?></div>
-            <div class="bottom-desc">volunteers</div>
-        </span>
+        <strong>Program:</strong> <?php print $this->progName; ?>
     </span>
     
     <span class="third shaded">
-        <span class="gamify-profile"> 
-            <span class="topnum" id="record-count">
+        <strong>Participants:</strong> 
+            <span id="record-count">
                 <?php print $ptcpCount; ?>
             </span>
-            <span class="bottom-desc">participants</span>
-        </span>
     </span>
     
     <span class="third shaded">
-        <span class="gamify-profile">
-            <div class="topnum"><?php print $meetingCount; ?></div>
-            <div class="bottom-desc">meetings</div>
-        </span>
+        <strong>Meetings so far:</strong> <?php print $meetingCount; ?>
     </span>
     
     

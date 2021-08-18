@@ -13,7 +13,7 @@ $desc=array (
 );
 $up=-176;
 $ut=59;
-$ttffile='/var/www/abcd/cceca-new/scripts/MPDF57/ttfonts/ind_te_1_001.ttf';
+$ttffile='/var/www/abcd/escc/scripts/MPDF57/ttfonts/ind_te_1_001.ttf';
 $TTCfontID='0';
 $originalsize=124248;
 $sip=false;

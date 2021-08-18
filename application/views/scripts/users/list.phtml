@@ -29,16 +29,6 @@
                     
                     foreach ($this->list as $user) {
                         $locked = $user['lock'];
-                        $recordDepts = $user['deptIDs'];
-                        $recordRole = $user['role'];
-                        if (($this->mgr) && (array_intersect($recordDepts,$this->mgrDeptsList)) && ($recordRole <= $this->role)) {
-                            $mgrEdit = TRUE;
-                        } else {
-                            $mgrEdit = FALSE;
-                        }
-                        
-                        
-                        
                         if ($user['id'] != $this->myID) {
                             $notMe = TRUE;
                         } else {
@@ -47,11 +37,11 @@
 
                         $links = array('profile');
 
-                        if (($this->admin) || (!$notMe) || ($mgrEdit)) {
+                        if (($this->admin) || (!$notMe)) {
                             array_push($links, 'edit');
                         }
                                                 
-                        if ((($this->admin) || ($mgrEdit)) && ($notMe) && (!$locked)) {
+                        if (($this->admin) && ($notMe) && (!$locked)) {
                             array_push($links, 'lock');
                         }
                         

@@ -31,9 +31,9 @@ class AuthController extends Zend_Controller_Action
                 $this->_recordLogin($values['username']);                
                 return true;
 	} else {
-                $this->_helper->flashMessenger->addMessage('Incorrect username/password.');
-                return false;
+            $this->_helper->flashMessenger->addMessage('Incorrect username/password.');
         }
+	return false;
     }
 
     protected function _getAuthAdapter()
@@ -64,7 +64,6 @@ class AuthController extends Zend_Controller_Action
 			    $this->_helper->redirector('index', 'dash');
 			} else {
                             $this->_helper->flashMessenger->addMessage('Incorrect username/password.');
-                            $this->_helper->redirector('index');
                         }
 		}
 	}

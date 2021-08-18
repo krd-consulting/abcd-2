@@ -4,11 +4,14 @@ class Zend_View_Helper_FormReport extends Zend_View_Helper_Abstract
 {
   public function formReport()
   {
+      $userDeptModel = new Application_Model_DbTable_UserDepartments;
+      $userDepts = $userDeptModel->getCurrentUserDeptsWithNames();
+      
       $wrapperDiv = "<div id='options-div'>";
       $divEnd = "</div>";
 
         //1: multiselect of all forms
-        $firstDiv = "<div id='formSelect' class='reportBuilder block'>";
+        $firstDiv = "<div id='formSelect' class='reportBuilder quarter block'>";
         
         $firstDiv .= "<div class='block-header'>
                         1. Choose a form
@@ -41,17 +44,35 @@ class Zend_View_Helper_FormReport extends Zend_View_Helper_Abstract
         
         $firstDiv .= "</div>";
         
-        //2: Date Range form
-        $secondDiv = "<div id='dateOptions' class='hidden reportBuilder block'>";
+        //2: Dept Select Form
+        $secondDiv = "<div id='deptOptions' class='hidden reportBuilder quarter block'>";
+        $secondDiv .= "<div class='block-header'>"
+                . "2. Choose Department"
+                . "</div>";
         
-        $secondDiv .= "<div class='block-header'>
-                        2. Choose Date Options
+        $deptToggle = new Zend_Form_Element_Radio('deptToggle');
+        $deptToggle -> setMultiOptions(array('all' => 'Show all', 'filter' => 'Filter by department'));
+        
+        $secondDiv .= $deptToggle->render();
+        
+        $deptSelect = new Zend_Form_Element_Multiselect('deptChoice');
+        $deptSelect->setLabel('')->setAttrib('class','deptChoice');
+        
+        $secondDiv .= "<div id='deptSelector' class='hidden'>" . $deptSelect->render() . "</div>";
+        
+        $secondDiv .= "</div>";
+        
+        //3: Date Range form
+        $thirdDiv = "<div id='dateOptions' class='hidden reportBuilder quarter block'>";
+        
+        $thirdDiv .= "<div class='block-header'>
+                        3. Choose Date Options
                       </div>";
         
         $dateSelect = new Zend_Form_Element_Radio('dateSelect');
         $dateSelect ->setMultiOptions(array('all' => 'Show all data', 'filter' => 'Filter by date'));
         
-        $secondDiv .= $dateSelect->render();
+        $thirdDiv .= $dateSelect->render();
         
         $fromDate = new Zend_Form_Element_Text('fromDate');
         $fromDate->setLabel('From')
@@ -63,15 +84,15 @@ class Zend_View_Helper_FormReport extends Zend_View_Helper_Abstract
         
         $dateBoxes = "<div id='dateBoxes' class='hidden'>" . $fromDate->render() . $toDate->render() . "</div>";
         
-        $secondDiv .= $dateBoxes;
+        $thirdDiv .= $dateBoxes;
         
-        $secondDiv .= "</div>";
+        $thirdDiv .= "</div>";
         
-        //3: Format selection form + go button
-        $thirdDiv = "<div id='formatOptions' class='hidden reportBuilder block'>";
+        //4: Format selection form + go button
+        $fourthDiv = "<div id='formatOptions' class='hidden quarter reportBuilder block'>";
         
-        $thirdDiv .= "<div class='block-header'>
-                        3. Choose display options
+        $fourthDiv .= "<div class='block-header'>
+                        4. Choose display options
                       </div>";
         
         $formatSelect = new Zend_Form_Element_Radio('formatSelect');
@@ -81,14 +102,14 @@ class Zend_View_Helper_FormReport extends Zend_View_Helper_Abstract
             'excel' => 'Download Excel spreadsheet'
             ))
                     ->setValue('table');
-        $thirdDiv .= $formatSelect->render();
+        $fourthDiv .= $formatSelect->render();
         
-        $thirdDiv .= "<button id='buildFormReport'>Go!</button>";
+        $fourthDiv .= "<button id='buildFormReport'>Go!</button>";
         
-        $thirdDiv .= "</div>";
+        $fourthDiv .= "</div>";
                 
         $reportDiv = "<div id='reportDiv'></div>";
         
-        return $wrapperDiv . $firstDiv . $secondDiv . $thirdDiv . $divEnd . $reportDiv;
+        return $wrapperDiv . $firstDiv . $secondDiv . $thirdDiv . $fourthDiv . $divEnd . $reportDiv;
   }
 }

@@ -11,7 +11,17 @@ class Application_Model_DbTable_Participants extends Zend_Db_Table_Abstract {
         return $age;
     }
     
-    public function getStaffPtcps($id=NULL) {
+    public function getStaffHomePtcps($id) {
+        $sql = "SELECT p.id from participants p, participantDepts pd, userDepartments ud WHERE"
+                . " p.id = pd.participantID AND"
+                . " pd.deptID = ud.deptID AND"
+                . " ud.userID = $id AND ud.homeDept = 1";
+        $query=$this->getAdapter()->query($sql);
+        $result = $query->fetchAll();
+        return array_column($result,'id');
+    }
+    
+    public function getStaffPtcps($id=NULL,$mode='IDONLY') {
         if ($id == NULL) {
             $root = Zend_Registry::get('root');
             $evaluator = Zend_Registry::get('evaluator');
@@ -26,33 +36,51 @@ class Application_Model_DbTable_Participants extends Zend_Db_Table_Abstract {
             $root = $evaluator = $mgr = 0;
             
             switch ($role) {
-                case '40' : $root = $mgr = TRUE; break;
-                case '30' : $mgr = TRUE; break;
-                case '20' : break;
-                case '10' : $evaluator = TRUE; break;
+                case '4' : $root = $mgr = TRUE; break;
+                case '3' : $mgr = TRUE; break;
+                case '2' : break;
+                case '1' : $evaluator = TRUE; break;
                 default : throw new exception ("UserID $id has undefined role $role, can't pull participants.");
             }
         }
 
+        
         //if root, get all
         if ($root || $evaluator) {
-            
-            $result = $this->getIDs();
+            if ($mode == 'IDONLY') {
+                $result = $this->getIDs();
+            } elseif ($mode == 'FULLREC') {
+                $result = $this->fetchAll(NULL,"lastName ASC")->toArray();
+            } else {
+                throw new exception("Invalide mode $mode passed to Participants Model");
+            }
         } else { //for others, get by dept
             $userDepts = new Application_Model_DbTable_UserDepartments;
             $ptcpDepts = new Application_Model_DbTable_ParticipantDepts;
             
             $myDepts = $userDepts->getList('depts', $uid);
-            $result = array();
+            $myDeptsString = "(" . implode(",",$myDepts) . ")";
             
-            foreach ($myDepts as $deptID) {
-                $deptList = $ptcpDepts->getList('ptcp', $deptID);
-                foreach ($deptList as $ptcpID) {
-                    array_push($result, $ptcpID);
+            if ($mode == 'IDONLY') {
+                $col = "p.id";
+            } else {
+                $col = "p.*";
+            }
+            
+            $sql = ("SELECT $col from participants p, participantDepts pd WHERE p.id = pd.participantID AND pd.deptID in $myDeptsString ORDER BY p.lastName ASC");
+            $query=$this->getAdapter()->query($sql);
+            $rawResult = $query->fetchAll();
+            
+            if ($mode == 'IDONLY') {
+                $result = array();
+                foreach ($rawResult as $key => $idArray) {
+                    array_push($result,$idArray[id]);
                 }
+            } else {
+                $result = $rawResult;
             }
         }
-        return array_unique($result);
+        return $result;
         
     }
     
@@ -106,7 +134,8 @@ class Application_Model_DbTable_Participants extends Zend_Db_Table_Abstract {
 //                                           OR lastName like \'%' . $key . '%\'');  
 //            }
 //        } else {
-            $selectText = "CONCAT_WS (' ', firstName, lastName) like '%$key%'";
+            $escapedKey = addslashes($key);
+            $selectText = "CONCAT_WS (' ', firstName, lastName) like '%$escapedKey%'";
             $select = $this->select()->where($selectText);
 //        }
         
@@ -138,8 +167,8 @@ class Application_Model_DbTable_Participants extends Zend_Db_Table_Abstract {
         $now = date("Y-m-d");
         
         $data = array(
-            'firstName'     => trim($fname),
-            'lastName'      => trim($lname),
+            'firstName'     => $fname,
+            'lastName'      => $lname,
             'dateOfBirth'   => $dob,
             'createdOn'     => $now
         ); 
@@ -175,11 +204,17 @@ class Application_Model_DbTable_Participants extends Zend_Db_Table_Abstract {
     }
     
     public function getIDs() {
-        $row = $this->fetchAll();
+        $row = $this->fetchAll(NULL,"lastName ASC");
+        
         $result = array();
         foreach ($row as $userRecord) {
             array_push($result, $userRecord['id']);
         }
         return $result;
     }
+    
+    public function getFullRecords($ids) {
+         return $this->fetchAll("id in (" . $ids . ")")->toArray();
+    }
+    
 }

@@ -10,7 +10,6 @@ $backURL = $this->url(array(
 
 $links = array('profile');
 $users = $this->users;
-$vols = $this->vols;
 $ptcps = $this->ptcps;
 $progs = $this->progs;
 $forms = $this->forms;
@@ -23,12 +22,6 @@ $addUserToDeptUrl = $this->url(array(
                                'controller'  =>'depts',
                                'action'      =>'addmember',
                                'type'        =>'user',
-                               'id'          => $this->dept['id']));
-
-$addVolToDeptUrl = $this->url(array(
-                               'controller'  =>'depts',
-                               'action'      =>'addmember',
-                               'type'        =>'vol',
                                'id'          => $this->dept['id']));
 
 $addPtcpToDeptUrl = $this->url(array(
@@ -63,21 +56,6 @@ $userAddMore = '<div class="bottom-links">
                    </a>
                 </div>';
 $userTab = $userList . $userAddMore;
-
-/*
- * Set up volunteers
- */
-$volList = '<table class="p-list-table">';
-foreach ($vols as $vol) {
-    $volList .= $this->tableRow('person','volunteers',$vol,$links);
-}
-$volList .= '</table>';
-$volAddMore = '<div class="bottom-links">
-                   <a class="add-link" href=' . $addVolToDeptUrl . '>
-                       Add Volunteers to ' . $this->title . ' 
-                   </a>
-                </div>';
-$volTab = $volList . $volAddMore;
 
 /*
  * Set up participants
@@ -136,7 +114,6 @@ $formTab = $formList . $formAddMore;
 
 $this->tabPane('dept', $userTab, array('title' => 'Staff'));
 $this->tabPane('dept', $ptcpTab, array('title' => 'Participants'));
-$this->tabPane('dept', $volTab, array('title' => 'Volunteers'));
 $this->tabPane('dept', $progTab, array('title' => 'Programs'));
 $this->tabPane('dept', $formTab, array('title' => 'Forms'));
 

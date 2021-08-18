@@ -5,8 +5,7 @@ class Application_Model_DbTable_Users extends Zend_Db_Table_Abstract
 
     protected $_name = 'users';
 
-    protected function _getStaffListByType($type,$uid,$entityType='users') {
-        
+    protected function _getStaffListByType($type,$uid) {
         $validTypes = array('progs','depts');
         if (!in_array($type,$validTypes)) {
             throw new exception ("Invalid type $type passed to getStaffListByType");
@@ -27,20 +26,11 @@ class Application_Model_DbTable_Users extends Zend_Db_Table_Abstract
             foreach ($myGps as $gid) {
                 $userIDs = $assocTable->getList('users',$gid);
                 foreach ($userIDs as $sid) {
-                    if (!in_array($sid,$result) && ($sid != $uid)) {   
+                    if (!in_array($sid,$result) && ($sid != $uid)) {
                         array_push($result,$sid);
                     }
                 }
-            }
-        //if volunteers wanted, check against full vol list
-        $volList = $this->getIDs('vols');
-        
-        //throw new exception ("entitytype is $entityType");
-        if ($entityType == 'vol') {
-            $result = array_intersect($result,$volList);
-        } else {
-            $result = array_diff($result,$volList);
-        }
+            }           
         return $result;
     }
     
@@ -76,6 +66,18 @@ class Application_Model_DbTable_Users extends Zend_Db_Table_Abstract
     }
     
     public function search($key) {
+//        $names = split(' ', $key);
+//        $fname = $names[0];
+//        $lname= $names[1];
+//
+//        if (!is_null($fname) && !is_null($lname)) {        
+//            $select = $this->select()->where('firstName like \'%' . $fname . '%\' 
+//                                       AND lastName like \'%' . $lname . '%\'');
+//        } else {
+//          $select = $this->select()->where('firstName like \'%' . $key . '%\' 
+//                                       OR lastName like \'%' . $key . '%\'');  
+//        }
+
         $selectText = "CONCAT_WS (' ', firstName, lastName) like '%$key%'";
         $select = $this->select()->where($selectText);
         $rowset = $this->fetchAll($select);
@@ -101,11 +103,6 @@ class Application_Model_DbTable_Users extends Zend_Db_Table_Abstract
             $result = $this->_getStaffListByType('progs',$uid);
         }
         
-        //make sure we don't include stray users deleted elsewhere
-        $allIDs = $this->getIDs('staff');
-        $result = array_intersect($result,$allIDs);
-       
-        
         //always return at least myself (some installs don't use programs)
         //if (count($result) == 0) {
             array_push($result,$uid);
@@ -114,59 +111,9 @@ class Application_Model_DbTable_Users extends Zend_Db_Table_Abstract
         return array_unique($result);
     }
 
-public function isVolunteer($uid) {
-        //returns TRUE if passed uid is a volunteer
-        if ($this->fetchRow("id = $uid")) {
-                $row = $this->fetchRow("id = $uid")->toArray();
-        } else {
-            $row = array();
-            $return = FALSE;
-        }
-        
-        if ($row['role'] == '15') {
-            $return=TRUE;
-        } else {
-            $return=FALSE;
-        }
-        return $return;
-    }
 
-public function getAllowedVolIDs($uid='') {
-        //returns list of volunteer IDs logged in UID has access to
-        $result = array();
-        $root = Zend_Registry::get('root');
-        $mgr = Zend_Registry::get('mgr');
-        
-        //if no uid passed, use currently logged in user
-        if (strlen($uid) == 0) {
-            $uid = Zend_Registry::get('uid');
-        }
-        
-        if ($root) { //get all users
-            $result = $this->getIDs('vol');
-        } elseif ($mgr) { //get all users in my departments
-            $result = $this->_getStaffListByType('depts',$uid,'vol'); 
-        } else { //get all users in my programs
-            $result = $this->_getStaffListByType('progs',$uid,'vol');
-        }
-        
-        //always return at least myself (some installs don't use programs)
-        if (count($result) == 0) {
-            array_push($result,$uid);
-        }
-        return array_unique($result);
-    }
-    
-    
-    public function getIDs($type = 'staff') {
-        
-        if ($type == 'vols' || $type == 'vol') {
-            $select = "role = 15";
-        } else {
-            $select = "role != 15";
-        }
-        $row = $this->fetchAll($select);
-        
+    public function getIDs() {
+        $row = $this->fetchAll();
         $result = array();
         foreach ($row as $userRecord) {
             array_push($result, $userRecord['id']);
@@ -236,11 +183,6 @@ public function getAllowedVolIDs($uid='') {
                        'password' => $setPwd);
         
         $this->update($data, "id = $id");
-    }
-    
-    public function getRole($id) {
-        $record = $this->fetchRow("id = $id")->toArray();
-        return $record['role'];
     }
 }
 

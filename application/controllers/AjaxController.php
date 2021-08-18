@@ -5,8 +5,6 @@ class AjaxController extends Zend_Controller_Action
     private $uid = NULL;
     private $root = FALSE;
     private $mgr = FALSE;
-    private $evaluator = FALSE;
-    private $volunteer = FALSE;
     private $db = NULL;
     private $status = array();
     
@@ -19,13 +17,10 @@ class AjaxController extends Zend_Controller_Action
     public function init()
     {
         $this->_helper->viewRenderer->setNoRender(true); //all ajax actions
-        
-        $this->uid = Zend_Registry::get('uid');
+        $this->uid  = Zend_Registry::get('uid');
         $this->root = Zend_Registry::get('root');
-        $this->mgr = Zend_Registry::get('mgr');
-        $this->evaluator = Zend_Registry::get('evaluator');
-        $this->volunteer = Zend_Registry::get('volunteer');
-       
+        $this->mgr  = Zend_Registry::get('mgr');
+        $this->evaluator  = Zend_Registry::get('evaluator');
         $this->db   = $this->getInvokeArg('bootstrap')->getResource('db');
     }
 
@@ -249,23 +244,24 @@ class AjaxController extends Zend_Controller_Action
         
         
         
-        $string = $keywords[$key];
+       $string = $keywords[$key];
+        if (is_array($match)) {
+            $rawMatch = implode("|",$match);
+            $safeMatch = str_replace('\\\\\\|', "|", preg_quote(preg_quote($rawMatch)));
+        } else {
+            $safeMatch = preg_quote(preg_quote($match));
+        };
+        
+        
         switch ($key) {
             case 'includes' : 
-            case 'excludes' :
-                if (is_array($match)) { 
-                    $phrase = " '(" . implode("|",$match) . ")' "; 
-                } else {
-                    $phrase = " '(" . $match . ")' ";
-                }
-                break;
-            case 'begins with': $phrase = " '$match%'"; break;
-            case 'ends with'  : $phrase = " '%$match'"; break;
-            default:            $phrase = " '$match'";
+            case 'excludes' :   $phrase = " '(" . $safeMatch . ")' "; break;
+            case 'begins with': $phrase = " '$safeMatch%'"; break;
+            case 'ends with'  : $phrase = " '%$safeMatch'"; break;
+            default:            $phrase = " '$safeMatch'";
         }
         
         $returnQuery = $string . $phrase;
-        
         return $returnQuery;
     }
     
@@ -586,493 +582,23 @@ class AjaxController extends Zend_Controller_Action
         $this->_helper->redirector('index','dash');
     }
 
-    public function checkifexistsAction() {
-        $type = $_POST['type'];
-        $column = $_POST['col'];
-        $token = $_POST['token'];
-        $jsonReturn = array();
-        
-        switch ($type) {
-            case 'scheduleset':
-                   $dataTable = new Application_Model_DbTable_ScheduleSets;
-                break;
-            default:
-                throw new exception("Invalid option $type passed to duplicate checker.");
-                break;
-        }
-        
-        $count = count($dataTable->fetchAll("`$column` = '$token'")->toArray());
-        
-        if ($count == 0) {
-            $jsonReturn['duplicate'] = "no";
-        } elseif ($count >= 1) {
-            $jsonReturn['duplicate'] = "yes";
-        } else {
-            throw new exception("Nonsense returned by duplicate checker.");
-        }
-        
-        $this->_helper->json($jsonReturn);
-        
-    }
-    
-    public function addschedulesetAction() {
-        $data = array(
-            'name'  => $_POST['setName'],
-            'startDate'  => $_POST['startDate'],
-            'endDate'  => $_POST['endDate'],
-            'fromTime'  => $_POST['fromTime'],
-            'toTime'  => $_POST['toTime'],
-            'createdBy'  => $_POST['createdBy'],
-            'resources'  => "{" . $_POST['resources'] . "}"
-        );
-        
-        $jsonReturn = array();
-        //$jsonReturn = $data;
-        $table = new Application_Model_DbTable_ScheduleSets;
-        $result = $table->addSet($data);
-        
-        if ($result > 1) {
-            $deptUserTable = new Application_Model_DbTable_UserDepartments;
-            $deptTable = new Application_Model_DbTable_Depts;
-            
-            
-            $jsonReturn['result'] = $result;
-            $jsonReturn['pid'] = $result;
-            $jsonReturn['deptlist'] = array();
-            
-            $deptList = $deptUserTable->getList('depts', $this->uid);
-            foreach ($deptList as $did) {
-                $name = $deptTable->getName($did);
-                $thisArray = array('id' => $did, 'deptName' => $name);
-                array_push($jsonReturn['deptlist'],$thisArray);
-            }
-            
-        } else {
-            $jsonReturn['result'] = 0;
-        }
-                
-        $this->_helper->json($jsonReturn);
-    }
-    
-    public function getbookedresourcesAction() {
-//        $sid = $_POST['sid'];
-//        $date = $_POST['date'];
-//        $from = $_POST['from'];
-//        $to = $_POST['to'];
-//        $rType = $_POST['rType'];
-//        $rID = $_POST['rID'];
-        extract($_POST);
-        //die ("Found: $sid, $date, $from, $to, $rType, $rID");
-        
-        if ($rID && $rType) {
-            $addlSqlText = " AND resourceType = '$rType' AND resourceID = '$rID'";
-        } else {
-            $addlSqlText = '';
-        }
-        
-        $sqlText = "SELECT id,resourceType,resourceID FROM `scheduledEvents` " . 
-                   "WHERE setID = $sid AND doNotDisplay = 0 " . 
-                    "AND '$date $from:00' < `endDate` " .
-                    "AND '$date $to:00' > `startDate`";
-        
-        $sql = $this->db->query($sqlText . $addlSqlText);
-        $result = $sql->fetchAll();
-        
+    public function sethomeAction() {
+        extract($_POST); //gets $deptID, $userID, $value
+        $userDeptTable = new Application_Model_DbTable_UserDepartments;
+        $result = $userDeptTable->manageHome($deptID,$userID,$value);
         $this->_helper->json($result);
-    }
-    
-    public function gettimeboundariesAction() {
-        $resourceTable = new Application_Model_DbTable_ScheduleSets;
-        $sID = $_POST['sid'];
-        
-        if ($sID == '') {
-            $jsonReturn = array(
-                'startTime' => '',
-                'endTime'   => ''
-            );
-        } else {
-            $record = $resourceTable->getSet($sID);
-            $jsonReturn = array(
-                'startTime'  => $record['fromTime'],
-                'endTime'    => $record['toTime'],
-                'startDate'  => $record['startDate'],
-                'endDate'  => $record['endDate']
-            );
-        }       
-        
-        $this->_helper->json($jsonReturn);
-    }
-    
-    public function getresourcelistAction() {
-        $resourceTable = new Application_Model_DbTable_ScheduleSets;
-        $scheduleSetID = $_POST['scheduleSet'];
-        $record = $resourceTable->getSet($scheduleSetID);
-        
-        //have to get hacky because JSON object is not valid: keys repeat (adhoc, vol, etc)
-        $tempString = str_replace('{','',str_replace('}','',$record['resources']));
-        $resources = explode(",",str_replace('"','',str_replace("\n",'',$tempString)));
-        
-        $jsonReturn = array();
-        
-        foreach ($resources as $resource) {
-            $rA = explode(":",$resource);
-            $type = $rA[0];
-            $id = $rA[1];
-            
-            if ($type == 'adhoc') { 
-                $name = $id;
-            } else {
-                $table = new Application_Model_DbTable_Users;
-                $name = $table->getName($id);
-            }
-            
-            $record = array(
-                'resourceID' => $id,
-                'resourceName' => $name,
-                'resourceType' => $type
-            );
-            
-            array_push($jsonReturn,$record);
-        }
-        
-        
-        $this->_helper->json($jsonReturn);
-        
-        
-    }
-    
-    public function geteventneedsAction() {
-        $eventTable = new Application_Model_DbTable_ProgramEvents;
-        $jsonReturn = array();
-        $eventID = $_POST['id'];
-        
-        $info = $eventTable->getEventNeeds($eventID,$this->uid);
-        
-        $this->_helper->json($info);
-    }
-    
-    public function enrollvolunteersAction() {
-        $jsonReturn = array();
-        $enrollTable = new Application_Model_DbTable_ProgramEventSignups;
-        
-        $info = $_POST['info'];
-        
-        $infoArray = explode(",",$info);
-        $numSubmitted = count($infoArray);
-        $i = 0;
-        
-        //temporary event ID in $eid, job id in $jid
-        $temp = explode(":",$infoArray[0]);
-        $eid = $temp[0];
-        $jid = $temp[1];
-        
-        //clear existing entry
-        $enrollTable->delete("eventID = $eid AND jobID = $jid");
-
-        
-        foreach ($infoArray as $dataString) {
-            $dataArray = explode(":",$dataString);
-            $eventID = $dataArray[0];
-            $jobID = $dataArray[1];
-            $userID = $dataArray[2];
-            
-            if ($userID == "X") {
-                continue;
-            } else {
-                $enrollTable->addRecord($eventID, $userID, $jobID);
-            }
-        }
-        
-        $numEnrolled = count($enrollTable->getSignupsByType($eventID, $jobID));
-        
-        if ($numSubmitted == $numEnrolled) {
-            $jsonReturn['success'] = 'yes';
-        }
-        //throw new exception("$userID");
-        $this->_helper->json($jsonReturn);
-    }
-    
-    public function scheduleeventAction () {
-        $jsonReturn = array();
-        $action = $_POST['task'];
-        $setID = $_POST['setid'];
-        $units = FALSE;
-        $ptcpTable = new Application_Model_DbTable_Participants;
-        $dataTable = new Application_Model_DbTable_DynamicForms;
-        
-        switch ($action) {
-            case 'getevents':
-                $eventTable = new Application_Model_DbTable_ScheduledEvents;
-                $events = $eventTable->getApptsBySet($setID,$this->uid);
-                $units = TRUE;
-                break;
-            case 'getprogevents':
-                $eventTable = new Application_Model_DbTable_ProgramEvents;
-                $events = $eventTable->getProgEvents($setID,$this->uid);
-                break;
-            case 'getvolevents':
-                $eventTable = new Application_Model_DbTable_ProgramEventSignups;
-                $events = $eventTable->getVolEvents($setID);
-                break;
-            default: throw new exception("Could not process task $action in AJAX event schedule action.");
-        }
-        
-        foreach ($events as $event) {
-            if ($units) {$unitID = $event['resourceType'][0] . "_" . $event['resourceID'];}
-            
-            $sdate = date("m/d/Y H:i",strtotime($event['startDate']));
-            $edate = date("m/d/Y H:i",strtotime($event['endDate']));
-            $text = $event['name'];
-            
-            if ($event['linkType'] == 'participant') {
-                $ptcp = $ptcpTable->getRecord($event['linkID']);
-                $dob = $ptcp['dateOfBirth'];
-                $profile = $dataTable->getLatestPtcpRecord('form_150',$event['linkID']);
-                $phone = $profile['field_5'];
-                $text .= "<br><span class='cal-dob'>$dob</span><br>";
-                $text .= "<span class='cal-phone'>$phone</span>";
-            }
-            
-            $data = array(
-                'id' => $event['id'],
-                'text' => $text,
-                'desc' => $event['description'],
-                'start_date' => $sdate,
-                'end_date' => $edate,
-                'unit_id' => $unitID,
-                'spot' => $event['location']
-            );
-            array_push($jsonReturn,$data);
-        }
-        $this->_helper->json($jsonReturn);
-    }
-    
-    public function formeventdeleteAction() {
-        extract($_POST); //formid and entryid
-        $eventTable = new Application_Model_DbTable_ScheduledEvents;
-        $formTable = new Application_Model_DbTable_DynamicForms();
-        $eventID = $eventTable->releaseRecordFromForm($formid,$entryid);
-
-        if ($formid < 10) {
-            $table = "form_0" . $formid;
-        } else {
-            $table = "form_" . $formid;
-        }
-        
-        $softDeleteForm = $formTable->updateData($table,array('doNotDisplay' => 1),"id = $entryid");
-        $this->_helper->json($eventID);
-    }
-    
-    
-    public function archiveformentryAction() {
-        extract($_POST); //formid and entryid
-        $eventTable = new Application_Model_DbTable_ScheduledEvents;
-        $eventID = $eventTable->update(array('doNotDisplay' => 1),"formID = $formid AND formEntryID = $entryid");
-        
-        $formTable = new Application_Model_DbTable_DynamicForms;
-        
-        if ($formid < 10 ) {
-            $tableName = "form_0" . $formid;
-        } else {
-            $tableName = "form_" . $formid;
-        }
-        
-        $updatedRecord = $formTable->updateData($tableName, array('doNotDisplay' => 1), "id = $entryid");
-        
-        $this->_helper->json($updatedRecord);
-        
-    }
-    
-    public function eventarchiveAction() {
-        $type = $_POST['type'];
-        
-        switch ($type) {
-            case 'set': $eventTable = new Application_Model_DbTable_ScheduledEvents; break;
-            case 'program': $eventTable = new Application_Model_DbTable_ProgramEvents; break;
-            default: throw new exception("Invalid calendar type $type passed to ajax event archive action.");
-        }
-        
-        $eventID = $_POST['id'];
-        $data = array('doNotDisplay' => 1, 'createdBy' => $this->uid);
-        $eventTable->update($data,"id = $eventID");
-        
-        $jsonReturn = array('status' => "SUCCESS");
-        
-        $this->_helper->json($jsonReturn);
-    }
-    
-    public function getprogjobsAction() {
-        $progID = $_POST['progid'];
-        $pJobsTable = new Application_Model_DbTable_ProgramJobs;
-        $jobsTable = new Application_Model_DbTable_VolunteerJobs;
-        
-        $jobsList = $pJobsTable->getList('jobs',$progID);
-        $jobs = array();
-        foreach ($jobsList as $jobID) {
-            $name = $jobsTable->getName($jobID);
-            $jobs[$jobID] = $name;
-        }
-        
-        $this->_helper->json($jobs);
-    }
-    
-    public function saveeventfromformAction() {
-        $eventTable = new Application_Model_DbTable_ScheduledEvents;
-        extract($_POST);
-        
-        $formattedName = "<a href='/participants/profile/id/$targetID'>$name</a>"; 
-        
-        $data = array(
-            'setID' => $scheduleID,
-            'startDate' => $date . " " . $from . ":00",
-            'endDate' => $date . " " . $to . ":00",
-            'name' => $formattedName,
-            'resourceType' => $rType,
-            'resourceID' => $rID,
-            'createdBy' => $this->uid,
-            'linkType' => $target,
-            'linkID' => $targetID,
-            'doNotDisplay' => 0
-            );
-        try {
-            $eventID = $eventTable->addAppointment($data);
-        } catch (Exception $e) {
-            $result = false;
-            $message = $e;
-        }
-        
-        if ($eventID > 0) {
-            $result = true;
-            $eventid = $eventID;
-        } else {
-            $result = false;
-            $message = "Event save operation failed in database.";
-        }
-        
-        $jsonReturn = array(
-            'success' => $result,
-            'eventid' => $eventid,
-            'message' => $message
-        );
-        
-        $this->_helper->json($jsonReturn);
-    }
-    
-    public function linkformtoeventAction() {
-        extract($_POST); //eventID, formID and formEntryID
-        $form = explode("_",$formID);
-        $formIDnum = $form[1];
-        
-        $jsonReturn = array();
-        
-        $eventTable = new Application_Model_DbTable_ScheduledEvents;
-        $data = array(
-            'formID' => $formIDnum,
-            'formEntryID' => $formEntryID
-        );
-        
-        $result = $eventTable->update($data,"id = $eventID");
-        
-        if ($result) {
-            $jsonReturn['successOfThing'] = 'yes';
-        } else {
-            $jsonReturn['successOfThing'] = 'no';
-        }
-        
-        $this->_helper->json($jsonReturn);
-    }
-    
-    public function eventsaveAction() {
-        $type = $_POST['type'];
-        $task = $_POST['task'];
-        $startDate = $_POST['startdate'];
-        $endDate = $_POST['enddate'];
-        $name = $_POST['text'];
-        $eventID = $_POST['eventid'];
-        $desc = $_POST['desc'];
-        $location = $_POST['location'];
-        $volNeeded = $_POST['volunteersNeeded'];
-        $setID = $_POST['setid'];
-        
-        switch ($type) {
-            case 'program': $eventTable = new Application_Model_DbTable_ProgramEvents;
-                             $data = array(
-                                'programID' => $setID,
-                                'jobsNeeded' => $volNeeded,
-                                'startDate' => $startDate,
-                                'endDate' => $endDate,
-                                'location' => $location,
-                                'createdBy' => $this->uid,
-                                'name' => $name,
-                                'description' => $desc
-                            );
-                break;
-            case 'set'    : $eventTable = new Application_Model_DbTable_ScheduledEvents;
-                            $rawResourceArray = explode("_",$_POST['unit_id']);
-                            $resourceID = $rawResourceArray[1];
-                            
-                            switch ($rawResourceArray[0]) {
-                                case 'v':   $resourceType = 'volunteer'; break;
-                                case 's':   $resourceType = 'staff'; break;
-                                case 'a':   $resourceType = 'adhoc'; break;
-                                default:    throw new exception("Unrecognized Resource Type " . $rawResourceArray[0]. " submitted to event save ajax."); break;            
-                            }
-                            
-                            $data = array(
-                                'setID'         => $setID,
-                                'startDate'     => $startDate,
-                                'endDate'       => $endDate,
-                                'resourceID'    => $resourceID,
-                                'resourceType'  => $resourceType,
-                                'name'          => $name,
-                                'createdBy'     => $this->uid,
-                                'doNotDisplay'  => 0
-                            );
-                break;
-            default: throw new exception ("Wrong calendar type $type sent to event save ajax action.");
-        }
-        
-        switch ($task) {
-            case 'insert': $newRecord = $eventTable->addAppointment($data, $this->uid);
-                            break;
-            case 'update': $success = $eventTable->update($data,"id = $eventID"); $newRecord = $eventID;
-                            break;
-            default:       $newRecord = 0; $message = "Wrong task type ($task) passed to event save ajax.";
-        }
-        
-        
-        if ($newRecord > 0) {
-            $status = 'SUCCESS';
-        } else {
-            $status = 'FAIL';
-        }
-        
-        $jsonReturn = array('status' => $status, 'eventid' => $newRecord);
-        
-        
-        $this->_helper->json($jsonReturn);
-        
-    }
-       
-    
-    public function appointmentsinscheduleAction() {
-        $id = $_POST['id'];
-        $apptsTable = new Application_Model_DbTable_ScheduledEvents;
-        $num = count($apptsTable->getApptsBySet($id,$this->uid,$this->root));
-        
-        $this->_helper->json(array('num' => $num));
     }
     
     public function addalertAction() 
     {
         $alerts = new Application_Model_DbTable_Alerts;
+        $alertsPtcps = new Application_Model_DbTable_AlertsParticipants;
         
         $alertText = $_POST['alertText'];
         $target = $_POST['target'];
         $targetID = $_POST['targetID'];
         $startDate = $_POST['startDate'];
         $ptcpIDs = array();
-        $volIDs = array();
         
         $aid = $alerts->addRecord($alertText);
         
@@ -1085,34 +611,15 @@ class AjaxController extends Zend_Controller_Action
             case 'participant':
                 array_push($ptcpIDs, $targetID);
                 break;
-            case 'volunteer':
-                array_push($volIDs,$targetID);
-                break;
             default: 
                 break;
         }
         
-        if (count($ptcpIDs) > 0) {
-            $alertsPtcps = new Application_Model_DbTable_AlertsParticipants;
-            foreach ($ptcpIDs as $pid) {
-                $result = $alertsPtcps->addAlert($aid, $pid, $startDate);
-                
-            }
+        foreach ($ptcpIDs as $pid) {
+            $alertsPtcps->addAlert($aid, $pid, $startDate);
         }
         
-        if (count($volIDs) > 0) {
-            $alertsVols = new Application_Model_DbTable_AlertsVolunteers;
-            foreach ($volIDs as $vid) {
-                $result = $alertsVols->addAlert($aid,$vid,$startDate);
-            }
-            
-        }
-        if ($result > 0) {
-            $this->_helper->json(array('success' => 'yes'));
-        } else {
-            throw new exception ("Alert was not created successfully. Result is $result");
-        }
-        
+        $this->_helper->json(array('success' => 'yes'));
         
     }
     
@@ -1123,114 +630,51 @@ class AjaxController extends Zend_Controller_Action
         $this->_helper->json("OK");
     }
     
-    
-    public function uploadfileAction() {
-        $desc = $_POST['filDescription'];
-        $tType = $_POST['targetType'];
-        $tID = $_POST['targetID'];
-        $file = $_FILES['files'];
-        $model = new Application_Model_DbTable_Files;
-                   
-        $name = $file['name'][0];
-        $tmpname = $file['tmp_name'][0];
-        $location = APPLICATION_PATH . "/../data/uploaded-files/" . $tID . "-" . time() . "-" . $name;
+    public function getuserdeptsAction() {
+        $jsonResult=array();
+        	$dbAdapter = Zend_Db_Table::getDefaultAdapter();
+
+        $allSql = "SELECT d.* from departments d";
+        $nonRootSql = ", userDepartments ud"
+                . " WHERE ud.userID = $this->uid"
+                . " AND ud.deptID = d.id";
+        $orderSql = " ORDER BY homeDept";
         
-        if(strlen($desc)==0) {
-            $description = $name;
+        if ($this->root) {
+            $query = $dbAdapter->query($allSql);
         } else {
-            $description = $desc;
+            $query = $dbAdapter->query($allSql . $nonRootSql . $orderSql);
         }
         
-        //store file info in database
-        $dbStore = $model->addFile($tType,$tID,$description,$location,$this->uid);
-        //move file to permanent location
-        move_uploaded_file($tmpname,$location);
+        $deptlist = $query->fetchAll();
         
-        $jsonReturn['success'] = 'yes';
+        $jsonResult['deptlist'] = $deptlist;
         
-        $this->_helper->json($jsonReturn);
-    }
-    
-    public function downloadfileAction() {
-        $id = $_POST['id'];
-        $model = new Application_Model_DbTable_Files;
-        $file = $model->getFile($id);
-        $location = $file['location'];
-        $description = $file['description'];
-        $link = APPLICATION_PATH . "/../public/files/links/" . $description;
-        symlink($location,$link);
-               
-        $filename = "/files/links/" . $description;
-        
-        $jsonReturn['success'] = 'yes';
-        $jsonReturn['url'] = $filename;
-        $this->_helper->json($jsonReturn);
-        
-    }
-    
-    public function archiveAction() {
-        $type = $_POST['type'];
-        $id = $_POST['id'];
-        $fail = FALSE;
-        $message = '';
-        
-        switch ($type) {
-            case 'schedule' : $table = new Application_Model_DbTable_ScheduleSets;
-                break;
-            default: $fail = TRUE; $message = "Right now only schedules can be processed by the generic AJAX archive function.";
-                break;
-        }
-        
-        if (!$fail) {
-            $result = $table->archiveRecord($id,$this->uid,$this->root);
-            if ((int)$result != 1) {$fail = true; $message = "Incoherent attempt to archive record. Database returned error code $result.";}
-        }
-        
-        $fail ? $success = "no" : $success = "yes";
-        $this->_helper->json(array('success' => $success, 'message' => $message));
-    }
-    
-    public function archivefileAction() {
-        $id = $_POST['id'];
-        $model = new Application_Model_DbTable_Files;
-        $result = $model->archiveRecord($id);
-        $jsonReturn['result'] = $result;
-        $this->_helper->json($jsonReturn);
-    }
-    
-    public function deleteactivityAction() {
-        $id = $_POST['id'];
-        $model = new Application_Model_DbTable_VolunteerActivities;
-        $update = array(
-            'doNotDisplay' => 1,
-            'updatedBy' => $this->uid
-        );
-        $result = $model->update($update,"id=$id");
-        $jsonReturn['result'] = $result;
-        $this->_helper->json($jsonReturn);
+        $this->_helper->json($jsonResult);
     }
     
     public function removealertAction() 
     {
         $aid = $_POST['id'];
         $pid = $_POST['pid'];
-        $type = $_POST['type'];
-        
         $jsonReturn = array();
         
         $alerts = new Application_Model_DbTable_Alerts;
+        $alertsPtcps = new Application_Model_DbTable_AlertsParticipants;
         
-        switch ($type) {
-            case 'ptcp': $alertsLink = new Application_Model_DbTable_AlertsParticipants;
-                break;
-            case 'vol': $alertsLink = new Application_Model_DbTable_AlertsVolunteers;
-                break;
-            default: throw new exception("Unrecognized type '$type' passed to alert remove function.");
-                break;
+        $recordNum = $alertsPtcps->delete("participantID = $pid and alertID = $aid");
+        $otherSameAlerts = $alertsPtcps->getList('ptcp', $aid);
+        if (count($otherSameAlerts) == 0) {
+            $alerts->delete("id = $aid");
         }
         
-        $alertsLink->unsetAlert($aid,$pid);
-        $jsonReturn['success'] = 'yes';
+        if ($recordNum > 0) {
+            $jsonReturn['success'] = 'yes';
+            $jsonReturn['numDeleted'] = $recordNum;
+        } else {
+            $jsonReturn['success'] = 'no';
+        }
+        
         $this->_helper->json($jsonReturn);
         
     }
@@ -1252,64 +696,6 @@ class AjaxController extends Zend_Controller_Action
             $jsonReturn = array('success' => 'no');
         }
         
-        $this->_helper->json($jsonReturn);
-    }
-    
-    public function addactvolAction() {
-        $jsonReturn = array();
-        //add activity to volActivity table and to ptcp if relevant
-        //1. populate variables
-        extract($_POST);
-        //creates $from, $to, $date, $note, $userID, $volID, $targetID, $targetType, $programID
-        //2. calculate duration
-//        $fromTime = new DateTime($from);
-//        $toTime = new DateTime($to);
-//        $hours = $fromTime->diff($toTime)->format("%H");
-//        $min   = $fromTime->diff($toTime)->format("%i");
-//        if ((int)$min <= 15) {
-//            $rounded = 0;
-//        } elseif ((int)$min <= 30) {
-//            $rounded = 0.25;
-//        } elseif ((int)$min <= 45) {
-//            $rounded = 0.5;
-//        } else {
-//            $rounded = 1;
-//        }
-//        $duration = (int)$hours + $rounded;  
-        
-        $duration = round(((strtotime($to) - strtotime($from))/3600),1);       
-        //3. if ptcp, store in ptcp Activity table
-        if ($targetType == 'participant') {
-            $ptcpActivityTable = new Application_Model_DbTable_Activities;
-            $ptcpData = array(
-                'userID' => $volID,
-                'participantID' => $targetID,
-                'date' => $date,
-                'duration' => $duration,
-                'note' => $note
-            );
-            $ptcpActivityTable->insert($ptcpData);
-        }
-        //4. store in vol activity table
-        $volActTable = new Application_Model_DbTable_VolunteerActivities();
-        $data = array(
-            'volunteerID'   => $volID,
-            'programID'     => $programID,
-            'type'          => $targetType,
-            'typeID'        => $targetID,
-            'date'          => $date,
-            'fromTime'      => $from,
-            'toTime'        => $to,
-            'duration'      => $duration,
-            'description'   => $note
-        );
-        
-        $record = $volActTable->addRecord($data);
-        if ($record > 0) {
-            $jsonReturn['success'] = 'yes';
-        } else {
-            $jsonReturn['success'] = 'no';
-        }
         $this->_helper->json($jsonReturn);
     }
     
@@ -1351,16 +737,17 @@ class AjaxController extends Zend_Controller_Action
         
         $latestRecord = $dataTable->getRecordByID($tableID, $recordID);
         
-        $jsonReturn['entryID'] = $latestRecord['id'];
-        
         $fillableData = array_slice($latestRecord, 7);
         
+        
+        $jsonReturn['responseDate'] = $latestRecord['responseDate'];
         foreach ($fillableData as $elementID => $value) {            
             $elementName = $elementsTable->getElementName($elementID,$formID);
             $jsonReturn[$elementName] = $value;
         }
-
-
+        
+        
+    
         $this->_helper->json($jsonReturn);
         
     }
@@ -1385,40 +772,6 @@ class AjaxController extends Zend_Controller_Action
         $srTable->update(array('frequency' => $newFreq),"id = $reportID");
         $jsonReturn=array('success' => 'yes');
         $this->_helper->json($jsonReturn);
-    }
-    
-    public function getprogvolinfoAction() {
-        $error = NULL;
-        $progID = $_POST['progid'];
-        $progTable = new Application_Model_DbTable_Programs;
-        $myProgs=$progTable->getStaffPrograms($this->uid);
-        
-        if (!in_array($progID,$myProgs)) {
-            $error = "You are now allowed to view this program.";
-        }
-        
-        if ($error) {
-            $jsonReturn = array( 
-                'success' => 'no',
-                'errormessage' => 'error'
-            );
-        } else {
-            $progRecord = $progTable->getRecord($progID);
-            $volType  = $progRecord['volunteerType'];
-            switch ($volType) {
-                case 'oneToOne' : $volType='ptcp'; $display = 'participant'; break;
-                default: $display = $volType;
-            }
-            $jsonReturn = array(
-                'success' => 'yes',
-                'progID'  => $progID,
-                'volType' => $volType,
-                'displayType' => $display
-            );
-        }
-              
-        $this->_helper->json($jsonReturn);  
-        
     }
     
     public function deptlistAction() 
@@ -1446,9 +799,9 @@ class AjaxController extends Zend_Controller_Action
         $this->_helper->viewRenderer->setNoRender();
         
         $action     =   $_POST['what'];      //'add' or 'remove'
-        $rType      =   $_POST['rtype'];     //record Type: 'dept', 'program', 'funder', 'user', 'ptcp', 'form', 'volunteer', 'vjob'
+        $rType      =   $_POST['rtype'];     //record Type: 'dept', 'program', 'funder', 'user', 'ptcp', 'form'
         $rid        =   $_POST['rid'];       //Record ID
-        $pType      =   $_POST['ptype'];     //parent Type: 'dept', 'program', 'funder', 'user', 'form', 'volunteer'
+        $pType      =   $_POST['ptype'];     //parent Type: 'dept', 'program', 'funder', 'user', 'form'
         $pid        =   $_POST['pid'];       //parent ID
         $addlProgID =   $_POST['addlprogid'];//program ID for staff-ptcp connection
 
@@ -1465,11 +818,8 @@ class AjaxController extends Zend_Controller_Action
         if ($rType == 'program') $rType = 'prog';
         if ($pType == 'program') $pType = 'prog';
         
-        if ($rType == 'volunteer' || $rType == 'vol') $rType = 'user';
-        if ($pType == 'volunteer' || $pType == 'vol') $pType = 'user';
-        
         $validPTypes = array('dept', 'prog', 'form', 'funder', 'group', 'ptcp', 'user');
-        $validRTypes = array('dept', 'prog', 'form', 'ptcp', 'user', 'funder', 'group', 'vjob');
+        $validRTypes = array('dept', 'prog', 'form', 'ptcp', 'user', 'funder', 'group');
         
         if ((!in_array($rType, $validRTypes)) || (!in_array($pType, $validPTypes))) {
             throw new exception ("Invalid attempt to add a $rType to a $pType.");
@@ -1479,13 +829,6 @@ class AjaxController extends Zend_Controller_Action
                 
         switch ($association) {
             //dept-program is a one-to-one, so should never occur here.
-            case 'vjob-prog' :
-                $assocTable = new Application_Model_DbTable_ProgramJobs;
-                $idArray = array('programID' => $pid, 'jobID' => $rid);
-                $pCol = 'programID';
-                $rCol = 'jobID';
-                break;
-            
             case 'dept-form' : 
                 $assocTable = new Application_Model_DbTable_DeptForms;
                 $idArray = array(
@@ -1628,24 +971,6 @@ class AjaxController extends Zend_Controller_Action
                 );
                 break;
                 
-            case 'user-group' :
-                $assocTable = new Application_Model_DbTable_VolunteerGroups;
-                $idArray = array(
-                    'volunteerID' => $rid, 'groupID' => $pid
-                );
-                $rCol = 'volunteerID';
-                $pCol = 'groupID';
-                break;
-            
-            case 'group-user' :
-                $assocTable = new Application_Model_DbTable_VolunteerGroups;
-                $idArray = array(
-                    'groupID' => $rid, 'volunteerID' => $pid
-                );
-                $rCol = 'groupID';
-                $pCol = 'volunteerID';
-                break;
-            
             case 'user-prog' :
                 $assocTable = new Application_Model_DbTable_UserPrograms;
                 $idArray = array(
@@ -1756,7 +1081,7 @@ class AjaxController extends Zend_Controller_Action
                     $statusTable = new Application_Model_DbTable_ParticipantPrograms;
                     $record = $statusTable->getRecord($ptcpID,$progID);
                     $idArray['status'] = $record['status'];
-                    print_r($idArray);    
+                    //print_r($idArray);    
                 }
                 
                 if($association == 'ptcp-group')  {
@@ -1791,9 +1116,7 @@ class AjaxController extends Zend_Controller_Action
                     $oldRecord = $progTable->getRecord($ptcpID,$progID);
                     $prevStatus = $oldRecord['status'];
                     
-                    if ($oldRecord) {
-                        $progTable->changeStatus($ptcpID,$progID,$oldRecord['enrollDate'],$status,$prevStatus,"Propagated from caseload change.");
-                    }
+                    $progTable->changeStatus($ptcpID,$progID,$oldRecord['enrollDate'],$status,$prevStatus,"Propagated from caseload change.");
                 }
                 
                 $where = "$pCol = '$pid' and $rCol = '$rid'";
@@ -1902,7 +1225,7 @@ class AjaxController extends Zend_Controller_Action
         $type = $_POST['type'];        
         $fid = $_POST['id'];
         
-        $validTypes = array('groups', 'forms', 'depts', 'programs', 'users', 'participants', 'volunteers');
+        $validTypes = array('groups', 'forms', 'depts', 'programs', 'users', 'participants');
         if (!in_array($type,$validTypes)) {
             throw new exception ("Invalid entity type '$type' cannot be edited.");
         }
@@ -1977,42 +1300,24 @@ class AjaxController extends Zend_Controller_Action
                 $formValues = array(
                     'pname'     => $data['name'],
                     'deptField' => $data['deptID'],
-                    'voltype'   => $data['volunteerType'],
                     'id'        => $data['id']
                 );
                break;
             
            case 'users':
-           case 'volunteers':
                 $dataTable = new Application_Model_DbTable_Users;
-                $form = ($type == 'users' ? new Application_Form_AddUser : new Application_Form_AddVolunteer);
+                $form = new Application_Form_AddUser;
                 $data = $dataTable->fetchRow("id=$fid");
                 $usrID = new Zend_Form_Element_Hidden('id');
                 $form->addElement($usrID);
-                
-                $userIsRecordsManager = FALSE;
-                //get list of deparments for which logged-in user is set as manager
-                if ($this->mgr) {
-                    $userDepts = new Application_Model_DbTable_UserDepartments;
-                    $mgrDeptsList = $userDepts->getManagerDepts($this->uid);
-                    $recordDepts = $userDepts->getList('depts',$fid);
-                    if (count(array_intersect($mgrDeptsList,$recordDepts)) > 0) {
-                        $userIsRecordsManager = TRUE;
-                    }
-                }
-                
+
                 $form->removeElement('userID');
-                if ($this->root || $userIsRecordsManager) {
+                if ($this->root) {
                     $role = $form->role;
                     $role->setAttribs(array('class' => ''));
                 } else {
                     $form->removeElement('role');
                 }
-                
-                //$identifier = ($type == 'users' ? "email" : "phone");
-                
-                //print_r($data);
-                
                 $formValues = array(
                     'username'     => $data['userName'],
                     'fname'        => $data['firstName'],
@@ -2075,8 +1380,7 @@ class AjaxController extends Zend_Controller_Action
            case 'programs' :
                $updateData = array(
                    'name' => $data['pname'],
-                   'deptID' => $data['deptField'],
-                   'volunteerType' => $data['voltype']
+                   'deptID' => $data['deptField']
                );
                $table = new Application_Model_DbTable_Programs;
                break;
@@ -2091,7 +1395,6 @@ class AjaxController extends Zend_Controller_Action
                break;
            
            case 'users' :
-           case 'volunteers':
                $updateData = array(
                    'userName'   => $data['username'],
                    'firstName'  => $data['fname'],
@@ -2133,7 +1436,6 @@ class AjaxController extends Zend_Controller_Action
         $meetingData = array();
         parse_str($data, $meetingData);
         
-        
         //set checkbox array to string, and replace it in the sql array
         if (array_key_exists('attendance', $meetingData)) {
             $enrolledIDs = implode(',', $meetingData['attendance']);
@@ -2142,17 +1444,7 @@ class AjaxController extends Zend_Controller_Action
         } else {
             $meetingData['enrolledIDs'] = NULL;
         }    
-        
-        if (array_key_exists('vol_attendance',$meetingData)) {
-            $volIDArray = $meetingData['vol_attendance']; //keep for future processing
-            $volunteerIDs = implode(',', $meetingData['vol_attendance']);
-            $meetingData['volunteerIDs'] = $volunteerIDs;
-            unset($meetingData['vol_attendance']);
-        } else {
-            $meetingData['volunteerIDs'] = NULL;
-        }
-        
-        $meetingData['guestCount'] = $meetingData['unenrolled'];
+        $meetingData['unenrolledCount'] = $meetingData['unenrolled'];
         unset($meetingData['unenrolled']);
         
         //register the sum of enrolled and unenrolled volunteers
@@ -2162,12 +1454,11 @@ class AjaxController extends Zend_Controller_Action
             $totalVols = (int)$meetingData['guestVols'];
         }
         
-        $meetingData['nonVolVols'] = $totalVols;
+        $meetingData['volunteers'] = $totalVols;
         unset($meetingData['guestVols']);
         $meetingData['duration'] = (int)$meetingData['duration'];
         $meetingData['groupID'] = $groupID;
-        
-        //print_r($meetingData);
+                
         //enter group meeting ->get meeting ID
         $groupMeetings = new Application_Model_DbTable_GroupMeetings;
         
@@ -2191,8 +1482,6 @@ class AjaxController extends Zend_Controller_Action
         $inserted = array();
         
         if (count($ptcps) > 0 ) {
-            $ptcpMtgs = new Application_Model_DbTable_ParticipantMeetings;
-
             foreach ($ptcps as $p) {
                 $pID = $p['id'];
                 $levelkey = $p['level'];
@@ -2206,71 +1495,11 @@ class AjaxController extends Zend_Controller_Action
                 'volunteer'           => $volunteer
                 );
 
+                $ptcpMtgs = new Application_Model_DbTable_ParticipantMeetings;
                 $rid = $ptcpMtgs->insert($sqlData);
                 array_push($inserted, $rid);
             }
-        }
-        
-        if ($_POST['vols'] != '') {
-            $vols = $_POST['vols'];
-        } else {
-            $vols = array();
-        }
-        
-        if (count($vols) > 0) {
-            $volActivities = new Application_Model_DbTable_VolunteerActivities;
-            $groupsTable = new Application_Model_DbTable_Groups;
-            $groupRecord = $groupsTable->getRecord($groupID);
-            $progID = $groupRecord['programID'];
-            
-            foreach ($vols as $v) {
-                $volID = $v['id'];
-                $jobID = $v['jobid'];
-                $from= $v['fromTime'];
-                $to = $v['toTime'];
-                $note = $v['note'];
-            
-                //calculate duration
-//                    $fromTime = new DateTime($from);
-//                    $toTime = new DateTime($to);
-//                    $hours = $fromTime->diff($toTime)->format("%H");
-//                    $min   = $fromTime->diff($toTime)->format("%i");
-//                    if ((int)$min <= 15) {
-//                        $rounded = 0;
-//                    } elseif ((int)$min <= 30) {
-//                        $rounded = 0.25;
-//                    } elseif ((int)$min <= 45) {
-//                        $rounded = 0.5;
-//                    } else {
-//                        $rounded = 1;
-//                    }
-//                    $duration = (int)$hours + $rounded;        
-                if ((strlen($to) > 0) && (strlen($from) > 0)) {
-                    //storing as hours rounded to 1 decimal point
-                    $duration = round(((strtotime($to) - strtotime($from))/3600),1); 
-                } else {
-                    $duration = $meetingData['duration'];
-                }
-                
-            $activityData = array(
-                'volunteerID'   => $volID,
-                'programID'     => $progID,
-                'type'          => 'group',
-                'typeID'        => $groupID,
-                'groupMeetingID'=> $mID,
-                'jobID'         => $jobID,
-                'date'          => $meetingData['date'],
-                'fromTime'      => $from,
-                'toTime'        => $to,
-                'duration'      => $duration,
-                'description'   => $note,
-                'updatedBy'     => $this->uid
-            );
-            
-            $volActivities->addRecord($activityData);
-            }
-        }
-        
+        }    
         $jsonReturn = array();
         
         if (count($inserted) == count($ptcps)) {
@@ -2280,42 +1509,18 @@ class AjaxController extends Zend_Controller_Action
         $this->_helper->json($jsonReturn);
     }
     
-    public function addvjobAction() {
-        $jobName = $_POST['name'];
-        $jobDesc = $_POST['description'];
-        
-        $sql = $this->db->query("select * from volunteerJobs WHERE `name` = '$jobName'");
-        $num = count($sql->fetchAll());
-        if ($num > 0) {
-            $ajaxReturn['success'] = 'no';
-            $ajaxReturn['message'] = "$num record already exists with name $jobName. Please choose another.";
-        } else {
-            $jobTable = new Application_Model_DbTable_VolunteerJobs;
-            $newID=$jobTable->addRecord($jobName,$jobDesc,$this->uid);
-            if ($newID > 0) {
-                $ajaxReturn['success'] = 'yes';
-            } else {
-                $ajaxReturn['success'] = 'no';
-                $ajaxReturn['message'] = 'Coult not add ' . $jobName . " to database.";
-            }
-        }
-        
-        $this->_helper->json($ajaxReturn);
-    }
-    
     public function checkduplicatesAction()
     {
         $table = $_POST['table'];
         $column = $_POST['column'];
-        $value = $_POST['val'];
+        $value =  $_POST['val'];
         
         if ($table == 'depts') {
             $table = 'departments';
             $column = 'deptName';
         }
         
-        if ($table == 'users' || $table == 'volunteers') {
-            $table = 'users';
+        if ($table == 'users') {
             $column = 'userName';
         }
         
@@ -2334,6 +1539,7 @@ class AjaxController extends Zend_Controller_Action
             $val3 = $_POST['val3'];
             $sqlStatement .= " AND $column3 = '$val3'";
         }
+        
         
         $sql = $this->db->query($sqlStatement);
         
@@ -2366,24 +1572,6 @@ class AjaxController extends Zend_Controller_Action
         print nl2br($note);
     }
     
-    public function updatevolnotesAction() 
-    {
-        $this->getHelper('layout')->disableLayout();
-        
-        $note = $_POST['value'];
-        $passedID = split('-',$_POST['id']);
-        if ($passedID[1] == 'vol') {
-            $recordID = $passedID[0];
-        } else {
-            throw new exception("Unexpected id string format - " . $_POST['id']);
-        }
-        
-        $activityTable = new Application_Model_DbTable_VolunteerActivities;
-        $returnCode = $activityTable->updateRecord($recordID,'',$note);
-        if ($returnCode == 1)
-            print(nl2br($note));
-    }
-    
     public function updateptcpnotesAction()
     {
         $this->getHelper('layout')->disableLayout();
@@ -2399,15 +1587,6 @@ class AjaxController extends Zend_Controller_Action
         $ptcpID = $ids[0];
         $mtgID = $ids[1];
         
-        if ($mtgID == 'vol') {
-            $id = $ids[0];
-            $description = $note;
-            $actTable = new Application_Model_DbTable_VolunteerActivities;
-            $update = $actTable->updateRecord($id, '', $description);
-            print(nl2br($description));
-            return true;
-        }
-        
         if(count($ids) == 3) {
             $userID = $ids[1];
             
@@ -2422,6 +1601,7 @@ class AjaxController extends Zend_Controller_Action
             print nl2br($return);
             return true;
         }
+        
                 
         
         $ptcpMeetings = new Application_Model_DbTable_ParticipantMeetings;
@@ -2443,15 +1623,33 @@ class AjaxController extends Zend_Controller_Action
         $formID     = $_POST['id'];
         $startDate   = $_POST['from'];
         $endDate     = $_POST['to'];
+        $deptList    = $_POST['deptlist'];
         $format     = $_POST['format'];
-        
         if (key_exists('anonymize',$_POST)) {
             $anonymize  = $_POST['anonymize'];
         } else {
             $anonymize = FALSE;
         }
         
+        //print_r($_POST);
+        
         if ($this->evaluator) $anonymize=TRUE;
+        
+        //get current user's dept
+        $userDepts = new Application_Model_DbTable_UserDepartments;
+        if ((!$this->root) && (!$this->evaluator)) {
+            $myDepts = $userDepts->getList('depts',$this->uid);
+        } else {
+            $myDepts = array();
+            $allDepts = $userDepts->fetchAll()->toArray();
+            foreach ($allDepts as $deptRecord) {
+                array_push($myDepts,$deptRecord['deptID']);
+            }
+        }
+        
+        if (is_array($deptList)) {
+            $myDepts = array_intersect($myDepts,$deptList);
+        }
         
         //check format
         $validFormats = array('table', 'excel');
@@ -2466,7 +1664,6 @@ class AjaxController extends Zend_Controller_Action
         $target = $thisForm['target'];
 	$type 	= $thisForm['type'];
 	
-        $numericFields = array();
 
         //make columnnames array
             if ($anonymize) {
@@ -2488,13 +1685,13 @@ class AjaxController extends Zend_Controller_Action
              array_push($columns, $ageCol);
          }
 
-	 if ($type == 'prepost') {
+	 if ($type == 'prepost' && $formID != '8') { //8 is legacy form with different approach to prepost
 		array_push($columns, $survCol);
-	 }
+	 } 
 
          array_push($columns,$dateCol);
          array_push($columns,$deptCol);
-        
+         
          //add column names from dynamic elements table
          //make sure order matches reality
             $elementsTable = new Application_Model_DbTable_CustomFormElements;
@@ -2507,23 +1704,15 @@ class AjaxController extends Zend_Controller_Action
             $sqlString = "SHOW COLUMNS in `$tableName`;";
             $query = $this->db->query($sqlString);
             
-            $cols = array_splice($query->fetchAll(),7); //first seven are not dynamic
+            $dynamicCols = array_splice($query->fetchAll(),7); //first seven are not dynamic
+            //print_r($columns);
+            //print_r($cols);
             
-            foreach ($cols as $col) {
+            foreach ($dynamicCols as $col) {
                 $elID = $col['Field'];
                 $elName = $elementsTable->getElementName($elID,$formID);
-                $elType = $elementsTable->getElementType($elID,$formID);
-                $column = array('sTitle' => $elName, 'sID' => $elID, 'sCustomType' => $elType);
+                $column = array('sTitle' => $elName);
                 array_push($columns, $column);
-                
-                if ($elType == 'num') {
-                    $numericFields[$elID] = array(
-                            'fieldName' => $elName, 
-                            'values' => array(), 
-                            'Total' => 'N/A', 
-                            'Average' => 'N/A', );
-                }
-                
             }
          array_push($columns, $byCol);
          
@@ -2543,41 +1732,42 @@ class AjaxController extends Zend_Controller_Action
              case 'group' : 
                  $myAllowedIDs = $this->_getGroupIDs();
                  break;
-             case 'volunteer' : 
              case 'staff' : 
                  $myAllowedIDs = $this->_getStaffIDs();
                  break;
          }
          
+         //get permissible depts, based on user ** grabbed above **
+         $myAllowedDepts = $myDepts;
          $formTable = $tableName;
          
          $returnData = array();
          
          $dataset = $dynamicTables->getRecords(NULL, $formTable, $startDate, $endDate);
-         
+         $allowed = 0;
+         $forbidden = 0;
          foreach ($dataset as $datarow) {
             //check that we have access to this ptcp
             
             $permission = FALSE;
-            if (($this->root || $this->evaluator) || (in_array($datarow['uID'], $myAllowedIDs))) {
-                $permission = TRUE;
+            if (($this->root || $this->evaluator) || (in_array($datarow['deptID'], $myAllowedDepts))) {
+                $permission = TRUE; $allowed++;
             }
-                                    
+            
+            if (!in_array($datarow['deptID'],$myAllowedDepts)) {
+                $permission = FALSE; $forbidden++;
+            }
+            
             if ($permission == TRUE) {
                 $entityID = $datarow['uID'];
 		$deptName = 'N/A';
-                
-                $deptID = $datarow['deptID'];
-                if ($deptID != 0) {
-                    $dept = $depts->getRecord($deptID);
-                    $deptName = $dept['deptName'];
-                }
-                
-                $date = $datarow['responseDate'];
+                //$deptName = $depts->getName($datarow['deptID']);
 
+            //get part/group name
+                //throw new exception ("Target is $target");
+                $date = $datarow['responseDate'];
                 $staffName = $staff->getName($datarow['enteredBy']);
                 
-            //get part/group name
                 switch($target) {
                     case 'participant' : 
                         $p = $ptcps->getRecord($entityID);
@@ -2586,78 +1776,36 @@ class AjaxController extends Zend_Controller_Action
                         } else {
                             $name = $p['firstName'] . ' ' . $p['lastName'];
                         }
+                        $deptID = $datarow['deptID'];
+	        	if ($deptID > 0) {
+                            $deptName = $depts->getName($deptID);
+                        } 
                         $age = $p['age'];
                         $dob = $p['dateOfBirth'];
-
-                        $myRow = array($name, $dob, $age, $date, $deptName);
-                        
+                        $myRow = array($name,$dob,$age,$date,$deptName);
                         break;
-                    case 'volunteer' :
                     case 'staff' :
                         $name = $staff->getName($entityID);
-                        $myRow = array($name,$date,$deptName);
+                        $myRow=array($name,$date,$deptName);
                         break;
                     case 'group' :
                         $name = $groups->getName($entityID);
                         $myRow = array($name,$date,$deptName);
                 }
-                
+//                $myRow = array($name, $dob, $age, $date, $deptName);
+
                 $customData = array_slice($datarow,7);
-                
-                foreach ($customData as $fieldID => $field) {
-                    //get all data into table
+
+                foreach ($customData as $field) {
                     array_push($myRow, $field);
-                    
-                    //if numeric also do calculations
-                    if (array_key_exists($fieldID,$numericFields) && (strlen($field) > 0)) {
-                        array_push($numericFields[$fieldID]['values'],$field);
-                        $total = array_sum($numericFields[$fieldID]['values']);
-                        $avg = $total/count($numericFields[$fieldID]['values']);
-                        $numericFields[$fieldID]['Total'] = $total;
-                        $numericFields[$fieldID]['Average'] = $avg;
-                    }
-                    
                 }
                 array_push($myRow, $staffName);
-                array_push($returnData,$myRow);                
+                array_push($returnData,$myRow);
             }
          }
-                  
-         //make total and average rows
-         $totalRow = array();
-        $averageRow = array();
-        $addIt = FALSE;
          
-         foreach ($columns as $count => $column) {
-             $total = '';
-             $average = '';
-             
-             $type = $column['sCustomType'];
-             $cid  = $column['sID'];
-             
-             if ($count == 0) {
-                 $total = 'Total: ';
-                 $average = 'Average: ';
-             }
-             
-             if ($type == 'num') {
-                 $total = $numericFields[$cid]['Total'];
-                 $average = $numericFields[$cid]['Average'];
-                 $addIt = TRUE;
-             }
-             
-             
-             array_push($totalRow,$total);
-             array_push($averageRow,$average);
-             
-         }
-         
-         if ($addIt) {
-            array_push($returnData,$averageRow);
-            array_push($returnData,$totalRow);
-         }          
          //OUTPUT
-         
+         //print ("$allowed allowed, $forbidden not allowed.\n");
          if ($format == 'table') {
              $jsonReturn['aoColumns'] = $columns;
              $jsonReturn['aaData'] = $returnData;
@@ -2672,6 +1820,9 @@ class AjaxController extends Zend_Controller_Action
              $jsonReturn['file'] = $fileName;
              $this->_helper->json($jsonReturn);
          }
+         
+         
+         
     }
     
     public function groupreportAction()
@@ -3514,7 +2665,8 @@ class AjaxController extends Zend_Controller_Action
         
         $formFieldCheck = new Zend_Form_Element_MultiCheckbox('formFields');
         foreach ($elements as $element) {
-            $displayName = $this->_neatTrim($element['name'],30,'');
+            //$displayName = $this->_neatTrim($element['name'],30,'');
+            $displayName  = $element['name'];
             $formFieldCheck->addMultiOption($element['field'],$displayName);
         }
         
@@ -3620,19 +2772,6 @@ class AjaxController extends Zend_Controller_Action
                 $return .= $display;
                 
                 break;
-            
-            case 'staff' :
-                $staffTable = new Application_Model_DbTable_Users;
-                $staffName = $staffTable->getName($id);
-                $dataSName = " data-staffname = '$staffName'";
-                $dataSID =   " data-staffid = '$id'";
-                $dataType =  " data-type = 'status'";
-                
-                $display = "<li class='draggable' $dataSName $dataSID $dataType>Status<li>";
-                $return .= $display;
-                
-                break;
-            
             case 'group' :
                 $groupTable = new Application_Model_DbTable_Groups;
                 $groupName = $groupTable->getName($id);
@@ -3664,11 +2803,16 @@ class AjaxController extends Zend_Controller_Action
         $dataTable = new Application_Model_DbTable_DynamicForms;
         $pTable = new Application_Model_DbTable_Participants;
         $userTable = new Application_Model_DbTable_Users;
+        $deptTable = new Application_Model_DbTable_Depts;
+        $elTable = new Application_Model_DbTable_CustomFormElements();
         $jsonReturn = array();
         
-        
+        //need to get user departments to filter permissions later
+        $userDeptTable = new Application_Model_DbTable_UserDepartments;
+        $myDepts = $userDeptTable->getList('depts',$this->uid);
+
         //get variables
-        $filterType = $_POST['fType']; //form, group, prog or staff
+        $filterType = $_POST['fType']; //form, group, or prog
         $filterTarget = $_POST['fTarget']; //staff or participant
         $dataType = $_POST['dType']; //prepost or singleuse
         
@@ -3680,33 +2824,48 @@ class AjaxController extends Zend_Controller_Action
         
         $reportType = $_POST['rType'];
         
+        $staffRowValues = array();
+        $columnTitles = array(array('sTitle' => ucfirst($filterTarget)));
+        
         switch ($filterTarget) {
-            case 'volunteer' :
-                    $nameTable = $userTable;
-                    $permissibleIDs = $userTable->getAllowedVolIDs();
-                    //print_r($permissibleIDs);
-                    break;
             case 'staff' : 
                     $nameTable = $userTable;
-                    $permissibleIDs = $userTable->getStaffUsers();
+                    $permissibleIDs = $userTable->getStaffUsers();  
+                    $deptCol = array('sTitle' => "Department");
+                    array_push($columnTitles,$deptCol);
                     break;
             case 'participant' : 
                     $nameTable = $pTable;
                     $permissibleIDs = $pTable->getStaffPtcps();
+                    //print_r($permissibleIDs);
                 break;
             default: break;
         }
         
         //get matching PIDs
         $pIDs = array();
+        $entryIDs = array(); //will store entry ids from form table
+        $deptSearchString = '';
+        $deptSearch = FALSE;
         
         if ($filterType == 'form') {
+            
             foreach ($filterFields as $count => $field) {
                 $fid = $field['formID'];
                 $elid= $field['elementID'];
                 $search = $this->_getMatchPhrase($field['fCompare'],$field['match']);
                 
+                if ($fid == '999') {
+                    $deptSearchString = $search; 
+                    $deptSearch = TRUE; 
+                    continue;
+                }
                 
+                if ($deptSearch) {
+                    $count--;
+                }
+                
+                //print_r($field);
                 
                 $myForm = $formsTable->getRecord($fid);
                 $table = $myForm['tableName'];
@@ -3727,13 +2886,16 @@ class AjaxController extends Zend_Controller_Action
                         AND f.responseDate >= '$from' AND f.responseDate <= '$to'
                         AND doNotDisplay = 0 
                         "; //doNotDisplay field, if TRUE, contains edited duplicates.
-                
+                    if ($deptSearch) {
+                        $qText .= " AND f.deptID $deptSearchString";
+                    }
                 //unless it's for staff forms
                 } else {
-                    $qText = "SELECT DISTINCT uid from $table "
+                    $qText = "SELECT DISTINCT id, uid from $table "
                             . "WHERE $elid $search "
                             . "AND responseDate >= '$from' "
-                            . "AND responseDate <= '$to'";
+                            . "AND responseDate <= '$to'"
+                            . "AND doNotDisplay = 0";
                     
                     $fullQueryText = "SELECT * FROM $table "
                             . "WHERE $elid $search "
@@ -3744,32 +2906,44 @@ class AjaxController extends Zend_Controller_Action
             
                 //troubleshoot Query Text
                 //print $qText . "\n\n\n";
-            
+                //die();
                 $ids = $this->db->query($qText)->fetchAll();
                 
                 
+                //print_r($ids);
                 //on first filter field, put all matching PIDs into success array
                 if ($count == 0) { 
                     foreach ($ids as $pid) {
-                        if($pid['uid'] != 0) {
-                            array_push($pIDs, $pid['uid']);
-                        }
+                        array_push($pIDs, $pid['uid']);
+                        array_push($entryIDs, $pid['id']);
                     }
                 //on later filters, filter existing success PIDs against current matching PIDs                
                 } else {
-                    $idArray = array();
-                    foreach ($ids as $id) {
-                        array_push($idArray,$id['uid']);
+//                    $idArray = array();
+//                    foreach ($ids as $id) {
+//                        array_push($idArray,$id['uid']);
+//                    }
+//                    foreach ($pIDs as $index => $pid) {
+//                        if (!in_array($pid,$idArray)) {
+//                            unset($pIDs[$index]);
+//                        }
+//                    }
+                    $tempIDs = array();
+                    $tempEntryIDs = array();
+                    foreach ($ids as $pid) {
+                        array_push($tempIDs,$pid['uid']);
+                        array_push($tempEntryIDs,$pid['id']);
                     }
-                    foreach ($pIDs as $index => $pid) {
-                        if (!in_array($pid,$idArray)) {
-                            unset($pIDs[$index]);
-                        }
-                    }
+                    $pIDs = array_intersect($pIDs,$tempIDs);
+                    $entryIDs = array_intersect($entryIDs,$tempEntryIDs);
+                    unset($tempIDs,$tempEntryIDs);
                 }
             } //end element loop
         } //end 'form' 
+        
         //print_r($pIDs);
+        
+        
         
         if ($filterType == 'group') {
             $terms = array(
@@ -3925,119 +3099,34 @@ class AjaxController extends Zend_Controller_Action
                 
             }//end foreach loop
         }//end of prog
-          
-        if ($filterType == 'staff') {
-            foreach ($filterFields as $key => $staffField) {
-                $ids       = array();
-                $longName  = $staffField['elementName'];
-                $style     = $staffField['fCompare'];
-                $status    = $staffField['match'];
-                $staffID    = $staffField['filterID'];
                 
-                //waitlist bug - hacky fix
-                if ($status == 'waitlisted') $status='waitlist';
-                
-                //get ptcp IDs who became active during our timeframe
-                $tables = array('ptcpUserArchive','participantUsers');
-                
-                foreach ($tables as $table) {
-                    $qText = "SELECT DISTINCT participantID
-                            FROM $table
-                            WHERE userID = $staffID
-                            AND status = '$status'
-                            AND (prevStatus != '$status' OR prevStatus IS NULL)" //eliminate note updates that aren't status changes
-                            . "
-                            AND statusDate BETWEEN '$from 00:00:00' AND '$to 23:59:59'
-                        ";
-                    
-                    $results = $this->db->query($qText)->fetchAll();
-                                        
-                    foreach ($results as $pid) {
-                        if (!in_array($pid['participantID'],$ids)) {
-                                array_push($ids,$pid['participantID']);
-                            }
-                    }
-                }
-                
-                //if needed, get ptcp IDs who were already active
-                if ($style == 'was') {
-                    foreach ($tables as $table) {
-                        $qText = "
-                            SELECT p.participantID, p.status,p.statusDate
-                            FROM $table AS p 
-                            INNER JOIN ( 
-                                    SELECT participantID, max(statusDate) AS status_date 
-                                    FROM $table 
-                                    WHERE userID=$staffID
-                                    AND statusDate < '$from 23:59:59'
-                                    GROUP BY participantID ) pmax 
-                            ON pmax.participantID = p.participantID and pmax.status_date = p.statusDate 
-                            ORDER BY p.participantID ASC
-                            ";
-                        $results = $this->db->query($qText)->fetchAll();
-
-                        foreach ($results as $pid) {
-                            if ((!in_array($pid['participantID'],$ids)) && ($pid['status'] == $status)) {
-                                array_push($ids,$pid['participantID']);
-                            }
-                        }
-                    } //end tables loop
-                } //end if style = was
-             
-             //on first filter field, put all matching PIDs into success array
-                if ($key == 0) { 
-                    foreach ($ids as $pid) {
-                        array_push($pIDs, $pid);
-                    }
-                //on later filters, filter existing success PIDs against current matching PIDs                
-                } else {
-                    $idArray = array();
-                    foreach ($ids as $id) {
-                        array_push($idArray,$id);
-                    }
-                    foreach ($pIDs as $index => $pid) {
-                        if (!in_array($pid,$idArray)) {
-                            unset($pIDs[$index]);
-                        }
-                    }
-                }   
-                
-            }//end foreach loop
-        }//end of staff
-
-        
         //check PID permissions, remove duplicates
         $goodIDs = array_unique(array_intersect($pIDs, $permissibleIDs));
         
         //get needed fields
         
-        $columnTitles = array(array('sTitle' => ucfirst($filterTarget)));
+        if ($filterTarget == 'staff') {
+            $columnTitles = array(
+                    array('sTitle' => ucfirst($filterTarget)),
+                    array('sTitle' => 'Department')
+                );
+        } else {
+            $columntTitles = array(array('sTitle' => ucfirst($filterTarget)));
+        }
+        
+        
         $rowValues = array();
         $prepostValues = array();
         
-        if ($filterTarget == 'participant') {
-            $dobctitle = array('sTitle' => 'Date of Birth');
-            array_push($columnTitles,$dobctitle);
-        }
-        
         foreach ($goodIDs as $pid) {
-            if ($this->evaluator) {
-                $pName = $pid; //anonymize for evaluators
-            } elseif ($reportType == 'table') {
-                $pName = "<a href='/participants/profile/id/$pid/' target='_blank'>" . $nameTable->getName($pid) . "</a>";
-            } else {
+            if (!$this->evaluator) {
                 $pName = $nameTable->getName($pid);
+            } else {
+                $pName = $pid; //anonymize for evaluators
             }
-            
             $rowValues[$pid] = array($pName);
-            if ($filterTarget == 'participant') {
-                    $ptcp = $nameTable->getRecord($pid);
-                    $dob = $ptcp['dateOfBirth'];                    
-                    array_push($rowValues[$pid],$dob);
-            }
         }
         
-
         foreach ($dataFields as $field) {
             $eName = $field['elementName'];
             $eID = $field['elementID'];
@@ -4060,108 +3149,124 @@ class AjaxController extends Zend_Controller_Action
             $fRecord = $formsTable->getRecord($formID);
             $tableName = $fRecord['tableName'];
             
+            $elType = $elTable->getElementType($eID,$formID);
             //tested $goodIDs, July 2014 - filters correctly
+
+            //if participant or group, iterate through goodIDs
+            if ($filterTarget == 'participant' || $filterTarget == 'group') {
             
-            foreach ($goodIDs as $pid) {
-                
-                if ($filterTarget == 'staff') {
-                    $pRecords = $this->db->query($fullQueryText)->fetchAll();
-                } else {
+                foreach ($goodIDs as $pid) {
                     $pRecords = $dataTable->getRecords($pid,$tableName);                    
                     //$pRecords = $dataTable->getRecords($pid,$tableName,$from,$to);                    
-                }
-                
-                $numRecords = count($pRecords);
-                
-                $pRecords = array_merge($pRecords); //this resets the array keys
-                                                    //so that first record is always [0]
-                
-                //print_r($pRecords);
-                
-                
-                //figure out element type
-                $elTable = new Application_Model_DbTable_CustomFormElements();
-                $elType = $elTable->getElementType($eID,$formID);
-                
-                if ($filterTarget == 'participant' || $filterTarget == 'volunteer') {
-                    
-                    if ($numRecords > 1) {    
-                        $latestRecord = $pRecords[0];
-                        $earliestRecord = end($pRecords);
-                        reset($pRecords);
-                    } elseif ($numRecords == 1) {
-                        $earliestRecord = array($eID => 'No data');
-                        $latestRecord = $pRecords[0];
-                    } else {
-                        $latestRecord = array($eID => 'No data');
-                        $earliestRecord = array($eID => 'No data');
-                    }
-                    
-                    switch ($dataType) {
-                    case 'singleuse':
-                        //if element is a checkbox and we're adding things up, flag for later processing
-                        if ($elType == 'checkbox' && $reportType == 'graph') {
-                            $columnVal = "CKBX , " . $latestRecord[$eID];
-                        } else {
-                            $columnVal = $latestRecord[$eID];
-                        }
-                        array_push($rowValues[$pid],$columnVal);
-                        break;
-                    case 'prepost':
-                        $col1Val = $earliestRecord[$eID];
-                        $col2Val = $latestRecord[$eID];
-                        if (strlen($col1Val) < 1) {
-                            $col1Val = 'No data';
-                        }
-                        if (strlen($col2Val) < 1) {
-                            $col2Val = 'No data';
-                        }
-                        
-                        //fix weirdness around doing both pre/post and static
-                        if (($col1Val == 'No data') && ($col2Val != 'No data')) {
-                            $col1Val = $col2Val;
-                            $col2Val = 'No data';
-                        }
-                        
-                        array_push($rowValues[$pid],$col1Val);
-                        array_push($rowValues[$pid],$col2Val);
-                        
-                        break;
-                    default: break;
-                }
-                
-                } else { 
 
-                //for staff, only do statics, and do all records, not just latest
-                // also, for staff, check final results against filter again.
-                    $name = $rowValues[$pid][0];
-                    reset($rowValues);
-                    
-                    foreach ($pRecords as $record) {
-                        $recID = $record['id'];
-                        //$rowValues[$recID] = array();
-                        $rowValues[$recID][0] = $name;
+                    $numRecords = count($pRecords);
+                
+                    $pRecords = array_merge($pRecords); //this resets the array keys
+                                                        //so that first record is always [0]
+                
+//                    //figure out element type
+//                    $elTable = new Application_Model_DbTable_CustomFormElements();
+//                    $elType = $elTable->getElementType($eID,$formID);
 
-                        if ($elType == 'checkbox' && $reportType == 'graph') {
-                            $columnVal = "CKBX , " . $record[$eID];
+                        if ($numRecords > 1) {    
+                            $latestRecord = $pRecords[0];
+                            $earliestRecord = end($pRecords);
+                            reset($pRecords);
+                        } elseif ($numRecords == 1) {
+                            $earliestRecord = array($eID => 'No data');
+                            $latestRecord = $pRecords[0];
                         } else {
-                            $columnVal = $record[$eID];
+                            $latestRecord = array($eID => 'No data');
+                            $earliestRecord = array($eID => 'No data');
                         }
-                        array_push($rowValues[$recID],$columnVal);
-                    }
-                }                
+
+                        switch ($dataType) {
+                        case 'singleuse':
+                            //if element is a checkbox and we're adding things up, flag for later processing
+                            if ($elType == 'checkbox' && $reportType == 'graph') {
+                                $columnVal = "CKBX , " . $latestRecord[$eID];
+                            } else {
+                                $columnVal = $latestRecord[$eID];
+                            }
+                            array_push($rowValues[$pid],$columnVal);
+                            break;
+                        case 'prepost':
+                            $col1Val = $earliestRecord[$eID];
+                            $col2Val = $latestRecord[$eID];
+                            if (strlen($col1Val) < 1) {
+                                $col1Val = 'No data';
+                            }
+                            if (strlen($col2Val) < 1) {
+                                $col2Val = 'No data';
+                            }
+
+                            //fix weirdness around doing both pre/post and static
+                            if (($col1Val == 'No data') && ($col2Val != 'No data')) {
+                                $col1Val = $col2Val;
+                                $col2Val = 'No data';
+                            }
+
+                            array_push($rowValues[$pid],$col1Val);
+                            array_push($rowValues[$pid],$col2Val);
+
+                            break;
+                            default: break;
+                        }
+
+
+            }
+        } elseif ($filterTarget == 'staff') {
+          //if staff, pull records once and check dept ID against permitted departmentss
+            if (count($filterFields) == 1) {
+                $pRecords = $this->db->query($fullQueryText)->fetchAll();
+            //2019 - Change - this only uses the latest filter, and breaks when there are multiple.
+            //instead, above, we create an array of entry IDs and use it here. 
+            //however, this only works for ESCC because they use one form (therefore one table)
+            //as soon as you have multiple tables in the data section this will break as well.
+                
+            } else {
+                $pRecords = array();
+                $recordTable = new Application_Model_DbTable_DynamicForms();
+                foreach ($entryIDs as $id) {
+                    $record = $recordTable->getRecordByID($tableName,$id);
+                    array_push($pRecords, $record);
+                }
             }
             
+            
+            
+            foreach ($pRecords as $record) {
+                $deptid = $record['deptID'];
+                $recID = $record['id'];
+                if (!in_array($deptid,$myDepts) && (!$this->root)) {
+                    continue;
+                } else {
+                   $uidLoop = $record['enteredBy'];
+                   $staffNameLoop = $userTable->getName($uidLoop);
+                   $deptNameLoop = $deptTable->getName($deptid);
+                   
+                   $staffRowValues[$recID][0] = $staffNameLoop;
+                   $staffRowValues[$recID][1] = $deptNameLoop;
+                   
+                   if ($elType == 'checkbox' && $reportType == 'graph') {
+                       $columnVal = "CKBX , " . $record[$eID];
+                   } else {
+                       $columnVal = $record[$eID];
+                   }
+                   
+                   array_push($staffRowValues[$recID],$columnVal);
+                }
+            }
+          
+            } else {
+                throw new Exception ("Invalid filter type '$filterTarget' passed to report builder.");
+            }
         }
-
-        //in staff forms, array is set by row records, not userid records, 
-        //so unset the empty userid record
         
         if ($filterTarget == 'staff') {
-            unset ($rowValues[$pid]);
-        }
-        
-//        print_r($rowValues);
+            unset($rowValues);
+            $rowValues = $staffRowValues;
+        }            
         
         if ($reportType == 'table') {
              $tableValues = array();

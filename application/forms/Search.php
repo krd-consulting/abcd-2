@@ -12,8 +12,7 @@ class Application_Form_Search extends Zend_Form {
     }
     
     public function multiOptions(){
-        $this->multiOptions = array('participant' => 'Participants',
-                                    'volunteer' => 'Volunteers',
+        $this->multiOptions = array('participant' => 'Participants', 
                                    'group' => 'Groups', 
                                    'staff' => 'Staff');        
         return $this->multiOptions;

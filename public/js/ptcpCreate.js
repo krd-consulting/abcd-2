@@ -156,4 +156,25 @@ $(function() {
                     .click(function() {
                             $( "#dialog-form" ).dialog( "open" );
                     });
+                    
+                    
+function switchList() {
+    home = $("tr.homerecord").length;
+    total = $("tr").length;
+    
+    if ($("input#list-switch").is(':checked')) {
+        $("#record-count").text(total);
+        $("tr.default").removeClass('hidden').removeClass('noSearch').show();
+    } else {
+        $("#record-count").text(home);
+        $("tr.default").addClass('hidden').addClass('noSearch').hide();
+    }
+}
+
+$("input#list-switch").click(function(){
+        switchList();
+    });
+    
+total = $("tr").length;
+$("#record-count").text(total);
 });

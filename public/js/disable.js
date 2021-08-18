@@ -1,6 +1,8 @@
 $(function(){
     //disable checkboxes
-    $("input:checkbox").attr('disabled','disabled');
+    //2018 -- WHY ARE WE DOING THIS?
+    //changed it to look for class. previously was disabling all checkboxes. -rk
+    $("input:checkbox.disabled").attr('disabled','disabled');
     
     //set link buttons
     $("button.link").button()

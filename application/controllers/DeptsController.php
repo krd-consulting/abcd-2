@@ -18,11 +18,12 @@ class DeptsController extends Zend_Controller_Action
         }
         
         /* Set UID */
-        $this->uid = Zend_Registry::get('uid');
-        $this->root = Zend_Registry::get('root');
-        $this->mgr = Zend_Registry::get('mgr');
-        $this->evaluator = Zend_Registry::get('evaluator');
-        $this->volunteer = Zend_Registry::get('volunteer');
+        $this->uid = $this->auth->getIdentity()->id;
+        
+        /* Set role vars*/
+        if ($this->auth->getIdentity()->role == '4') {$this->root = TRUE; $this->mgr = TRUE;}
+        if ($this->auth->getIdentity()->role == '3') {$this->mgr = TRUE;}
+
         /* Set Database */
         $this->db = $this->getInvokeArg('bootstrap')->getResource('db');
 
@@ -30,10 +31,7 @@ class DeptsController extends Zend_Controller_Action
 
     public function indexAction()
     {
-	if (!$this->root) {
-            throw new exception ("This functionality protects confidential information. Please contact your administrator if you think you should have access to it.");
-        }
-        $this->_helper->redirector('list','depts');
+	$this->_helper->redirector('list','depts');
     }
 
     public function listAction()
@@ -114,12 +112,6 @@ class DeptsController extends Zend_Controller_Action
         
         $userSelect = $db->query('SELECT * from users as u, userDepartments as ud
                                   WHERE u.id = ud.userID AND
-                                  u.role != 15 AND
-                                  ud.deptID = ' . $id);
-        
-        $volSelect = $db->query('SELECT * from users as u, userDepartments as ud
-                                  WHERE u.id = ud.userID AND
-                                  u.role = 15 AND
                                   ud.deptID = ' . $id);
         
         $ptcpSelect = $db->query('SELECT * from participants as p, participantDepts as pd
@@ -138,7 +130,6 @@ class DeptsController extends Zend_Controller_Action
         
         $users = $userSelect->fetchAll();
         $ptcps = $ptcpSelect->fetchAll();
-        $vols = $volSelect->fetchAll();
         
         foreach ($ptcps as $key => $ptcp) {
             $pid = $ptcp['id'];
@@ -164,7 +155,6 @@ class DeptsController extends Zend_Controller_Action
         
         $this->view->dept = $dept;
         $this->view->users = $users;
-        $this->view->vols = $vols;
         $this->view->ptcps = $ptcps;
         $this->view->progs = $progs;
         $this->view->forms = $forms;
@@ -189,21 +179,17 @@ class DeptsController extends Zend_Controller_Action
         $type = $this->_getParam('type');
         $depts = new Application_Model_DbTable_Depts;
         $dept = $depts->getDept($id);
-        $idGetType = '';
-        
+                
         switch ($type) {
-            case 'user' :
-            case 'vol' :
+            case 'user' : 
                 $peopleDepts = new Application_Model_DbTable_UserDepartments;
                 $people = new Application_Model_DbTable_Users;
                 $managerID = $peopleDepts->getManager($id);
                 $columnType = 'users';
-                if ($type =='user') {
-                        $header = "Add Staff to ";
-                    } else {
-                        $header = "Add Volunteer to ";
-                }                $requiredIDs = NULL;
+                $header = "Add Staff to ";
+                $requiredIDs = NULL;
                 break;
+            
             case 'ptcp' : 
                 $peopleDepts = new Application_Model_DbTable_ParticipantDepts;
                 $people = new Application_Model_DbTable_Participants;
@@ -229,55 +215,8 @@ class DeptsController extends Zend_Controller_Action
         $addPeople     = array();
         
         $currentPeopleIDs = $peopleDepts->getList($columnType, $id);
-        if ($type == 'vol') {$idGetType = $type;}
-        
-        $allPeopleIDs = $people->getIDs($idGetType);
+        $allPeopleIDs = $people->getIDs();
         $addPeopleIDs = array_diff($allPeopleIDs,$currentPeopleIDs);
-        
-        //differentiate between staff and volunteers 
-        switch ($type) {
-            case 'user':
-            case 'vol':
-                $curVolIDs = array();
-                $curStaffIDs = array();
-                $addVolIDs = array();
-                $addStaffIDs = array();
-                
-                foreach ($currentPeopleIDs as $idToTest) {
-                    $isVol=$people->isVolunteer($idToTest);
-                    
-                    if ($isVol) {
-                        array_push($curVolIDs,$idToTest);
-                    } else {
-                        array_push($curStaffIDs,$idToTest);
-                    } 
-                }
-                
-                unset($idToTest);
-                
-                foreach ($addPeopleIDs as $idToTest) {
-                    $isVol=$people->isVolunteer($idToTest);
-                    
-                    if ($isVol) {
-                        array_push($addVolIDs,$idToTest);
-                    } else {
-                        array_push($addStaffIDs,$idToTest);
-                    } 
-                }
-                
-                if ($type == 'user') {
-                    $currentPeopleIDs = $curStaffIDs;
-                    $addPeopleIDs = $addStaffIDs;
-                }
-                if ($type == 'vol') {
-                    $currentPeopleIDs = $curVolIDs;
-                    $addPeopleIDs = $addVolIDs;
-                }
-                break;
-            default: continue;
-        }
-        
-        
         
         foreach ($currentPeopleIDs as $cid) {
             $currentRecord = $people->getRecord($cid);

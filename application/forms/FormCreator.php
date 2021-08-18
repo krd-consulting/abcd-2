@@ -28,7 +28,7 @@ class Application_Form_FormCreator extends Zend_Form
         
         $formTarget = new Zend_Form_Element_Select('formTarget');
         $formTarget->addMultiOption('participant', 'Program Participants')
-                 ->addMultiOption('staff', 'Program Staff / Volunteers')
+                 ->addMultiOption('staff', 'Program Staff')
                  ->addMultiOption('group', 'Groups / Group Meetings')
                  ->addMultiOption('other', 'Other')
                  ->setLabel('Form is about');

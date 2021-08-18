@@ -4,7 +4,8 @@ class Application_Model_DbTable_Alerts extends Zend_Db_Table_Abstract {
     protected $_name = 'alerts';
     
     public function getRecord($id) {
-        $row = $this->fetchRow("id = " . $id)->toArray();
+        $row = $this->fetchRow("id = " . $id);
+        $row = $row->toArray();
         return $row['alert'];
     }
        

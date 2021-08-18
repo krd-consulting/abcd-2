@@ -57,7 +57,7 @@ class Application_Model_DbTable_DynamicForms extends Zend_Db_Table_Abstract {
         }
         $selectLineFinal = rtrim($selectLine," AND ");
         
-        $records = $this->fetchAll($selectLineFinal)->toArray();
+        $records = $this->fetchAll($selectLineFinal,"responseDate DESC")->toArray();
         $finalRecords = $this->_filterEditDisplay($records);
         
         return $finalRecords;

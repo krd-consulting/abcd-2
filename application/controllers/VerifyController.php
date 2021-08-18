@@ -6,23 +6,23 @@ class VerifyController extends Zend_Controller_Action
     private $mgr = FALSE;
     private $evaluator = FALSE;
     
-public function init() {
-        /* Get user credentials */
+    public function init()
+    {
+        
         $this->auth = Zend_Auth::getInstance();
-        if (!$this->auth->hasIdentity()) {
-            throw new Exception("You are not logged in.");
+        $this->uid = $this->auth->getIdentity()->id;
+        $this->role = $this->auth->getIdentity()->role;
+        
+        switch ($this->role) {
+            case '4' : $this->root = TRUE;
+                        $this->mgr = TRUE;
+                        break;
+            case '3' : $this->mgr = TRUE;
+                        break;
+            case '1' : $this->evaluator = TRUE;
+                        break;
         }
         
-        /* Set UID and roles */
-        $this->uid = Zend_Registry::get('uid');
-        $this->root = Zend_Registry::get('root');
-        $this->mgr = Zend_Registry::get('mgr');
-        $this->evaluator = Zend_Registry::get('evaluator');
-        $this->volunteer = Zend_Registry::get('volunteer');
-
-        /* Set Database */
-        $this->db = $this->getInvokeArg('bootstrap')->getResource('db');
-
     }
 
     public function indexAction()
@@ -45,22 +45,6 @@ public function init() {
         
         $this->_helper->json($jsonResult);
     }
-    
-    public function phoneAction() 
-    {
-        $jsonResult = array();
-        $jsonResult['success'] = 'no';
-        $email = $_GET['value'];
-        $query = ("eMail = '$email'");
-        $table = new Application_Model_DbTable_Users;
-        $result = $table->fetchRow($query);
-        if (count($result) == 0) {
-            $jsonResult['success'] = 'yes';
-        }
-        
-        $this->_helper->json($jsonResult);
-    }
-    
     
     public function usernameAction()
     {
@@ -95,9 +79,10 @@ public function init() {
     public function duplicateAction()
     {
         // Check for duplicates in the database
+        
         $type = $_GET['type'];
-        $fname = $_GET['fname'];
-        $lname = $_GET['lname'];
+        $fname = trim($_GET['fname']);
+        $lname = trim($_GET['lname']);
         
         $jsonResult = array();
         
@@ -170,4 +155,4 @@ public function init() {
         
     }
 
-} 
+}

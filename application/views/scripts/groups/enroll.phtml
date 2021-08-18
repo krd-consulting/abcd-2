@@ -8,13 +8,7 @@
 
 
 ?>
-<?php 
-  switch ($this->type) {
-      case ('ptcp') : $types = "participants";break;
-      case ('vol')  : $types = "volunteers";break;
-      default: throw new exception ("Invalid type $this->type passed to group enroll view.");
-  }
-?>
+
 <div class="inline float-right">
     <a href="<?php print $profileUrl; ?>"> Back to Group Profile </a>
 </div>
@@ -51,7 +45,7 @@
                         <?php if (in_array($record['id'],$this->required)) {print ' exclude';} ?>
                         ">
                         <?php 
-                        if (($this->type == 'user') || ($this->type == 'ptcp') || ($this->type == 'vol')) {
+                        if (($this->type == 'user') || ($this->type == 'ptcp')) {
                         $printName = $record['firstName'] . ' ' . $record['lastName'];
                         } else {
                         $printName = $record['name'];
@@ -66,7 +60,7 @@
 
         <div id="other-users" class="content-block float-right">
                 <h2>
-                    Other <?php print "$types in $this->dept['deptName']"; ?>
+                    Other participants in <?php print $this->dept['deptName']; ?>
                 </h2>
 
             <div id="filterright"></div>   
@@ -75,7 +69,7 @@
                 <?php foreach ($this->addRecords as $record) : ?>
                     <li id="<?php print $record['id'];?>" class="draggable out-list">
                     <?php 
-                        if (($this->type == 'user') || ($this->type == 'ptcp') || ($this->type == 'vol')) {
+                        if (($this->type == 'user') || ($this->type == 'ptcp')) {
                         $printName = $record['firstName'] . ' ' . $record['lastName'];
                         } else {
                         $printName = $record['name'];

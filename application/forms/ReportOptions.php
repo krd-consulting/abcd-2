@@ -10,7 +10,6 @@ class Application_Form_ReportOptions extends Zend_Form
         $filterTarget = new Zend_Form_Element_Select('filterTarget');
         $filterTarget->addMultiOptions(array(
                     'participant'  => 'Participants',
-                    'volunteer'  => 'Volunteers',
                     'staff'  => 'Staff'
         ))
                      ->setLabel('Report about');

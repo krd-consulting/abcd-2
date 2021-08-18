@@ -6,13 +6,8 @@ class Application_Model_DbTable_Groups extends Zend_Db_Table_Abstract
     protected $_name = 'groups';
     
     public function getName($groupID) {
-        
-        if ($record = $this->fetchRow("id = $groupID")) {
-            $arrayRecord=$record->toArray();
-        } else {
-            throw new Exception("Could not find group id $id");
-        }
-        return $arrayRecord['name'];
+        $record = $this->fetchRow("id = $groupID")->toArray();
+        return $record['name'];
     }
     
     public function addGroup($name, $desc, $programID) 

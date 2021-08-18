@@ -1,3 +1,15 @@
+<?php
+$switchButton = '<div class="slider-button float-right">
+                    <span class="text float-left">Show All</span>
+                    <label class="switch">
+                        <input id="list-switch" type="checkbox" checked="yes">
+                        <span class="slider round"></span>
+                    </label>
+                </div>';
+        
+?>
+
+
 <div id="content">
 
   <h1 class="float-left"> Participants </h1> 
@@ -16,6 +28,10 @@
             
         </span>
         
+      <span id="switchbutton">
+          <?php print $switchButton ?>
+      </span>
+      
         <span id="addNew" class="float-right">
             <button id="addPtcp">Add New Participant</button>
         </span>
@@ -24,10 +40,16 @@
 
     <div id="content-main">
         <table class="p-list-table">
-            <?php 
+            <?php
                 $links = array('profile', 'edit');
                 foreach ($this->list as $participant) {
-                    print $this->tableRow('person', 'participants', $participant, $links);
+                    $pid = $participant['id'];
+                    if (in_array($pid,$this->homeIDs)) {
+                        $home = TRUE;
+                    } else {
+                        $home = FALSE;
+                    }
+                    print $this->tableRow('person', 'participants', $participant, $links, $home);
                 }
             ?>
         </table>

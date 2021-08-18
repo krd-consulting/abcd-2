@@ -55,7 +55,7 @@ $(function() {
                                     var bValid = true;
                                     password.removeClass( "ui-state-error" );
                                     
-                                    bValid = bValid && checkLength( password, "Password", 3, 20 );
+                                    bValid = bValid && checkLength( password, "Password", 6, 20 );
                                     
                                     if ( bValid ) {
                                             updateTips('Valid Password - unlocking...');

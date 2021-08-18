@@ -1,8 +1,6 @@
 $(document).ready(function() {
 
 if ($(".reference")[0]) {
-    
-    
     $(".reference").autocomplete(
         { 
                 
@@ -13,7 +11,7 @@ if ($(".reference")[0]) {
                 dataType: "json",
                 data:   {
                         term: request.term,
-                        type: $(this.element).data("reftype"),
+                        type: 'reference',
                         form: $(this.element).data("refform"),
                         field: $(this.element).data("reffield")
                         },

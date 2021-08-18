@@ -26,6 +26,47 @@ $addStafftoPtcpUrl = $this->url(array(
                                'type'        =>'ptcp',
                                'id'          => $this->user['id']));
 
+$addStafftoDeptUrl = $this->url(array(
+                               'controller'  =>'users',
+                               'action'      =>'associate',
+                               'type'        =>'dept',
+                               'id'          => $this->user['id'])); 
+
+
+//set up departments tab
+
+if ($this->root || ($this->uid == $this->user['id'])) {
+    $privilege = TRUE;
+} else {
+    $privilege = FALSE;
+}
+
+$deptLinks = array('profile');
+
+if ($privilege) {
+    array_push($deptLinks,'setHome');
+}
+
+$deptTabList = '<table class="p-list-table">';
+
+foreach ($this->depts as $userDept) {
+    if (in_array($userDept['id'],$this->homeDepts)) {
+        $home = TRUE;
+    } else {
+        $home = FALSE;
+    }
+    $deptTabList .= $this->tableRow('entity','depts',$userDept,$deptLinks,$home);
+}
+$deptTabList .= '</table>';
+$deptAddMore = '<div class="bottom-links">
+                   <a class="add-link" href=' . $addStafftoDeptUrl . '>
+                       Manage departments for ' . $this->title . ' 
+                   </a>
+                </div>';
+$deptTab = $deptTabList . $deptAddMore;
+
+
+
 //Set up programs tab
 $links = array('profile');
     
@@ -97,7 +138,7 @@ $formTab = '';
 
 
 //PASS EVERYTHING TO TABS
-
+$this->tabPane('user',$deptTab,array('title' => 'Departments'));
 $this->tabPane('user', $progTab, array('title' => 'Programs'));
 $this->tabPane('user', $ptcpTab, array('title' => 'Case Load'));
 

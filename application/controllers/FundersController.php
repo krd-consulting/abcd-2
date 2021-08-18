@@ -12,18 +12,17 @@ class FundersController extends Zend_Controller_Action
     public function init()
     {
         /* Get user credentials */
-        /* Get user credentials */
         $this->auth = Zend_Auth::getInstance();
         if (!$this->auth->hasIdentity()) {
             throw new Exception("You are not logged in.");
         }
         
         /* Set UID */
-        $this->uid = Zend_Registry::get('uid');
-        $this->root = Zend_Registry::get('root');
-        $this->mgr = Zend_Registry::get('mgr');
-        $this->evaluator = Zend_Registry::get('evaluator');
-        $this->volunteer = Zend_Registry::get('volunteer');
+        $this->uid = $this->auth->getIdentity()->id;
+        
+        /* Set role vars*/
+        if ($this->auth->getIdentity()->role == '4') {$this->root = TRUE; $this->mgr = TRUE;}
+        if ($this->auth->getIdentity()->role == '3') {$this->mgr = TRUE;}
 
         /* Set Database */
         $this->db = $this->getInvokeArg('bootstrap')->getResource('db');

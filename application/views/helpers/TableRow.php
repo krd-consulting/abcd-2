@@ -21,22 +21,33 @@ class Zend_View_Helper_TableRow extends Zend_View_Helper_Abstract {
         }
     }
     
-    public function tableRow($type, $class, $rowData, $viewLinks) {
+    public function tableRow($type, $class, $rowData, $viewLinks, $home = FALSE) {
         /*   $type = person or entity - this determines how the name is displayed
-         *   $class = participants, users, volunteers, groups or programs - determines additional default info
+         *   $class = participants, users, groups or programs - determines additional default info
          *   $rowData = array holding view data
          *   $viewLinks = array holding the links to display in the row
          */
 	/*if (!$this->view->mgr) {
 		$rowData = get_object_vars($rowData);
 	}*/
-	
-	$this->rowTopWrapper = '<tr id=' . $rowData['id'] . '>';
+        
+	if ($home) {
+            switch ($type) {
+                case 'entity' : $trHome = 'homedept'; break;
+                case 'person' : $trHome = 'homerecord'; break;
+                default: break;
+            }
+        } else {
+            $trHome = 'default';
+        }
+        
+	$this->rowTopWrapper = "<tr class='$trHome' id=" . $rowData['id'] . ">";
 
     /*
      * Set appropriate URLs.
      */
-    //print_r($rowData);
+    
+	
         
     $urls = array();
 
@@ -46,15 +57,6 @@ class Zend_View_Helper_TableRow extends Zend_View_Helper_Abstract {
                                 'controller'  =>  $class,
                                 'action'      =>  'profile',
                                 'id'          =>  $rowData['id']),
-                            null, TRUE);
-    }
-    
-    if (in_array('calendar', $viewLinks)) {
-        $urls['calendar'] = $this->view->url(
-                            array(
-                                'controller'  => $class,
-                                'action'      => 'calendar',
-                                'id'          => $rowData['id']),
                             null, TRUE);
     }
     
@@ -90,6 +92,10 @@ class Zend_View_Helper_TableRow extends Zend_View_Helper_Abstract {
                             null, TRUE);
     }
     
+    if (in_array('setHome', $viewLinks)) {
+        $urls['setHome'] = "'#'";
+    }
+    
     if (in_array('enroll', $viewLinks)) {
        $urls['enroll']   = $this->view->url(
                             array(
@@ -108,7 +114,7 @@ class Zend_View_Helper_TableRow extends Zend_View_Helper_Abstract {
                             null, TRUE);
     }
     
-
+    if (in_array('removedefault', $viewLinks)) {
     $this->myID = $this->view->dept['id'];
     $urls['removedefault']   = $this->view->url(
                             array(
@@ -117,7 +123,7 @@ class Zend_View_Helper_TableRow extends Zend_View_Helper_Abstract {
                                 'form'        =>  $rowData['id'],
                                 'dept'        =>  $this->myID),
                             null, TRUE);
-
+    }
     
     if (in_array('notes', $viewLinks)) {
        $urls['notes']     = $this->view->url(
@@ -153,6 +159,14 @@ class Zend_View_Helper_TableRow extends Zend_View_Helper_Abstract {
                                 'action'     => 'dataentry',
                                 'id'         => $rowData['id']),
                             null, TRUE);
+
+       if (($class == "forms") && ($rowData['target'] == "staff")) {
+           $staffTable = new Application_Model_DbTable_Users;
+           $staffName = $staffTable->getName($this->view->uid);
+           setcookie("staffID",$this->view->uid,0,"/");
+           setcookie("staffName",$staffName,0,"/");
+       }
+       
     }
     
     if (in_array('deptRemove', $viewLinks)) {
@@ -219,21 +233,15 @@ class Zend_View_Helper_TableRow extends Zend_View_Helper_Abstract {
                 $class .= ' alert';
             }
             break;
-        case 'volunteers':
         case 'users' :
-            if ($class == 'volunteers') {$addlLabel = 'Phone:'; } else {$addlLabel = 'Email:';};
             $additional = 
             "<div class='dob'>
-                    <span class='label'>$addlLabel</span>
+                    <span class='label'>E-mail:</span>
                     <span class='data'>" . $rowData['eMail'] . " </span>
              </div>";
             $this->rowTopWrapper="<tr id=" . $rowData['id'] . ">";
             if ($rowData['lock'] == 1) {
                 $class .= " locked";
-            }
-            
-            if ($rowData['flag']) {
-                $class .= ' alert';
             }
             break;
         case 'forms' :
@@ -308,6 +316,14 @@ class Zend_View_Helper_TableRow extends Zend_View_Helper_Abstract {
             }
         }
         
+        if ($viewLink == 'setHome') {
+            if (!$home) {
+                $linkName = 'Set Home';
+            } else {
+                $linkName = 'Unset Home';
+            }
+        }
+        
         if ($viewLink == 'enter') {
             $linkName = 'Enter new data';
         }
@@ -318,10 +334,6 @@ class Zend_View_Helper_TableRow extends Zend_View_Helper_Abstract {
 
 	if (($viewLink == 'delete') && ($class == 'forms')) {
 	   $linkName = 'Disable';
-	}
-        
-        if (($viewLink == 'delete') && ($class == 'schedule')) {
-	   $linkName = 'Archive';
 	}
         
 	if ($viewLink == 'meeting') {
@@ -336,7 +348,12 @@ class Zend_View_Helper_TableRow extends Zend_View_Helper_Abstract {
                      </td>";
      }
     
+     if ($trHome == 'homedept') {
+         $class .= " homedept ";
+     }
     
+     
+     
     /*
      * Set main name <td>.
      */ 

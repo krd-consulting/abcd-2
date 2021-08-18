@@ -48,19 +48,18 @@ $(function(){
         
         editForm.find("input:text")
                 .not("#myDate")
-                .not("#email")
                 .each(function()
             {
                 var element = $(this);
                 valid = valid && checkLength(element, "Highlighted fields", 2, 40);
-                //valid = valid && checkRegexp(element, /^[a-z]([0-9a-z-'@. ])+$/i, "Fields can only contain alpha-numerics, spaces and dashes." );
+                valid = valid && checkRegexp(element, /^[a-z]([0-9a-z-'@. ])+$/i, "Fields can only contain alpha-numerics, spaces and dashes." );
             }
-        ); 
+        );
             
         editForm.find("input:password").each(function()
             {
                 var element = $(this);
-                valid = valid && checkLength(element, "Password", 3, 12);
+                valid = valid && checkLength(element, "Password", 6, 12);
             }
         );    
         
@@ -178,7 +177,7 @@ $(function(){
     editForm.dialog({
                     autoOpen: false,
                     height: 340,
-                    width: 575,
+                    width: 450,
                     modal: true,
                     buttons: {
                             "Save": function() {

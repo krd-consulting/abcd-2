@@ -14,18 +14,6 @@
             <class>participants</class>
         </participants>
 
-        <volunteers>
-            <label>Volunteers</label>
-            <uri>/volunteers</uri>
-            <class>volunteers</class>
-        </volunteers>
-
-        <staff>
-            <label>Staff</label>
-            <uri>/users</uri>
-            <class>users</class>
-        </staff>
-   
         <groups>
             <label>Groups</label>
             <uri>/groups</uri>
@@ -38,17 +26,23 @@
             <class>programs</class>
         </programs>
 
+        <staff>
+            <label>Staff</label>
+            <uri>/users</uri>
+            <class>users</class>
+        </staff>
+        
         <departments>
             <label>Departments</label>
             <uri>/depts</uri>
             <class>depts</class>
         </departments>   
         
-        <schedules>
-            <label>Scheduling</label>
-            <uri>/schedule</uri>
-            <class>schedules</class>
-        </schedules> 
+        <funders>
+            <label>Funders</label>
+            <uri>/funders</uri>
+            <class>funders</class>
+        </funders>   
         
         <forms>
             <label>Forms</label>
@@ -61,7 +55,5 @@
             <uri>/reports</uri>
             <class>reports</class>
         </reports>
-        
-        
 </nav>
 </configdata>

@@ -49,7 +49,7 @@
                                     print $printName;
                             ?>
                             <?php if (in_array($record['id'], $this->required)) : ?>
-                                <span class="list-manager float-right">(Not 'concluded')</span>
+                                <span class="list-manager float-right">(Locked)</span>
                             <?php endif; ?>
                         </li>
                     <?php endforeach; ?>

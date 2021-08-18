@@ -13,7 +13,7 @@ $desc=array (
 );
 $up=-63;
 $ut=44;
-$ttffile='/var/www/abcd/cceca-new/scripts/MPDF57/ttfonts/DejaVuSansMono.ttf';
+$ttffile='/var/www/abcd/escc/scripts/MPDF57/ttfonts/DejaVuSansMono.ttf';
 $TTCfontID='0';
 $originalsize=322524;
 $sip=false;

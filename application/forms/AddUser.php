@@ -26,10 +26,10 @@ class Application_Form_AddUser extends Zend_Form
         
         $role = new Zend_Form_Element_Select('role');
         $role ->setLabel('Role');
-        $role ->addMultiOption(20, 'staff');
-        $role ->addMultiOption(30, 'manager');
-        $role ->addMultiOption(40, 'admin');
-        $role ->addMultiOption(10, 'evaluator');
+        $role ->addMultiOption(2, 'staff');
+        $role ->addMultiOption(3, 'manager');
+        $role ->addMultiOption(4, 'admin');
+        $role ->addMultiOption(1, 'evaluator');
         $role ->setAttribs(array('class' => 'hidden'));
         
         $dept   = new Zend_Form_Element_Select('dept');
@@ -44,4 +44,3 @@ class Application_Form_AddUser extends Zend_Form
 
 }
 
- 

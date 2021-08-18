@@ -24,19 +24,6 @@
             <uri>/programs</uri>
             <class>programs</class>
         </programs>
-       
-        <staff>
-            <label>Staff</label>
-            <uri>/users</uri>
-            <class>users</class>
-        </staff>
-        
-        <schedules>
-            <label>Scheduling</label>
-            <uri>/schedule</uri>
-            <class>schedules</class>
-        </schedules> 
-        
         
         <forms>
             <label>Forms</label>
