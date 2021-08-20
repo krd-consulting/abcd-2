@@ -1,7 +1,7 @@
 <?php
 require_once 'vendor/autoload.php';
 
-$pdo = new PDO('mysql:dbname=abcd-vid;localhost', 'root', '');
+$pdo = new PDO('mysql:dbname=abcd2;localhost', 'root', '');
 $seeder = new \tebazil\dbseeder\Seeder($pdo);
 $generator = $seeder->getGeneratorConfigurator();
 
@@ -102,30 +102,30 @@ $seeder->table('departments')->data($departments, $departmentColumns)->rowQuanti
 $programs = [
     1 => [
         'id' => 1, 'deptID' => $departments[1]['id'], 
-        'name' => 'Direct Counselling', 'type' => 'oneToOne'],
+        'name' => 'Direct Counselling'],
     2 => [
         'id' => 2, 'deptID' => $departments[1]['id'], 
-        'name' => 'Parenting Skills', 'type' => 'group'],
+        'name' => 'Parenting Skills'],
     3 => [
         'id' => 3, 'deptID' => $departments[1]['id'], 
-        'name' => 'Life Skills', 'type' => 'group'], 
+        'name' => 'Life Skills'], 
     4 => [
         'id' => 4, 'deptID' => $departments[2]['id'], 
-        'name' => 'Youth and Families', 'type' => 'group'],
+        'name' => 'Youth and Families'],
     5 => [
         'id' => 5, 'deptID' => $departments[2]['id'], 
-        'name' => 'Healthy Neighbourhoods', 'type' => 'group'],
+        'name' => 'Healthy Neighbourhoods'],
     6 => [
         'id' => 6, 'deptID' => $departments[2]['id'], 
-        'name' => 'Aging Well', 'type' => 'group'],
+        'name' => 'Aging Well'],
     7 => [
         'id' => 7, 'deptID' => $departments[3]['id'], 
-        'name' => 'In-home Supports', 'type' => 'oneToOne'],
+        'name' => 'In-home Supports'],
     8 => [
         'id' => 8, 'deptID' => $departments[3]['id'], 
-        'name' => 'Food Hampers', 'type' => 'oneToOne'],
+        'name' => 'Food Hampers'],
 ];
-$programColumns = ['id', 'deptID', 'name', 'volunteerType'];
+$programColumns = ['id', 'deptID', 'name'];
 $seeder->table('programs')->data($programs, $programColumns)->rowQuantity(count($programs));
 
 // Generate Groups
