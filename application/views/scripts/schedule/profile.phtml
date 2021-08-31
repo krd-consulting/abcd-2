@@ -1,0 +1,107 @@
+
+
+<?php
+//SCHEDULES
+$this->title = $this->set['name'];
+$this->headTitle(" - $this->title");
+$backURL = $this->url(array(
+    'controller' => 'schedule',
+    'action' => 'list'
+));
+
+
+$links = array('profile');
+$numPtcps = count($ptcps);
+$numProgs = count($progs);
+$numGroups = $this->numGroups;
+?>
+
+    <h1 class="float-left">Schedule Set: 
+        <?php print $this->set['name']; ?>
+    </h1>
+
+    <div class="inline float-right">
+        <a href="<?php print $backURL; ?>"> Back to Schedule Set List</a>
+    </div>
+
+<div id="content-top">
+    <span class="third">
+        
+    </span>
+    
+    <span class="third">
+        
+    </span>
+    
+    <span class="third">
+        
+    </span>
+    
+</div>
+
+<?php
+    
+    $resources = $this->set['resources'];
+    $resources = '['.substr($resources, 1, strlen($resources) - 2).']';
+    
+    $resourceArray = json_decode($resources,TRUE);
+    
+    //print_r($resourceArray);
+    
+    $userTable = new Application_Model_DbTable_Users;
+    $dataList = array();
+
+
+    foreach($resourceArray as $infoArray) {
+        foreach ($infoArray as $type => $id){
+            if ($type == "adhoc") {
+                $name = $id;
+                $key = "a_" . $id;
+            } else {                
+                $name = $userTable->getName($id);
+                $key = substr($type,0,1) . "_" . $id;
+            }
+            $rArray = array(
+                'key' => $key,
+                'label' => $name
+            );
+
+            array_push($dataList,$rArray);
+        }
+    }
+    $jsonList = json_encode($dataList);
+    //print_r($jsonList);
+?>
+
+<div id="content-main">
+
+    <div class="hidden" id="setinfo"
+         data-setid = "<?php print $this->set['id']; ?>"
+         data-starttime = "<?php print $this->set['fromTime']; ?>"
+         data-endtime = "<?php print $this->set['toTime']; ?>"
+         data-startdate = "<?php print $this->set['startDate']; ?>"
+         data-enddate = "<?php print $this->set['endDate']; ?>"
+         data-list = '<?php print $jsonList; ?>'
+    ></div>
+         
+
+
+<div id="scheduler_here" class="dhx_cal_container" style='width:100%; height:100%;'>
+    <div class="dhx_cal_navline">
+        <div class="dhx_cal_prev_button">&nbsp;</div>
+        <div class="dhx_cal_next_button">&nbsp;</div>
+        <div class="dhx_cal_today_button"></div>
+        <div class="dhx_cal_date"></div>
+        <div class="dhx_minical_icon" id="dhx_minical_icon">&nbsp;</div>
+        <div class="dhx_cal_tab" name="unit_tab" style="left:55px !important;"></div>
+        <!--<div class="dhx_cal_tab" name="day_tab" style="right:204px;"></div>
+        <div class="dhx_cal_tab" name="week_tab" style="right:140px;"></div> 
+        <div class="dhx_cal_tab" name="month_tab" style="right:76px;"></div>-->
+    </div>
+    <div class="dhx_cal_header"></div>
+    <div class="dhx_cal_data"></div>       
+</div>
+    
+    
+    
+</div>

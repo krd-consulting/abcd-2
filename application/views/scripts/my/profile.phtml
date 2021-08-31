@@ -1,0 +1,106 @@
+<?php
+//VOLUNTEER DASHBOARD (my/profile)
+
+$name = $this->userName;
+$myID = $this->id;
+$activities = $this->activities;
+
+$this->title = $name;
+$this->headTitle(" - $this->title");
+
+//Set up header counts
+//TO BE COMPLETED
+//
+
+//Set up URLs
+
+//************Set up tabs
+//****Dash Tab
+$activDiv = $this->block('activities', $myID, 'vol');
+$signedUpDiv = $this->block('upcoming', $myID, 'vol');
+$needsDiv = $this->block('needs', $myID, 'vol');
+$alertsDiv = $this->block('alerts', $myID, 'vol', TRUE);
+
+
+$dashTab = $alertsDiv . $activDiv . $signedUpDiv . $needsDiv;
+
+
+//****Schedule Tab 
+$schedTab = '';
+
+
+
+//****Interests Tab 
+$intTab = '';
+
+
+
+
+//PASS EVERYTHING TO TABS
+    $this->tabPane('vol', $dashTab, array('title' => 'Dashboard'));
+
+?>
+
+<div id="content">
+    <h1 class='participantProfile float-left' id="<?php print $myID;?>">
+    Welcome 
+        <span class=p-name>
+            <?php print $name; ?>
+        </span>
+    </h1>
+    
+
+<div id="content-top">
+    <span class="third shaded">
+        <span class="gamify-profile">
+            <span class="topnum"><?php print $this->progCount; ?></span>
+            <span class="bottom-desc"> programs helped </span>
+        </span>
+    </span>
+    
+    <span class="third shaded">
+        <span class="gamify-profile">
+            <span class="topnum"><?php print $this->monthlyHours; ?></span>
+            <span class="bottom-desc"> hours this month</span>
+        </span>
+    </span>
+        
+    <span class="third shaded">
+        <span class="gamify-profile">
+            <span class="topnum"><?php print $this->yearlyHours; ?></span>
+            <span class="bottom-desc"> hours this year</span>
+        </span>
+    </span>
+    
+</div>
+
+<div id="content-main">
+
+    <?php print $this->tabContainer('vol'); ?>
+    
+</div>
+    
+</div> <!-- /#content -->
+
+<!-- javascript divs go here -->
+<div id="addAct-dialog" title="Track volunteer activity">
+    <p class=".validateTips">Please fill out all fields</p>
+    <?php print $this->activityForm; ?>
+</div>
+<!--
+<div id='dialog-form' title="">
+        <?php print $this->statusForm; ?>
+    </div>
+
+<div id='dialog-confirm' title="Clear participant records?">
+    <p>
+        <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"/></span>
+        <span id="list">
+            The following records will be cleared from your caseload and returned to the program pool:
+            <ul id="deleteList">
+                
+            </ul>
+        </span>
+    </p>
+</div>
+-->

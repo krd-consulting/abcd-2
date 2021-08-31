@@ -1,0 +1,49 @@
+<div id="content">
+
+  <h1 class="float-left"> Participants </h1> 
+  <div class="inline float-right">
+      Showing <span id="record-count"><?php print $this->count; ?></span> participant records.
+  </div>
+
+
+  <div id="content-top">
+        
+        <span id="browse" class="float-left">
+            <h2>Browse</h2>
+        </span>
+        
+        <span id="searchform">
+            
+        </span>
+        
+        <span id="addNew" class="float-right">
+            <button id="addPtcp">Add New Participant</button>
+        </span>
+        
+  </div>
+
+    <div id="content-main">
+        <table class="p-list-table">
+            <?php 
+                $links = array('profile', 'edit');
+                foreach ($this->list as $participant) {
+                    print $this->tableRow('person', 'participants', $participant, $links);
+                }
+            ?>
+        </table>
+    </div>
+        
+    <div id="dialog-form" title="Add a New Participant">
+        <p class="validateTips">
+            Please fill out all fields.
+        </p>
+        <?php print $this->form; ?>
+    </div>
+ 
+    <div id="dialog-form-edit" class="dialog-form" title="Edit participant information">
+        <p class="validateTips">Please update values below.</p>
+    </div>  
+    
+    
+
+</div>

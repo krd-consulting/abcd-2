@@ -1,0 +1,20 @@
+<?php $this->headTitle(': Login'); ?>
+
+<?php if (strlen($this->message) > 0) :?>
+    <div id="messages" class="ui-state-highlight" style="text-align: center">
+        <?php 
+            print $this->message;
+        ?>
+    </div>
+<?php endif; ?>
+
+<div id="login" class="hidden">
+    <fieldset id="front" class="rounded">
+        <legend>Login</legend>
+        <?php echo $this->form->setAction($this->url()); ?>
+    </fieldset>
+    
+</div>
+
+
+

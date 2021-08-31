@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>ABCD - Error</title>
+</head>
+<body>
+<h1>Uh oh!</h1>
+<div id="content">    
+  
+    <div id="content-top">
+    <h3>
+                Something has gone awry.
+    </h3>  
+    </div>
+    
+    <div id="content-main">
+          <?php if (isset($this->exception)): ?>
+              <div class="exception ui-state-highlight">
+                  <img src="/skins/default/images/stop.png" height="48" width="48" style="float: left" alt="Stop"/>
+                  <h3><?php echo $this->exception->getMessage() ?></h3>
+              </div>
+          <?php endif ?>
+
+          <div>
+              Additional technical information is hidden within this page.<br/>
+              <a href="#" id="show">Show hidden information</a>, or save this page
+              and send it to your ABCD support technician.
+          </div>
+
+          <div id="stack-trace" class="hidden">      
+              <h3>Stack trace:</h3>
+              <pre><?php echo $this->exception->getTraceAsString() ?>
+              </pre>
+
+              <h3>Request Parameters:</h3>
+              <pre><?php echo $this->escape(var_export($this->request->getParams(), true)) ?>
+              </pre>
+          </div>  
+ </div><!-- #content-main -->
+</div> <!-- #content -->
+</body>
+<script type="text/javascript">
+  (function($) {
+      function setHide() {
+      $("#hide").click(function(){
+         $(".hidden").slideUp(1000);
+      });
+      }
+      
+      function setShow() {
+      $("#show").click(function(){
+          $(".hidden").css("marginTop", "20px")
+                      .css("width", "600px")
+                      .slideDown(1000)
+                      .append("<br><a href='#' id='hide'>Hide</a>");
+          setHide();
+      });
+      }
+      
+      setShow();
+      
+  }(jQuery))
+</script>    
+</html>

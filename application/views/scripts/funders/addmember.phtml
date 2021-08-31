@@ -1,0 +1,79 @@
+
+<h1 class="float-left">
+    <?php print $this->header . $this->funder['name'];?>
+</h1>
+
+<?php $profileUrl = $this->url(array(
+                        'controller' => 'funders',
+                        'action'     => 'profile',
+                        'id'         => $this->funder['id']
+                        ));
+
+
+
+?>
+
+    <a style='float: right' href='<?php print $profileUrl; ?>'>Back to Funder Profile</a>
+
+<div id="content">
+  <div id="content-top">
+  </div>
+  
+  <div id="content-main">
+    <div id="current-users" class="content-block float-left">
+        <h2>Currently associated with <?php print $this->funder['name']; ?>
+        </h2>
+        
+            <span id="parentID" class="hidden">
+              <?php print $this->funder['id']; ?>
+            </span>
+            
+            <span id="recordType" class="hidden">
+                <?php print $this->type; ?>
+            </span>
+        
+            <span id="parentType" class="hidden">
+                funder
+            </span>
+        <div id="filterleft"></div>
+        <ul id="add" class="connectedSortable">      
+           <?php foreach ($this->currentRecords as $record) : ?>
+            <li id="<?php print $record['id'];?>" class="draggable in-list ui-icon-arrowthick-2-e-w
+                <?php if (in_array($record['id'],$this->requiredIDs)) {print ' exclude';} ?>
+                ">
+                 <?php 
+                    $printName = $record['name'];
+                    print $printName;
+               ?>
+                                    
+                <?php if ($this->requiredIds) : ?> 
+		    <?php if (in_array($record['id'],$this->requiredIDs)) : ?>
+                      <span class="list-manager float-right">(Required)</span>
+                    <?php endif; ?>
+                <?php endif; ?>
+                    
+            </li>
+           <?php endforeach; ?>
+      </ul>
+    </div>
+    
+    <div id="other-users" class="content-block float-right">
+        <h2>Currently not associated with <?php print $this->funder['name']; ?>
+        </h2>
+        <?php if (count( $this->addRecords ) == 0) : ?>
+            <h3>No other entities exist yet.</h3>
+        <?php endif; ?>
+            <div id="filterright"></div>
+            <ul id="remove" class="connectedSortable">
+          <?php foreach ($this->addRecords as $record) : ?>
+            <li id="<?php print $record['id'];?>" class="draggable out-list">
+               <?php 
+                    $printName = $record['name'];
+                    print $printName;
+               ?>
+            </li>
+          <?php endforeach; ?>
+        </ul>
+    </div>
+  </div>
+</div>

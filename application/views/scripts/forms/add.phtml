@@ -1,0 +1,80 @@
+<?php
+$this->title = " - Form Generator";
+$this->headTitle($this->title);
+?>
+<h1>Form Builder</h1>
+
+<div id="formBuilder">
+    
+    <div id="controls">
+        
+        <div class="elementHeader" id="elementList">
+            <img class="element-pic head-pic" align="left" src="/skins/default/images/blank.gif" alt="">
+            <span>1. Choose a field:</span>
+        </div>
+        
+        <div id="elementButtons">
+            <ul class="formElements">
+                <li class="elementList" id="text" title="Input field for short text">
+                    <img class="element-pic text-pic" align="left" src="/skins/default/images/blank.gif" alt="">                    
+                    <span>Text Field</span>
+                </li>
+
+                <li class="elementList" id="num" title="Input field for numbers">
+                    <img class="element-pic num-pic" align="left" src="/skins/default/images/blank.gif" alt="">                    
+                    <span>Numeric Field</span>
+                </li>
+
+                <li class="elementList" id="date" title="Date picker">
+                    <img class="element-pic cal-pic" align="left" src="/skins/default/images/blank.gif" alt="">                    
+                    <span>Date Field</span>
+                </li>
+
+                <li class="elementList" id="radio" title="Multiple Choice - only one answer per question">
+                    <img class="element-pic radio-pic" align="left" src="/skins/default/images/blank.gif" alt="">                    
+                    <span>Radio Buttons</span>
+                </li>
+
+                <li class="elementList" id="check" title="Multiple Choice - multiple answers per question">
+                    <img class="element-pic check-pic" align="left" src="/skins/default/images/blank.gif" alt="">                    
+                    <span>Check Boxes</span>
+                </li>
+
+                <li class="elementList" id="matrix" title="Two-dimensional multiple choice grid">
+                    <img class="element-pic matrix-pic" align="left" src="/skins/default/images/blank.gif" alt="">                    
+                    <span>Matrix</span>
+                </li>
+
+                <li class="elementList" id="textarea" title="Input field for longer notes and narratives">
+                    <img class="element-pic paragraph-pic" align="left" src="/skins/default/images/blank.gif" alt="">                    
+                    <span>Paragraph</span>
+                </li>
+
+            </ul>
+        </div>
+        
+        <div class="elementHeader" id="optionList">
+                <img class="element-pic option-pic" align="left" src="/skins/default/images/blank.gif" alt="">
+                <span>2. Set options:</span>
+        </div>
+        <div id="elementOptions" class="hidden">
+            
+        </div>
+        
+        <button id="addElement">3. Add it</button>
+         
+        
+    </div>
+    
+    <div id="canvas">
+        <h2 class="canvasHead textonly"><?php print $this->formName; ?></h2>
+        <div class="formDesc editable textonly">
+            <?php print $this->formDesc;?>
+        </div>
+        
+        <?php print $this->dynamicForm; ?>
+    </div>
+    <button id="saveForm">Save Form</button>
+    
+    
+</div>

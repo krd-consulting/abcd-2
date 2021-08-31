@@ -1,0 +1,299 @@
+<?php
+//PROGRAMS
+$name = $this->program['name'];
+$vType = $this->program['volunteerType'];
+
+$this->title = $name;
+$this->headTitle(" - $this->title");
+
+
+$backURL = $this->url(array(
+    'controller' => 'programs',
+    'action' => 'list'
+));
+
+//Set up header counts
+$ptcpCount = count($this->ptcps);
+$groupCount = count($this->groups);
+$volCount = count($this->volunteers);
+
+//Set up URLs
+$addUserToProgUrl = $this->url(array(
+                               'controller'  =>'programs',
+                               'action'      =>'associate',
+                               'type'        =>'user',
+                               'id'          => $this->program['id']));
+
+$addFunderToProgUrl = $this->url(array(
+                               'controller'  =>'programs',
+                               'action'      =>'associate',
+                               'type'        =>'funder',
+                               'id'          => $this->program['id']));
+
+$addFormToProgUrl = $this->url(array(
+                               'controller'  =>'programs',
+                               'action'      =>'associate',
+                               'type'        =>'form',
+                               'id'          => $this->program['id']));
+
+$addPtcpToProgUrl = $this->url(array(
+                               'controller'  =>'programs',
+                               'action'      =>'associate',
+                               'type'        =>'ptcp',
+                               'id'          => $this->program['id']));
+
+$addVolToProgUrl = $this->url(array(
+                                'controller' => 'programs',
+                                'action'    => 'associate',
+                                'type'      => 'volunteer',
+                                'id'        => $this->program['id']));
+
+$addJobToProgUrl = $this->url(array(
+                                'controller' => 'programs',
+                                'action'    => 'associate',
+                                'type'      => 'vjob',
+                                'id'        => $this->program['id']));
+
+
+//Set up staff and funder tabs for managers
+if ($this->mgr) {
+    $links = array('profile');
+    
+    if (count($this->users) == 0) {
+        $userList = "<h2>No staff associated with this program yet.</h2>";
+    } else {
+        $userList = '<table class="p-list-table">';
+        foreach ($this->users as $user) {
+            $userList .= $this->tableRow('person','users',$user,$links);
+        }
+        $userList .= '</table>';
+    }
+    
+    $userAddMore = '<div class="bottom-links">
+                   <a class="add-link" href=' . $addUserToProgUrl . '>
+                       Add New Staff to ' . $this->title . ' 
+                   </a>
+                </div>';
+    $userTab = $userList . $userAddMore;
+    
+    if (count($this->funders) == 0) {
+        $funderList = "<h2>No funders associated with this program yet.</h2>";
+    } else {
+        $funderList = '<table class="p-list-table">';
+        foreach ($this->funders as $funder) {
+            $funderList .= $this->tableRow('entity','funders',$funder,$links);
+        }
+        $funderList .= '</table>';
+    }
+    
+    $funderAddMore = '<div class="bottom-links">
+                   <a class="add-link" href=' . $addFunderToProgUrl . '>
+                       Add New Funder to ' . $this->title . ' 
+                   </a>
+                </div>';
+    
+    $funderTab = $funderList . $funderAddMore;
+}
+
+//set up Volunteers Tab
+
+if ($vType != 'none') {
+    $volTab = TRUE;
+    
+    if (count($this->volunteers) == 0) {
+        $volList = "<h2>No volunteers associated with this program yet.</h2>";
+    } else {
+        $links = array('profile');
+        $volList = "<table class='p-list-table'>";
+        foreach ($this->volunteers as $volunteer) {
+            $volList .= $this->tableRow('person','volunteers',$volunteer,$links);
+        }
+    $volList .= "</table>";
+    }
+    
+    $volAddMore = '<div class="bottom-links">
+                        <a class="add-link" href=' . $addVolToProgUrl . '>
+                            Add Volunteers to ' . $this->title . ' 
+                        </a>
+                      </div>';
+    
+    $volTab = $volList . $volAddMore;
+    
+} else {
+    $volTab = FALSE;
+}
+
+if ($volTab) {
+    $vJobTab = TRUE;
+    if (count($this->vJobs) == 0) {
+        $vJobList = "<h2> No volunteer jobs associated with this program yet.</h2>";
+    } else {
+        $vJobList = "<table class='p-list-table'>";
+        foreach ($this->vJobs as $vJob) {
+            $vJobList .= $this->tableRow('entity','voljobs',$vJob,$links);
+        }
+        $vJobList .= "</table>";
+    }        
+    
+    
+    $vJobAddMore = '<div class="bottom-links">
+                        <a class="add-link" href=' . $addJobToProgUrl . '>
+                            Manage ' . $this->title . '\'s volunteer jobs 
+                        </a>
+                    </div>';
+    
+    $vJobTab = $vJobList . $vJobAddMore; 
+} else {
+    $vJobTab = FALSE;
+}
+
+// Set up Forms Tab
+if (count($this->forms) == 0) {
+    $formList = "<h2>No forms associated with this program yet.</h2>";
+} else {
+    $formList = $this->formsTable('forms', $this->forms);
+}
+    $formAddMore = '<div class="bottom-links">
+                        <a class="add-link" href=' . $addFormToProgUrl . '>
+                            Add New Form to ' . $this->title . ' 
+                        </a>
+                    </div>';
+if ($this->mgr) {
+    $formTab = $formList . $formAddMore;
+} else {
+    $formTab = $formList;
+}
+//set up Calendar Tab
+$calTab = "<span id='calButton' class='center-button'> <button data-id='" . $this->program['id'] . "' id='Cal'>View " . $name . " Calendar</button> </span>";
+
+
+//Set up Participants Tab
+if ($ptcpCount == 0) {
+    $ptcpList = "<h2>No participants enrolled in this program</h2>";
+} else {
+    $ptcpList = $this->ptcpTable('ptcp',$this->program['id'], $this->ptcps);
+}
+
+$ptcpAddMore = '<a class="add-link" href=' . $addPtcpToProgUrl . '>
+                            Enroll participants in ' . $this->title . ' 
+                        </a>
+                ';
+
+$ptcpPurge = '<a class="minus-link" data-ptype="prog" data-pid="' . $this->program['id'] . '" id="purge" href="#">
+                  Purge "concluded" participants. 
+              </a>
+              ';
+
+$bottomLinks = "<div class='bottom-links'> $ptcpAddMore $ptcpPurge </div>";
+
+$ptcpTab = $ptcpList . $bottomLinks;
+
+//Set up Groups Tab
+if (count($this->groups) == 0) {
+        $groupTab = "<h2>You haven't registered any groups yet. Please add some now.</h2>";
+}
+
+if (count($this->groups) > 0) {
+    $groupTab = "<table id='groups-table' class='p-list-table'>
+        <tbody>";
+    $links = array('profile', 'meeting');
+    if ($this->mgr) {
+    }
+    foreach ($this->groups as $group) {
+        $groupTab .= $this->tableRow('entity', 'groups', $group, $links);
+    }
+    $groupTab .= "</tbody></table>";
+}
+
+//PASS EVERYTHING TO TABS
+
+$this->tabPane('prog', $groupTab, array('title' => 'Groups'));
+$this->tabPane('prog', $ptcpTab, array('title' => 'Participants'));
+    if ($this->mgr) {
+        $this->tabPane('prog', $userTab, array('title' => 'Staff'));
+        $this->tabPane('prog', $funderTab, array('title' => 'Funders'));
+    }
+$this->tabPane('prog', $formTab, array('title' => 'Forms'));
+
+if ($this->mgr && $volTab) {
+    $this->tabPane('prog',$volTab,array('title'=> 'Volunteers'));
+    $this->tabPane('prog',$vJobTab,array('title'=> 'Volunteer Jobs'));
+}
+
+$this->tabPane('prog',$calTab,array('title' => 'Calendar'));
+?>
+
+<div id="content">
+    <h1 class='participantProfile float-left' <?php print "id=" . $this->program['id'];?>>
+        Program Profile: 
+        <span class=p-name>
+            <?php print $name; ?>
+        </span>
+    </h1>
+    
+
+<div class="inline float-right">
+    <a href="<?php print $backURL; ?>"> Back to Program List</a>
+</div>
+
+<div id="content-top">
+    <div class="topbar">
+        Program: <i> <?php print $this->deptName; ?></i> || 
+        Volunteer Type: <i> <?php print $vType ?></i>
+    </div>
+    
+    <span class="third shaded">
+        <span class="gamify-profile"> 
+            <span class="topnum" id="record-count">
+                <?php print $ptcpCount; ?>
+            </span>
+            <span class="bottom-desc">participants</span>
+        </span>    
+    </span>
+    
+    <span class="third shaded">
+        <span class="gamify-profile"> 
+            <span class="topnum" id="record-count">
+                <?php print $groupCount; ?>
+            </span>
+            <span class="bottom-desc">active groups</span>
+        </span> 
+    </span>
+    
+    <span class="third shaded">
+        <span class="gamify-profile"> 
+            <span class="topnum" id="record-count">
+                <?php print $volCount; ?>
+            </span>
+            <span class="bottom-desc">volunteers</span>
+        </span>     
+    </span>
+    
+    
+</div>
+
+<div id="content-main">
+
+    <?php print $this->tabContainer('prog'); ?>
+    
+</div>
+    
+</div> <!-- /#content -->
+
+<!-- javascript divs go here -->
+
+<div id='dialog-form' title="">
+        <?php print $this->statusForm; ?>
+</div>
+
+<div id='dialog-confirm' title="Purge participant records?">
+    <p>
+        <span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"/></span>
+        <span id="list">
+            The following records will be purged, along with their status histories:
+            <ul id="deleteList">
+                
+            </ul>
+        </span>
+    </p>
+</div>

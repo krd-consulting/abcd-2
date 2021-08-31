@@ -1,0 +1,44 @@
+
+<div id="content">
+    
+    <h1>Dashboard</h1>
+    
+    <div id="dashboard">
+        
+       <?php foreach ($this->items as $item) : ?>
+        <?php 
+        
+            $imgPath = "/skins/default/images/" . $item->name . ".png";
+            $url = $this->url(array(
+                                    'controller' => $item->name,
+                                    'action'     => 'index'
+            ));
+            $description = $item->description;
+        ?>
+        <a href='<?php print $url;?>'>
+            <div class="dash-item">
+                <img class="dash-icon" src="<?php print $imgPath;?>"/>
+                <h3 class="dash-title">
+                    <?php if ($item->name != 'users') {
+                            print $item->name;
+                        } else {
+                            print 'staff';
+                        }
+                    ?>
+                </h3>
+                <p class="description">
+                    <?php print $description; ?>
+                </p>
+            </div>
+        </a>
+       <?php endforeach; ?>
+   
+    </div> <!-- /#dashboard-->
+    
+    <div id="dash-search">
+        <h2>Quick Search</h2>
+        <?php print $this->search; ?>
+    </div>
+        
+    
+</div>

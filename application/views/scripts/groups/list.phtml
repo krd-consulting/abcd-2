@@ -1,0 +1,87 @@
+<?php
+//GROUPS LIST VIEW
+//          * Variables passed in: 
+//          ** $list (groups arranged by programs)
+//          ** $mgr (role permission)
+//          ** $count (total number of records)
+//          ** $addGroupForm
+
+
+$this->title = " - Groups";
+$this->headTitle($this->title);
+?>
+
+<div id="content">
+
+  <h1 class="float-left"> Groups </h1> 
+  <div class="inline float-right">
+      Showing <span id="record-count"><?php print $this->count; ?></span> group records.
+  </div>
+
+  <div id="content-top">
+        
+        <span id="browse" class="float-left">
+            <h2>Browse</h2>
+        </span>
+        
+        <span id="searchform">
+            
+        </span>
+        
+        <span id="addNew" class="float-right">
+                <button id="addGroup">Add New Group</button> 
+        </span>
+        
+</div>
+
+  <div id="content-main">
+    
+      <?php if ($this->count == 0) :  ?>
+        <h2>You haven't registered any groups yet. Please add some now.</h2>
+     <?php endif; ?>
+      
+     <?php if ($this->count > 0) : ?>
+      <table id="groups-table" class="p-list-table">
+        <tbody>
+        <?php foreach ($this->list as $program) : ?>
+        
+            <?php if ($program['count'] > 0) : ?>
+            
+            <tr class="groupHeader collapsible">
+                <td colspan="5">
+                    <?php print $program['pName']; ?>
+                    <span class="data">
+                        (<?php print $program['count']; ?> groups)
+                    </span>
+                </td>
+            </tr>
+            
+                <?php
+                    $groupList = array_splice($program,2);
+                    $links = array('profile', 'edit', 'enroll', 'meeting');
+                    if ($this->mgr) {
+                    }
+                    foreach ($groupList as $group) {            
+                        print $this->tableRow('entity', 'groups', $group, $links);
+                    }
+                ?>
+          
+            <?php endif; ?>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+    <?php endif; ?>
+
+
+
+<div id="dialog-form-add" class="dialog-form" title="Add a Group">
+	<p class="validateTips">Please complete all fields.</p>
+        <?php print $this->addGroupForm; ?>
+</div>
+
+<div id="dialog-form-edit" class="dialog-form" title="Edit group descriptors">
+    <p class="validateTips">Please update values below.</p>
+</div>
+
+</div>
+</div>

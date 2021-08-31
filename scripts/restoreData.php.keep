@@ -1,0 +1,111 @@
+<?php
+
+$server = 'localhost';
+$user = 'abcd-cceca';
+$password = 's0mething!';
+
+$goodDB = 'abcd-cceca-good';
+$badDB = 'abcd-cceca-bad';
+$realDB = 'abcd-cceca-new';
+
+//create connection
+$dbConnect = new mysqli($server, $user, $password);
+
+//1. get all relevant elements
+$elementSQL = "SELECT elementID,formID,elementName from `$goodDB`.`customFormElements`"; //WHERE elType = 'date'";
+$elements = $dbConnect->query($elementSQL)->fetch_all(MYSQLI_ASSOC);
+
+//2. for each element, get array of differences with:
+
+    foreach ($elements as $element) {
+        $fid = $element['formID'];
+        $eid = $element['elementID'];
+        
+        $tempSQL = "select * from `$goodDB`.`forms` where id = " . $fid;
+        $form = $dbConnect->query($tempSQL)->fetch_all(MYSQLI_ASSOC);
+        $formTarget = $form[0]['target'];
+        $formName = $form[0]['name'];
+        $elementName = $element['elementName'];
+
+        if ($fid < 10) {
+            $dataTable = "form_0" . $fid;
+        } else {
+            $dataTable = "form_" . $fid;
+        }
+        
+        switch ($formTarget) {
+            case 'participant' : $table = 'participants'; break;
+            case 'staff' :
+            case 'volunteer'    : $table = 'users'; break;
+            
+            default            : throw new exception("Unexpected form target $formTarget!\n");
+        }
+        
+        $findProblemSQL = " select good.id, good.uID, v.firstName, v.lastName, good.$eid, bad.$eid as 'badData', good.enteredOn from 
+                            `$goodDB`.`$dataTable` as good,
+                            `$badDB`.`$dataTable` as bad,
+                            `$goodDB`.`$table` as v
+                            where
+                            good.uID = v.id AND
+                            good.id = bad.id AND
+                            good.enteredOn = bad.enteredOn AND
+                            good.$eid != bad.$eid AND
+                            good.$eid IS NOT NULL AND
+                            good.doNotDisplay = 0 
+        ";
+        
+        $errorRows = $dbConnect->query($findProblemSQL);
+        $num = $errorRows->num_rows;
+        
+        
+
+        
+        
+        if ($num > 0) {
+            print "\n\n ------------------------------------------------------------------------- \n";
+            print ("$num errors found in $formName - \"$elementName\".\n");
+            
+            
+            $errors = $dbConnect->query($findProblemSQL)->fetch_all(MYSQLI_ASSOC);
+            $eCount = 0;
+            foreach ($errors as $error) {
+                //print_r($error);die();
+                $go = FALSE;
+                $eCount++;
+                extract($error);  //makes $firstName, $lastName, $id, $badData and a variable variable for good data, so we use $error[$eid].
+                
+
+                //CHECK FIELD AGAINST LIVE DB - SHOULD BE EITHER SAME AS BAD, OR SOFT DELETED.
+
+                $currentEntryCheck = "SELECT id,uID,enteredOn,doNotDisplay,$eid from `$realDB`.`$dataTable` WHERE id=$id";
+                $row = $dbConnect->query($currentEntryCheck)->fetch_all(MYSQLI_ASSOC);
+                $softDelete = $row[0]['doNotDisplay'];
+                $current = $row[0][$eid];
+                
+                if ($softDelete) {
+                    $addlMessage = "\t**Note: form has been updated manually. Error #$eCount was fixed only in archived version.**\n\n";
+                } else {
+                    $addlMessage = '';
+                }
+                
+                if($current == $badData) {
+                    $updateSQL = "update `$realDB`.`$dataTable` SET $eid = '$error[$eid]' WHERE id = $id ";
+                    $result = $dbConnect->query($updateSQL);
+                    //print $updateSQL . "\n";
+                    print "Form $formName - error #$eCount - $firstName $lastName: '$current' in \"$elementName\" was replaced with '$error[$eid]'.\n" . $addlMessage;
+                } else {
+                    print "Form $formName: $firstName $lastName was updated. [Form ID $fid, Entry ID $id]\n";
+                }
+                
+                
+            }
+        }
+        
+    }
+
+
+//3. sql update:
+//   update table $formTable set column elementID = goodValue where id=entryID and elementID=badValue
+
+
+?> 

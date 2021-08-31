@@ -1,0 +1,14 @@
+{
+    "name": "krd/abcd",
+    "type": "project",
+    "authors": [
+        {
+            "name": "KRD Consulting Group",
+            "email": "info@hellokrd.net"
+        }
+    ],
+    "require": {
+        "fzaninotto/faker": "^1.9",
+        "tebazil/db-seeder": "^0.0.0"
+    }
+}

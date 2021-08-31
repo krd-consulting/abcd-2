@@ -1,0 +1,67 @@
+<?php
+
+//Reports/Index.phtml
+
+$groupTab = $this->groupReport();
+$progTab = $this->programReport();
+$formTab = $this->formReport();
+$staffTab = $this->staffReport();
+
+if (!$this->evaluator) {
+    $ptcpTab = $this->ptcpReport();
+    $storedTab = $this->storedReport();
+} else {
+    $ptcpTab = "";
+    $storedTab = "";
+}
+
+$smartTab = "<div>
+                <button style='display: block; margin: 40px auto' id='addReport'>Build Custom Report</button>
+            </div>";
+
+    $this->tabPane('report', $formTab,   array('title' => 'Form Reports'));
+    $this->tabPane('report', $groupTab,  array('title' => 'Group Reports'));
+    $this->tabPane('report', $progTab,   array('title' => 'Program Reports'));
+    $this->tabPane('report', $staffTab, array('title' => 'Staff Reports'));
+    
+    //Hide Participant Reports and Stored Reports from evaluators
+    if (!$this->evaluator) {
+        $this->tabPane('report', $ptcpTab,   array('title' => 'Participant Reports'));
+        $this->tabPane('report', $storedTab, array('title' => 'Stored Reports'));
+    }
+    $this->tabPane('report', $smartTab,  array('title' => 'Smart Reports'));
+?>
+
+<div id="content">
+    <h1>Report Dashboard</h1>
+    <div id="content-top">
+        <span style="margin: 15px 0 0 40px;">
+        <?php print 
+                "<b>$this->deptCount</b> departments :: 
+                <b>$this->progCount</b> programs ::
+                <b>$this->groupCount</b> groups ::
+                <b>$this->ptcpCount</b> participants ::
+                <b>$this->userCount</b> staff";
+        ?>
+        </span>
+        
+        <span id="report-button" class="float-right">
+              
+        </span>
+        
+    </div>
+    
+    <div id="content-main">
+        <?php print $this->tabContainer('report'); ?>
+    </div>
+    
+    <div id="reportOptions-container" class="dialog-form" title="Report Generator">
+        <p class="validateTips"></p>
+        <?php print $this->optionsForm; ?>
+    </div>
+    
+    <div id="deleteConfirm-container" class="dialog-form" title="Delete Stored Report">
+        <p class="validateTips"></p>
+    </div>
+    
+</div>
