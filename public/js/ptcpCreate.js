@@ -172,18 +172,19 @@ function toggleHomeOnlySwitch() {
 }
 
 function toggleArchivedOnlySwitch() {
-    home = $("tr.archived").length;
-    total = $("tr").length;
+    archived = $("tr.archived").length;
+    notArchived = $("tr.not-archived").length;
     
     // is checked should show unarchived participants :)
     if ($("input#archived-only-switch").is(':checked')) {
-        $("#record-count").text(total);
+        $("#record-count").text(notArchived);
         $("tr.default").removeClass('hidden').removeClass('noSearch');
-        $("tr.default").hide();
+        $("tr.archived").hide();
         $("tr.not-archived").show();
     } else {
-        $("#record-count").text(home);
+        $("#record-count").text(archived);
         $("tr.default").removeClass('hidden').removeClass('noSearch');
+        $("tr.archived").show();
         $("tr.not-archived").hide();
     }
 }
