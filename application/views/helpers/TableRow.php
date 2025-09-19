@@ -46,7 +46,7 @@ class Zend_View_Helper_TableRow extends Zend_View_Helper_Abstract {
     }
 
     if($rowData['doNotDisplay']) {
-        $trHome .= ' hidden';
+        $trHome .= ' archived hidden';
     }
         
 	$this->rowTopWrapper = "<tr class='$trHome' id=" . $rowData['id'] . ">";
