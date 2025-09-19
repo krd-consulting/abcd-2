@@ -1,7 +1,5 @@
 application/configs/application.ini
 application/soapfix/soap1.php
-data/sessions/*
-data/uploaded-files/*
 public/files/*
 scripts/img/*
 /vendor/
