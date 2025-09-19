@@ -264,6 +264,16 @@ private $auth = NULL;
         $this->_helper->json("Success");
         
     }
+
+    public function archiveAction()
+    {
+        $id = $this->_getParam('id');
+        $userTable = new Application_Model_DbTable_Users;
+        $userTable->archiveUser($id);
+
+        $this->_redirect($_SERVER['HTTP_REFERER']);
+
+    }
     
     public function associateAction()            {
         

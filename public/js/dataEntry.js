@@ -45,19 +45,27 @@ function validateForm()
 {
     var incompletes = 0;
     $("input.required").each(function(){
-        var inputType = $(this).attr('type');
-        var inputName = $(this).attr('name');
-        switch (inputType) {
-            case 'text':
-                var valLength = $(this).val().length;
-                break;
-            case 'radio':
-            case 'checkbox':
-                buttonSet = $("input[name='" + inputName +"']");
-                var valLength = buttonSet.filter(':checked').length;
-                break;
-            default: break;
+        var $input = $(this);
+        var inputType = $input.attr('type');
+        var inputName = $input.attr('name');
+        var valLength = 0;
+        
+        if ($input.hasClass('multiselect')) {
+            valLength = $input.parent().find('.tag-for-multi').length;
+        } else {
+            switch (inputType) {
+                case 'text':
+                    valLength = $input.val().length;
+                    break;
+                case 'radio':
+                case 'checkbox':
+                    buttonSet = $("input[name='" + inputName +"']");
+                    valLength = buttonSet.filter(':checked').length;
+                    break;
+                default: break;
+            }
         }
+        
         if (valLength == 0) {
             markRequired($(this), inputName); 
             incompletes++;
@@ -73,135 +81,145 @@ function validateForm()
     }
 }
 
-function submitData()
-{
-    formID   = $("form.dataEntry").attr('id');
-    
-    disabled = $("form.dataEntry").find(':input:disabled').removeAttr('disabled');
-    formData = $("form.dataEntry").serialize();
-    disabled.attr('disabled','disabled');
-    
-    $.post(
-      '/ajax/isFormFcss',
-      {id: formID},
-      function(data) {
-         
-         if (data.fcss == 'yes') {
-            $("p#msg").html("\
-               Submitting to FCSS...\n\
-               <br><br><center><img src='/skins/default/images/ajax-loader.gif'></center>\n\
-            ");
-         } else {
+function submitData() {
+    var formID = $("form.dataEntry").attr('id');
+
+    // Temporarily enable disabled inputs for serialization
+    var disabled = $("form.dataEntry").find(':input:disabled').removeAttr('disabled');
+
+    // Serialize the form data
+    var formData = $("form.dataEntry").serialize();
+
+    // Collect values from .multi fields and append them to formData
+    $('.reference.multiselect').each(function() {
+        var $container = $(this).parent();
+        var fieldName = $(this).attr('name'); // Assuming .multiselect inputs have a name attribute
+        var selectedItems = $container.find('.tag-for-multi').map(function() {
+            return $(this).clone()    // Clone the element
+                        .children()  // Select all the children
+                        .remove()    // Remove all the children
+                        .end()       // Again go back to selected element
+                        .text().trim(); // Get the text and trim spaces
+        }).get().join(','); // Join the values with a comma
+
+        // Append the collected values to formData, ensure fieldName is unique or handled properly
+        formData += '&' + encodeURIComponent(fieldName) + '=' + encodeURIComponent(selectedItems);
+    });
+
+    // Re-disable the previously disabled inputs
+    disabled.attr('disabled', 'disabled');
+
+    $.post('/ajax/isFormFcss', {id: formID}, function(data) {
+        if (data.fcss == 'yes') {
+            $("p#msg").html("Submitting to FCSS...<br><br><center><img src='/skins/default/images/ajax-loader.gif'></center>");
+        } else {
             $("p#msg").html("Saving to ABCD database...");
-         }
-         
-         $("#dialog-message").dialog({
-               modal: true
+        }
+
+        $("#dialog-message").dialog({
+            modal: true
+        });
+
+        $.post('/forms/ajax', {
+            task: 'submit',
+            id: formID,
+            data: formData,
+            oldVersion: doNotEditID
+        }, function(data) {
+            $("#dialog-message").dialog({
+                buttons: {
+                    OK: function() {
+                        $(this).dialog("close");
+                    }
+                }
             });
-    
-         $.post(
-             '/forms/ajax',
-             {task: 'submit', id: formID, data: formData, oldVersion: doNotEditID},
-             function(data){
-                  $("#dialog-message").dialog({
-                     buttons: {
-                        OK: function() {
-                           $(this).dialog("close");
-                        }
-                     }
-                  });
-                  if (data.success == 'yes') {
-                       $("p#msg").html("Your data was saved successfully.");
-                       //$('form.dataEntry')[0].reset();
-                       history.back();
-                  } else {
-                       $("p#msg").html(data.success);
-                  }
+            if (data.success == 'yes') {
+                $("p#msg").html("Your data was saved successfully.");
+                // $('form.dataEntry')[0].reset();
+                history.back();
+            } else {
+                $("p#msg").html(data.success);
             }
-        );          
-    });    
+        });
+    });
 }
 
-function fillForm(){
-    userID = $.cookie('formEditUserID', {path: "/"});
-    userName = $.cookie('formEditUserName', {path: "/"});
-    recordID = $.cookie('formEditRecordID', {path: "/"});
-    
+function fillForm() {
+    var userID = $.cookie('formEditUserID', {path: "/"});
+    var userName = $.cookie('formEditUserName', {path: "/"});
+    var recordID = $.cookie('formEditRecordID', {path: "/"});
+
     doNotEditID = recordID;
 
-    $("form#" + formID + " input#name").val(userName).attr("disabled","disabled");
+    $("form#" + formID + " input#name").val(userName).attr("disabled", "disabled");
     $("form#" + formID + " input#targetID").val(userID);
-    
-    //alert("formID is " + formID + ", recordID is " + recordID);
-    
-    $.post(
-        '/ajax/getformdata',
-        {formID: formID, recordID: recordID},
-        function(data) {
-            //alert(data.toSource());
-            frm = $("form#" + formID);
-            
-            
-            $.each(data, function(key, value){  
-                
-                fInput = $("[name='" + key + "']");
-                
-                myType = fInput.attr('type');
-                myID = fInput.attr('id');
 
+    $.post('/ajax/getformdata', {formID: formID, recordID: recordID}, function(data) {
+        var frm = $("form#" + formID);
 
+        $.each(data, function(key, value) {
+            var fInput = $("[name='" + key + "']");
+            var myType = fInput.attr('type');
+            var myID = fInput.attr('id');
 
-                if (myType == undefined && myID == undefined) {
-                    myType = 'checkbox';
-                } else if (myType == undefined) {
-                    myType = 'textarea';
+            if (myType == undefined && myID == undefined) {
+                myType = 'checkbox';
+            } else if (myType == undefined) {
+                myType = 'textarea';
+            }
+
+            // Handling for multi-select inputs
+            if (fInput.hasClass('multiselect')) {
+                // Clear any existing tags
+                fInput.parent().find('.tag-for-multi').remove();
+
+                // Split the value by comma and create tags for each item
+                if (value) {
+                    var items = value.split(',');
+                    $.each(items, function(index, item) {
+                        // Trim the item to remove any leading/trailing spaces
+                        item = $.trim(item);
+                        var $tag = $('<span class="tag-for-multi">' + item + '<span class="remove" style="margin-left: 5px; cursor: pointer;">x</span></span>');
+                        // Insert the tag before the input
+                        $tag.insertBefore(fInput);
+                        // Add click event on 'x' to remove tag
+                        $tag.find('.remove').click(function() {
+                            $(this).parent().remove();
+                        });
+                    });
                 }
-                
-                //alert(key + " is " + value + ", type is " + myType);
+                return; // Skip further processing for multi-select inputs
+            }
 
-                //alert ("Working with " + myType + " (will use " + value + " for ID " + fInput.attr('id') + ")");
-                switch (myType) {
-                    case 'text': 
-                        fInput.val(value);
+            switch (myType) {
+                case 'text':
+                    fInput.val(value);
+                    break;
+                case 'textarea':
+                    fInput.html(value);
+                    break;
+                case 'radio':
+                    $("form#" + formID + " :input[name='" + key + "'][value='" + value + "']").attr('checked', true);
+                    break;
+                case 'checkbox':
+                    if (value == null) {
                         break;
-                    case 'textarea':
-                         //alert ("Trying to set " + myType + " to " + fieldVal);
-                          fInput.html(value);
-                        break;
-                    case 'radio':
-                        //alert (key + " is " + value + " in this radiobox. Setting.");
-                        $("form#" + formID + ", :input[name='"+key+"'][value='"+value+"']")
-                              .attr('checked', true);
-                        break;
-                    case 'checkbox':
-                        if (value == null) {
-                            break;
-                        }
-                        boxes = new Array();
-                        boxes=value.split(' , ');
+                    }
+                    var boxes = value.split(' , ');
+                    $.each(boxes, function(index, box) {
+                        $("form#" + formID + " :input[value='" + box + "']").attr('checked', true);
+                    });
+                    break;
+                default:
+                    alert('Unknown datatype ' + myType + ' detected.');
+            }
+        });
 
-                        for (q=0;q<boxes.length;q++) {
-                            $("form#" + formID + ", :input[value='" + boxes[q] + "']").attr('checked', true);
-                        }
-                        break;
-                    default:
-                        alert ('Unknown datatype ' + myType + ' detected.');
-                }
-            }); 
-            
-            getDepartments();
-        
-        }
-    );
-    
-    
-    
-    $.removeCookie('formEdit', {path: "/"});
-    $.removeCookie('formEditUserID', {path: "/"});
-    $.removeCookie('formEditUserName', {path: "/"});
-    $.removeCookie('formEditRecordID', {path: "/"});
+        // getDepartments is called after filling the form
+        getDepartments();
+    });
 }
-    
+
     editID     = $.cookie('formEdit');
     formID     = $("form.dataEntry").attr('id');
     formIDComp = formID.split("_")[1]; //need only the numeric id in form_###
@@ -226,7 +244,7 @@ function fillForm(){
     staffName = $.cookie('staffName');
     
     
-    if ($("#formTarget").val() == "staff") {
+    if ($("#formTarget").val() === "staff") {
         $("input#name").val(staffName.replace(/\+/g," "));
         $("input#targetID").val(staffID);
         getDepartments();

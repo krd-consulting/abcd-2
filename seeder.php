@@ -1,7 +1,7 @@
 <?php
 require_once 'vendor/autoload.php';
 
-$pdo = new PDO('mysql:dbname=abcd2;localhost', 'root', '');
+$pdo = new PDO("mysql:host=db;port=3306;dbname=db;charset=utf8mb4", "db", "db");
 $seeder = new \tebazil\dbseeder\Seeder($pdo);
 $generator = $seeder->getGeneratorConfigurator();
 

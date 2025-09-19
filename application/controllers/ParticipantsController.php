@@ -452,6 +452,16 @@ class ParticipantsController extends Zend_Controller_Action
         $this->_helper->json($json);
     }
 
+    public function archiveAction()
+    {
+        $id = $this->_getParam('id');
+        $participantTable = new Application_Model_DbTable_Participants;
+        $participantTable->archiveParticipant($id);
+
+        $this->_redirect($_SERVER['HTTP_REFERER']);
+
+    }
+
 }
 
 

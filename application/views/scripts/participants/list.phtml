@@ -1,12 +1,21 @@
 <?php
-$switchButton = '<div class="slider-button float-right">
-                    <span class="text float-left">Show All</span>
+$homeOnlySwitch = '<div class="slider-button float-right">
+                    <span class="text float-left">Home Only</span>
                     <label class="switch">
-                        <input id="list-switch" type="checkbox" checked="yes">
+                        <input id="home-only-switch" type="checkbox" checked="yes">
                         <span class="slider round"></span>
                     </label>
+                    <span class="text float-right">All Departments</span>
                 </div>';
-        
+
+$archivedOnlySwitch = '<div class="slider-button float-right">
+                    <span class="text float-left">Archived Only</span>
+                    <label class="switch">
+                        <input id="archived-only-switch" type="checkbox" checked="yes">
+                        <span class="slider round"></span>
+                    </label>
+                    <span class="text float-right">Unarchived Only</span>
+                </div>';      
 ?>
 
 
@@ -29,7 +38,8 @@ $switchButton = '<div class="slider-button float-right">
         </span>
         
       <span id="switchbutton">
-          <?php print $switchButton ?>
+          <?php print $homeOnlySwitch ?>
+          <?php print $archivedOnlySwitch ?>
       </span>
       
         <span id="addNew" class="float-right">
@@ -41,7 +51,7 @@ $switchButton = '<div class="slider-button float-right">
     <div id="content-main">
         <table class="p-list-table">
             <?php
-                $links = array('profile', 'edit');
+                $links = array('profile', 'edit', 'archive');
                 foreach ($this->list as $participant) {
                     $pid = $participant['id'];
                     if (in_array($pid,$this->homeIDs)) {

@@ -130,7 +130,7 @@ private $auth = NULL;
             
             //Skip the first array: it isn't an element;
             if ($index == 0) { continue; }
-	    if ($element == 'undefined') { continue; }            
+        if ($element == 'undefined') { continue; }            
 
             $eid      =   'field_' . $element['id'];
             $type     =   $element['type'];
@@ -144,7 +144,7 @@ private $auth = NULL;
                 case 'radio'    : $colType = 'varchar'; $optionList='(200)';    break;
                 case 'checkbox' : $colType = 'varchar'; $optionList='(200)';    break;
                 case 'matrix'   : $colType = 'varchar'; $optionList='(200)';    break;
-                case 'textarea' : $colType = 'mediumtext';                      break;                
+                case 'textarea' : $colType = 'text';                            break;                
             }
              
             if ($type != 'matrix') {
@@ -178,8 +178,9 @@ private $auth = NULL;
         }//end big foreach                
         
         $sqlCreateDataTable .= ");";
+        //print($sqlCreateDataTable);
         $this->db->query($sqlCreateDataTable);
-
+                
         $message = "Form $formName added successfully.";
         
         return $message;
@@ -272,11 +273,11 @@ private $auth = NULL;
             
             $colNameQuery = $this->db->query($sqlText);
             $colName = $colNameQuery->fetchAll();
-	      
-	      if (empty($colName)) {
- 		$column = '';
-	      } else {
-	        $column = $colName[0]['elementID'];
+          
+          if (empty($colName)) {
+        $column = '';
+          } else {
+            $column = $colName[0]['elementID'];
               }
 
               if (is_array($v)) {$v = implode(' , ', $v); }
@@ -304,7 +305,7 @@ private $auth = NULL;
     protected function _fcssSubmit($data) {
         $fcssConnect = new ABCD_Soap;
         $result = $fcssConnect->submitForm($data,$this->numericFormID);
-	//$result = "Down for maintenance.";
+    //$result = "Down for maintenance.";
         return $result;
     }
     
@@ -523,31 +524,31 @@ private $auth = NULL;
         
         $num = $table->update($tdata, "formID = $myID AND $column = $parentID");
        
-	if (($value == 'null') || ($value == NULL)) {
-		$value = 'None';
-	}
+    if (($value == 'null') || ($value == NULL)) {
+        $value = 'None';
+    }
         return $value;
         
         
     }
     
     protected function _getProgramIDs($d=array()){
-	$pids = array();
-	$pTable = new Application_Model_DbTable_Programs;
-	
-	foreach ($d as $deptID) {
-	   $programList = $pTable->getProgbyDept($deptID);
-	   foreach ($programList as $p) {
-		$pID = $p['id'];
-		array_push($pids, $pID);
-	   }
+    $pids = array();
+    $pTable = new Application_Model_DbTable_Programs;
+    
+    foreach ($d as $deptID) {
+       $programList = $pTable->getProgbyDept($deptID);
+       foreach ($programList as $p) {
+        $pID = $p['id'];
+        array_push($pids, $pID);
+       }
         }
-	
-	return $pids;
+    
+    return $pids;
     }
     
     public function indexAction()                {
-	$this->_helper->redirector('list');
+    $this->_helper->redirector('list');
     }
 
     public function listAction()                 {        
@@ -563,11 +564,11 @@ private $auth = NULL;
             $entriesSelect =  $this->db->query("SELECT * FROM " . $form['tableName']);
             $numEntries = count($entriesSelect->fetchAll());
             $form['numEntries'] = $numEntries;
-	    if ($form['enabled'] == 1) {
-            	array_push($enabledForms,$form);
-	    } else {
-		array_push($disabledForms,$form);
-	    }
+        if ($form['enabled'] == 1) {
+                array_push($enabledForms,$form);
+        } else {
+        array_push($disabledForms,$form);
+        }
         }
         $this->view->permittedIDs = $formDB->getStaffForms();
         $this->view->forms = $enabledForms;
@@ -706,13 +707,17 @@ private $auth = NULL;
             $fundArray[$fundID]['frequency'] = $record['frequency'];
         }
         
+        
+        
         $this->view->thisForm= $thisForm;
         $this->view->depts   = $deptArray;
         $this->view->progs   = $progArray;
         $this->view->funders = $fundArray;
         $this->view->entries = $entryArray;
         $this->view->mgr     = $this->mgr;
-        
+        //if (!$this->root) {
+        //$this->view->ptcpIDs = $permittedPtcpIDs;
+        //}
         if ($this->mgr) {
             $this->view->layout()->customJS = 
                     '<script type="text/javascript" src="/js/jquery.jeditable.js"></script>' .
@@ -729,14 +734,14 @@ private $auth = NULL;
     }
 
     public function enableAction()               {
-	$formID = $_POST['id'];
+    $formID = $_POST['id'];
         $formTable = new Application_Model_DbTable_Forms;
         if ($formTable->enable($formID)) {
             $jsonReturn = 'Success';
         } else {
             $jsonReturn = 'No records could be updated.';
         }
-	$this->_helper->json($jsonReturn);
+    $this->_helper->json($jsonReturn);
     }
     
     public function associateAction()            {
@@ -749,17 +754,17 @@ private $auth = NULL;
                 '<script type="text/javascript" src="/js/filterLi.js"></script>' .
                 '<script type="text/javascript" src="/js/genericSort.js"></script>';
         
-        $id       	= $this->_getParam('id');
-        $type     	= $this->_getParam('type');
-	$userRecords 	= new Application_Model_DbTable_UserDepartments;
-        $forms    	= new Application_Model_DbTable_Forms;
-        $thisForm 	= $forms->getRecord($id);
+        $id         = $this->_getParam('id');
+        $type       = $this->_getParam('type');
+    $userRecords    = new Application_Model_DbTable_UserDepartments;
+        $forms      = new Application_Model_DbTable_Forms;
+        $thisForm   = $forms->getRecord($id);
                 
         switch ($type) {
             case 'dept' : 
                 $assocTable = new Application_Model_DbTable_DeptForms;
                 $records    = new Application_Model_DbTable_Depts;
-		$myRecordIDs= $userRecords->getList('depts',$this->uid);
+        $myRecordIDs= $userRecords->getList('depts',$this->uid);
                 $columnType = 'depts';
                 $header = "Add Department to ";
                 break;
@@ -767,8 +772,8 @@ private $auth = NULL;
             case 'prog' : 
                 $assocTable = new Application_Model_DbTable_ProgramForms;
                 $records    = new Application_Model_DbTable_Programs;
-		$myDeptIDs  = $userRecords->getList('depts',$this->uid);
-		$myRecordIDs= $this->_getProgramIDs($myDeptIDs);
+        $myDeptIDs  = $userRecords->getList('depts',$this->uid);
+        $myRecordIDs= $this->_getProgramIDs($myDeptIDs);
                 $columnType = 'programs';
                 $header = "Add Program to ";
                 break;
@@ -787,18 +792,20 @@ private $auth = NULL;
         $addRecords     = array();
         $requiredIDs    = array();
        
-      	$currentRecordIDs = $assocTable->getList($columnType, $id);
+        $currentRecordIDs = $assocTable->getList($columnType, $id);
         $allRecordIDs     = $records->getIDs();
         $addRecordIDs     = array_diff($allRecordIDs,$currentRecordIDs);
 
-	if ((!$this->root) && ($type != 'funder')) {
-	   $notMyRecordIDs   = array_diff($allRecordIDs,$myRecordIDs);
+    if ((!$this->root) && ($type != 'funder')) {
+       $notMyRecordIDs   = array_diff($allRecordIDs,$myRecordIDs);
            $addRecordIDs     = array_diff($addRecordIDs,$notMyRecordIDs);      
-	   $currentRecordIDs = array_diff($currentRecordIDs,$notMyRecordIDs);
+       $currentRecordIDs = array_diff($currentRecordIDs,$notMyRecordIDs);
         }
         foreach ($currentRecordIDs as $cid) {
             $currentRecord = $records->getRecord($cid);
-            array_push($currentRecords,$currentRecord);
+            if (is_array($currentRecord) && !$currentRecord['doNotDisplay']) {
+                array_push($currentRecords,$currentRecord);
+            }
             $assocRecord = $assocTable->getRecord($id, $cid);
             if ($assocRecord['required'] == 1) {
                 array_push($requiredIDs, $cid);
@@ -807,7 +814,9 @@ private $auth = NULL;
         
         foreach ($addRecordIDs as $aid) {
             $addRecord = $records->getRecord($aid);
-            array_push($addRecords,$addRecord);
+            if (is_array($addRecord) && !$addRecord['doNotDisplay']) {
+                array_push($addRecords,$addRecord);
+            }
         }
         
         $this->view->currentRecords = $currentRecords;
@@ -822,8 +831,8 @@ private $auth = NULL;
     
     public function ajaxAction()                 {
       $this->_helper->viewRenderer->setNoRender();
-	$this->getHelper('layout')->disableLayout();
-	$j = TRUE;
+    $this->getHelper('layout')->disableLayout();
+    $j = TRUE;
         $task = $_POST['task'];
         
         switch ($task) {
@@ -912,7 +921,7 @@ private $auth = NULL;
                 $value = $this->_setReminder($_POST);
                 print ucfirst($value);
                 $jsonReturn = '';
-		$j = FALSE;
+        $j = FALSE;
                 break;
             
             case 'getform':
@@ -1107,9 +1116,9 @@ private $auth = NULL;
         $newDefault = array('defaultForm' => 1, 'required' => 1);
         $relationTable->update($newDefault, "formID = $form and deptID = $dept");
         
-	//$jsonReturn['attempt'] = $newDefault;
-	//$jsonReturn['sql'] = "formID = $form and deptID = $dept";
-	//$this->_helper->json($jsonReturn);
+    //$jsonReturn['attempt'] = $newDefault;
+    //$jsonReturn['sql'] = "formID = $form and deptID = $dept";
+    //$this->_helper->json($jsonReturn);
         $this->_redirect('/depts/profile/id/' . $dept . '#dept-frag-4');
         
     }

@@ -32,14 +32,22 @@ class Zend_View_Helper_TableRow extends Zend_View_Helper_Abstract {
 	}*/
         
 	if ($home) {
-            switch ($type) {
-                case 'entity' : $trHome = 'homedept'; break;
-                case 'person' : $trHome = 'homerecord'; break;
-                default: break;
-            }
-        } else {
-            $trHome = 'default';
+        switch ($type) {
+            case 'entity' : $trHome = 'homedept'; break;
+            case 'person' : $trHome = 'homerecord'; break;
+            default: break;
         }
+    } else {
+        $trHome = 'default';
+    }
+
+    if(!$rowData['doNotDisplay']) {
+        $trHome .= ' not-archived';
+    }
+
+    if($rowData['doNotDisplay']) {
+        $trHome .= ' hidden';
+    }
         
 	$this->rowTopWrapper = "<tr class='$trHome' id=" . $rowData['id'] . ">";
 
@@ -195,6 +203,15 @@ class Zend_View_Helper_TableRow extends Zend_View_Helper_Abstract {
                             'action'     => 'meetings',
                             'id'         => $rowData['id']), 
                          null, TRUE);
+    }
+
+    if (in_array('archive', $viewLinks)) {
+        $urls['archive'] = $this->view->url(
+                              array(
+                                'controller' => $class,
+                                'action'     => 'archive',
+                                'id'         => $rowData['id']),
+                              null,TRUE);
     }
     
     

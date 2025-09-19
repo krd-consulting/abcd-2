@@ -5,6 +5,11 @@ class Application_Model_DbTable_Users extends Zend_Db_Table_Abstract
 
     protected $_name = 'users';
 
+    protected function _isDeleted($testID) {
+        $record = $this->fetchRow("id = $testID");
+        return $record['doNotDisplay'];
+    }
+
     protected function _getStaffListByType($type,$uid) {
         $validTypes = array('progs','depts');
         if (!in_array($type,$validTypes)) {
@@ -25,8 +30,8 @@ class Application_Model_DbTable_Users extends Zend_Db_Table_Abstract
         //get userIDs for each grouping
             foreach ($myGps as $gid) {
                 $userIDs = $assocTable->getList('users',$gid);
-                foreach ($userIDs as $sid) {
-                    if (!in_array($sid,$result) && ($sid != $uid)) {
+                foreach ($userIDs as $sid) {                    
+                    if (!$this->_isDeleted($sid) && !in_array($sid,$result) && ($sid != $uid)) {
                         array_push($result,$sid);
                     }
                 }
@@ -116,7 +121,9 @@ class Application_Model_DbTable_Users extends Zend_Db_Table_Abstract
         $row = $this->fetchAll();
         $result = array();
         foreach ($row as $userRecord) {
-            array_push($result, $userRecord['id']);
+            if ($userRecord['doNotDisplay'] == 0) {
+                array_push($result, $userRecord['id']);
+            }
         }
         return $result;
     }
@@ -169,6 +176,11 @@ class Application_Model_DbTable_Users extends Zend_Db_Table_Abstract
     public function deleteUser($id)
     {
        $this->delete('id = ' . (int)$id);
+    }
+
+    public function archiveUser($id) {
+        $data = array('doNotDisplay' => 1);
+        $this->update($data, "id = $id");
     }
 
     public function lockUser($id) {

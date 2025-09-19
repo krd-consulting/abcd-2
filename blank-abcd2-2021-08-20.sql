@@ -529,6 +529,7 @@ CREATE TABLE `participants` (
   `lastName` varchar(45) NOT NULL,
   `dateOfBirth` date NOT NULL,
   `createdOn` date DEFAULT NULL,
+  `doNotDisplay` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `firstName` (`firstName`,`lastName`,`dateOfBirth`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Basic information for participants (volunteers, citizens, cl';
@@ -783,6 +784,7 @@ CREATE TABLE `users` (
   `createdDate` datetime NOT NULL,
   `lastLogin` datetime DEFAULT NULL,
   `role` varchar(40) NOT NULL,
+  `doNotDisplay` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uid_UNIQUE` (`id`),
   UNIQUE KEY `username_UNIQUE` (`userName`)

@@ -33,7 +33,10 @@ class Application_Form_DynamicFormOptions extends Zend_Form
                 $referenceOpts = new Zend_Form_Element_Select('referenceOpts');
                 $referenceOpts->setLabel("This Field")
                               ->addMultiOption('standAlone', 'Stands alone')
-                              ->addMultiOption('refersTo','Refers to another field');
+                              ->addMultiOption('refersToForm','Refers to a form field')
+                              ->addMultiOption('refersToPtcp','Refers to participant')
+                              ->addMultiOption('refersToStaff','Refers to staff')
+                              ->addMultiOption('refersToProg','Refers to program');
                 $this->addElement($referenceOpts);
                 
                 

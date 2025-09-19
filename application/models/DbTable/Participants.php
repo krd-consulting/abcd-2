@@ -202,6 +202,11 @@ class Application_Model_DbTable_Participants extends Zend_Db_Table_Abstract {
         $id = (int)$id;
         $this->delete('id = ' . $id);
     }
+
+    public function archiveParticipant($id) {
+        $data = array('doNotDisplay' => 1);
+        $this->update($data, "id = $id");
+    }
     
     public function getIDs() {
         $row = $this->fetchAll(NULL,"lastName ASC");

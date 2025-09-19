@@ -6,30 +6,31 @@ var id = 0;
 var listOfElements = new Array();
 var formInfo = new Object();
 listOfElements[0] = formInfo;
+var resourcelist = '';
 
 function dump(arr,level) {
-	var dumped_text = "";
-	if(!level) level = 0;
-	
-	//The padding given at the beginning of the line.
-	var level_padding = "";
-	for(var j=0;j<level+1;j++) level_padding += "    ";
-	
-	if(typeof(arr) == 'object') { //Array/Hashes/Objects 
-		for(var item in arr) {
-			var value = arr[item];
-			
-			if(typeof(value) == 'object') { //If it is an array,
-				dumped_text += level_padding + "'" + item + "' ...\n";
-				dumped_text += dump(value,level+1);
-			} else {
-				dumped_text += level_padding + "'" + item + "' => \"" + value + "\"\n";
-			}
-		}
-	} else { //Stings/Chars/Numbers etc.
-		dumped_text = "===>"+arr+"<===("+typeof(arr)+")";
-	}
-	return dumped_text;
+    var dumped_text = "";
+    if(!level) level = 0;
+    
+    //The padding given at the beginning of the line.
+    var level_padding = "";
+    for(var j=0;j<level+1;j++) level_padding += "    ";
+    
+    if(typeof(arr) == 'object') { //Array/Hashes/Objects 
+        for(var item in arr) {
+            var value = arr[item];
+            
+            if(typeof(value) == 'object') { //If it is an array,
+                dumped_text += level_padding + "'" + item + "' ...\n";
+                dumped_text += dump(value,level+1);
+            } else {
+                dumped_text += level_padding + "'" + item + "' => \"" + value + "\"\n";
+            }
+        }
+    } else { //Stings/Chars/Numbers etc.
+        dumped_text = "===>"+arr+"<===("+typeof(arr)+")";
+    }
+    return dumped_text;
 }
 
 function makeRequired() {
@@ -39,7 +40,7 @@ function makeRequired() {
 
 function makeSortable(){
     $("#dynamicForm ul").sortable("destroy")
-			.sortable(
+            .sortable(
         {
             containment: 'parent',
             handle: $(".moveElement"),
@@ -69,14 +70,52 @@ function createElementHTML ()
     isReq  = $("#isRequired").val();
     
     //field Reference Options
+    refOpts = $("#referenceOpts").val();
     refForm = $("#formList").val();
     refField = $("#fieldList").val();
+    refMulti = $("#multiOpts").val();
     
-    if (refForm === undefined || refField === undefined) {
-        extraAtt = '';
-    } else {
-        extraAtt = " class='reference' data-refField='" + refField + "' data-refForm='" + refForm + "' ";
+    multiWrapperDivOpen = "";
+    multiWrapperDivClose= "";
+    
+    
+    switch(refOpts) {
+        case "standAlone"   : extraAtt = ''; break;
+        case "refersToForm" :
+            if (refForm === undefined || refField === undefined) {
+                extraAtt = '';
+                alert ("You must specify both a form and a field to make this valid.");
+                return false;
+            } else {
+                extraClass = " 'reference";
+                if (refMulti == 'multi') {
+                    extraClass += " multiselect";
+                    multiWrapperDivOpen = "<div class='multi-select-container'>";
+                    multiWrapperDivClose= "</div>";
+                } 
+                extraClass += "'";
+                extraAtt = " class=" + extraClass + " data-refType='reference' data-refMulti='" + refMulti + "' data-refField='" + refField + "' data-refForm='" + refForm + "' ";
+                
+            }
+            break;
+        case "refersToPtcp" :
+                extraAtt = " class = 'reference' data-refType='participant' "; break;
+        case "refersToStaff":
+                extraAtt = " class = 'reference' data-refType='staff' "; break;
+        case "refersToProg":
+                extraAtt = " class = 'reference' data-refType='prog' "; break;
+            
+        default: 
+                //alert ("Something went wrong with reference field creator: " + refOpts + ". "); 
+                break;
     }
+
+    
+//    if (refForm === undefined || refField === undefined) {
+//        extraAtt = '';
+//    } else {
+//        extraAtt = " class='reference' data-refField='" + refField + "' data-refForm='" + refForm + "' ";
+//    }
     
     id = listOfElements.length;
     idTag = 'field_' + id;
@@ -90,7 +129,7 @@ function createElementHTML ()
     {
         case 'text' : 
             input = "<input id='" + idTag + "' type='text' value=''" + extraAtt + "name='" + title + "'/>\n";
-            html = label + input;
+            html = multiWrapperDivOpen + label + input + multiWrapperDivClose;
             
             thisElement.id = id;
             thisElement.type = 'text';
@@ -278,7 +317,7 @@ function addElementtoCanvas(e)
     if ($("#isRequired").val() == 'true') {
         $("#" + id + " .elementName").addClass('hasRequired');
         $("#" + id + " .hasRequired").after('<span class="reqtext">Required</span>');
-	if ($("#elementType").val() != 'matrix') {
+    if ($("#elementType").val() != 'matrix') {
             $("#" + id + " input:first").addClass('required');
         } else {
             $("#" + id + " tr").each(function()
@@ -438,11 +477,28 @@ function saveForm() {
 }
 
 function setReferenceOptions(o) {
+    var multiSelectOptionHTML = '<form id="formOptions" method="post">\n\
+                                   <ul class="optionsList">\n\
+                                     <li class="">\n\
+                                        <label for="multiOpts">Number of Choices</label> \n\
+                                        <select name="multiOpts" id="multiOpts">\n\
+                                            <option value="single" label="Single Select">Single Select</option>\n\
+                                            <option value="multi" label="Multi Select">Multi Select</option>\n\
+                                        </select>\n\
+                                     </li>\n\
+                                    </ul>\n\
+                                </form>';
     switch (o) {
-        case 'standAlone' : $("#refDiv").slideUp().remove(); break;
-        case 'isReference': $("#refDiv").slideUp().remove(); break;
-        case 'refersTo'   : $("#referenceOpts").after("<div id='refDiv'></div>");
-                            $.post(
+        case 'standAlone'   : 
+        case 'refersToPtcp' : 
+        case 'refersToProg' : 
+        case 'refersToStaff': 
+                                $("#refDiv").slideUp().remove(); break;
+                                
+        case 'refersToForm' : $("#referenceOpts").after("<div id='refDiv'></div>");
+                              //$("#refDiv").append("<div id='refFieldDiv'></div>");
+                              //$("#refDiv").append("<div id='refMultiDiv'></div>");
+                              $.post(
                                 "/forms/ajax",
                                 {task: 'referenceList', type: 'formlist'},
                                 function(data) {
@@ -456,14 +512,17 @@ function setReferenceOptions(o) {
                                             {task: 'referenceList', type: 'fieldList', formID: formID},
                                             function(data) {
                                                 $("#refFieldDiv").remove();
-                                                $("#refDiv").append("<div id='refFieldDiv'</div>");
+                                                $("#refMultiDiv").remove();
+                                                $("#refDiv").append("<div id='refFieldDiv'></div>");
                                                 $("#refFieldDiv").html(data.form).slideDown();
+                                                $("#refDiv").append("<div id='refMultiDiv'></div>");
+                                                $("#refMultiDiv").html(multiSelectOptionHTML).slideDown();
                                             }
                                         );
                                     });
                                 }
                     
-                            );
+                               ); break;
     }
 }
 

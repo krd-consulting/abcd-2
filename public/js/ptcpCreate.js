@@ -158,11 +158,11 @@ $(function() {
                     });
                     
                     
-function switchList() {
+function toggleHomeOnlySwitch() {
     home = $("tr.homerecord").length;
     total = $("tr").length;
     
-    if ($("input#list-switch").is(':checked')) {
+    if ($("input#home-only-switch").is(':checked')) {
         $("#record-count").text(total);
         $("tr.default").removeClass('hidden').removeClass('noSearch').show();
     } else {
@@ -171,9 +171,30 @@ function switchList() {
     }
 }
 
-$("input#list-switch").click(function(){
-        switchList();
-    });
+function toggleArchivedOnlySwitch() {
+    home = $("tr.archived").length;
+    total = $("tr").length;
+    
+    // is checked should show unarchived participants :)
+    if ($("input#archived-only-switch").is(':checked')) {
+        $("#record-count").text(total);
+        $("tr.default").removeClass('hidden').removeClass('noSearch');
+        $("tr.default").hide();
+        $("tr.not-archived").show();
+    } else {
+        $("#record-count").text(home);
+        $("tr.default").removeClass('hidden').removeClass('noSearch');
+        $("tr.not-archived").hide();
+    }
+}
+
+$("input#home-only-switch").click(function(){
+    toggleHomeOnlySwitch();
+});
+
+$("input#archived-only-switch").click(function(){
+    toggleArchivedOnlySwitch();
+});
     
 total = $("tr").length;
 $("#record-count").text(total);

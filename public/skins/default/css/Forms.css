@@ -390,3 +390,43 @@ input:checked + .slider:before {
 span#switchbutton {
     width: 40%;
 }
+
+#refDiv {
+    width: 95%;
+    margin-top: -26px;
+    padding: 40px 5px 5px 5px;
+    margin-left: -3px;
+}
+
+.multi-select-container {
+    border: 1px solid #ccc;
+    padding: 5px;
+    min-height: 34px;
+    border-radius: 4px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.tag-for-multi {
+    display: inline-block;
+    background-color: #007bff;
+    color: white;
+    padding: 2px 6px;
+    margin-right: 5px;
+    border-radius: 4px;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.tag-for-multi .remove {
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+.reference.multiselect {
+    flex: 1;
+    border: none;
+    margin-left: 5px;
+    min-width: 120px;
+}
