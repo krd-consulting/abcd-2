@@ -144,118 +144,127 @@ function submitData() {
     });
 }
 
-function fillForm() {
-    var userID = $.cookie('formEditUserID', {path: "/"});
-    var userName = $.cookie('formEditUserName', {path: "/"});
-    var recordID = $.cookie('formEditRecordID', {path: "/"});
 
+function fillForm({ userID, userName, recordID, formID }) {
     doNotEditID = recordID;
+ 
+    const $form = $("form#" + formID);
 
-    $("form#" + formID + " input#name").val(userName).attr("disabled", "disabled");
-    $("form#" + formID + " input#targetID").val(userID);
+    const $name = $form.find("input#name");
+    const $target = $form.find("input#targetID");
 
-    $.post('/ajax/getformdata', {formID: formID, recordID: recordID}, function(data) {
-        var frm = $("form#" + formID);
+    $name.val(userName).prop("disabled", true);
+    $target.val(userID);
 
-        $.each(data, function(key, value) {
-            var fInput = $("[name='" + key + "']");
-            var myType = fInput.attr('type');
-            var myID = fInput.attr('id');
 
-            if (myType == undefined && myID == undefined) {
-                myType = 'checkbox';
-            } else if (myType == undefined) {
-                myType = 'textarea';
-            }
+  $.post('/ajax/getformdata', { formID, recordID }, function (data) {
+      $.each(data, function (key, value) {
+      const $input = $form.find("[name='" + key + "']");
 
-            // Handling for multi-select inputs
-            if (fInput.hasClass('multiselect')) {
-                // Clear any existing tags
-                fInput.parent().find('.tag-for-multi').remove();
+      //check and skip broken keys
+      if (!$input.length) {
+          console.warn('[ABCD] No input found for key:', key);
+          return; //skip this field
+      }
 
-                // Split the value by comma and create tags for each item
-                if (value) {
-                    var items = value.split(',');
-                    $.each(items, function(index, item) {
-                        // Trim the item to remove any leading/trailing spaces
-                        item = $.trim(item);
-                        var $tag = $('<span class="tag-for-multi">' + item + '<span class="remove" style="margin-left: 5px; cursor: pointer;">x</span></span>');
-                        // Insert the tag before the input
-                        $tag.insertBefore(fInput);
-                        // Add click event on 'x' to remove tag
-                        $tag.find('.remove').click(function() {
-                            $(this).parent().remove();
-                        });
-                    });
-                }
-                return; // Skip further processing for multi-select inputs
-            }
+      if ($input.hasClass("multiselect")) {
+        $input.parent().find(".tag-for-multi").remove();
+        if (value) {
+          $.each(value.split(","), function (_, item) {
+            item = $.trim(item);
+            const $tag = $(
+              '<span class="tag-for-multi">' +
+                item +
+                '<span class="remove" style="margin-left:5px;cursor:pointer;">x</span></span>'
+            );
+            $tag.insertBefore($input);
+            $tag.find(".remove").on("click", function () {
+              $(this).parent().remove();
+            });
+          });
+        }
+        return; // done with this field
+      }
 
-            switch (myType) {
-                case 'text':
-                    fInput.val(value);
-                    break;
-                case 'textarea':
-                    fInput.html(value);
-                    break;
-                case 'radio':
-                    $("form#" + formID + " :input[name='" + key + "'][value='" + value + "']").attr('checked', true);
-                    break;
-                case 'checkbox':
-                    if (value == null) {
-                        break;
-                    }
-                    var boxes = value.split(' , ');
-                    $.each(boxes, function(index, box) {
-                        $("form#" + formID + " :input[value='" + box + "']").attr('checked', true);
-                    });
-                    break;
-                default:
-                    alert('Unknown datatype ' + myType + ' detected.');
-            }
-        });
+      let type = $input.attr("type") || "";
+      if (!type && $input.is("textarea")) {
+        type = "textarea";
+      }
+      if (!type) {
+        type = "checkbox"; // fallback
+      }
 
-        // getDepartments is called after filling the form
-        getDepartments();
+      switch (type) {
+        case "text":
+        case "textarea":
+          $input.val(value);
+          break;
+        case "radio":
+          $form
+            .find(":input[name='" + key + "'][value='" + value + "']")
+            .prop("checked", true);
+          break;
+        case "checkbox":
+          if (value != null) {
+            $.each(value.split(","), function (_, box) {
+              $form.find(":input[value='" + $.trim(box) + "']").prop("checked", true);
+            });
+          }
+          break;
+        default:
+          alert("Unknown datatype " + type + " detected.");
+      }
     });
+    getDepartments();
+  });
 }
 
-    editID     = $.cookie('formEdit');
-    formID     = $("form.dataEntry").attr('id');
-    formIDComp = formID.split("_")[1]; //need only the numeric id in form_###
-    formIDComp = formIDComp.replace(/^0+/, '');
 
-    if (editID == formIDComp) {
-        fillForm();  
-    }
-    
-    
-    ptcpID = $.cookie('ptcpID');
-    ptcpName = $.cookie('ptcpName');
-    
-    if (ptcpID) {
-        $("input#name").val(ptcpName);
-        $("input#targetID").val(ptcpID);
-        $.removeCookie('ptcpID', {path: "/"});
-        $.removeCookie('ptcpName', {path: "/"});
-    }
 
-    staffID = $.cookie('staffID');
-    staffName = $.cookie('staffName');
+  // Cookie bug fix Sept 2025
+  const editID     = $.cookie('formEdit');
+  const editIDComp = (editID || '').replace(/^0+/, '');
+  const formIDFull = $("form.dataEntry").attr('id') || '';
+  const formIDComp = (formIDFull.split("_")[1] || '').replace(/^0+/, '');
+
+  const staffID = $.cookie('staffID') || '';
+  const staffName = $.cookie('staffName') || '';
+
+  // 1) Read values BEFORE deletion
+  const editCtx = {
+    userID:   $.cookie('formEditUserID')   || '',
+    userName: $.cookie('formEditUserName') || '',
+    recordID: $.cookie('formEditRecordID') || '',
+    formID:   formIDFull
+  };
+
+  console.log('[ABCD] pre-delete', { editID, formIDComp, editCtx });
+
+  // 2) Delete all edit-related cookies right away
+  ['formEdit','formEditRecordID','formEditUserID','formEditUserName']
+    .forEach(n => $.removeCookie(n, { path: '/' }));
+
+  // 3) If this form matches, populate it
+  if (editIDComp === formIDComp) {
+    console.log('[ABCD] filling with', editCtx);
+    try { fillForm(editCtx); }
+    catch (e) { console.error('[ABCD] fillForm error:', e); }
+  } else {
+      console.log('[ABCD] no match: not filling');
+  }
+  // end cookie bug fix
+
     
-    
-    if ($("#formTarget").val() === "staff") {
-        $("input#name").val(staffName.replace(/\+/g," "));
-        $("input#targetID").val(staffID);
-        getDepartments();
-    }
+if ($("#formTarget").val() === "staff") {
+    $("input#name").val(staffName.replace(/\+/g," "));
+    $("input#targetID").val(staffID);
+    getDepartments();
+}
 
     $("input[type='hidden']").parent().hide();
 
     $(".numeric").numeric({allow:"."});
     $(".hasDatepicker").numeric({allow:"-"});
-
-    //$("input[type='text']").not('.numeric').alphanumeric({allow:"#- @."});
 
     $("input#responseDate").blur(function() {
         getDepartments();
