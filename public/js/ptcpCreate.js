@@ -178,14 +178,12 @@ function toggleArchivedOnlySwitch() {
     // is checked should show unarchived participants :)
     if ($("input#archived-only-switch").is(':checked')) {
         $("#record-count").text(notArchived);
-        $("tr.default").removeClass('hidden').removeClass('noSearch');
-        $("tr.archived").hide();
-        $("tr.not-archived").show();
+        $("tr.archived").addClass('hidden').addClass('noSearch').hide();
+        $("tr.not-archived").removeClass('hidden').removeClass('noSearch').show();
     } else {
         $("#record-count").text(archived);
-        $("tr.default").removeClass('hidden').removeClass('noSearch');
-        $("tr.archived").show();
-        $("tr.not-archived").hide();
+        $("tr.archived").removeClass('hidden').removeClass('noSearch').show();
+        $("tr.not-archived").addClass('hidden').addClass('noSearch').hide();
     }
 }
 
