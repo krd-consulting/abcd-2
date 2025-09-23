@@ -1,5 +1,4 @@
 function displayRecordsShown($) {
-  console.log($);
   const count = $('tr.default:visible').length;
   $("#record-count").text(count);
 }
