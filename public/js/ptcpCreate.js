@@ -171,19 +171,17 @@ function toggleHomeOnlySwitch() {
     }
 }
 
-function toggleArchivedOnlySwitch() {
-    archived = $("tr.archived").length;
-    notArchived = $("tr.not-archived").length;
+function toggleActiveOnlySwitch() {
+    active = $("tr.active").length;
+    total = $("tr").length;
     
-    // is checked should show unarchived participants :)
-    if ($("input#archived-only-switch").is(':checked')) {
-        $("#record-count").text(notArchived);
+    // is checked should show only active participants
+    if ($("input#active-only-switch").is(':checked')) {
+        $("#record-count").text(active);
         $("tr.archived").addClass('hidden').addClass('noSearch').hide();
-        $("tr.not-archived").removeClass('hidden').removeClass('noSearch').show();
     } else {
-        $("#record-count").text(archived);
+        $("#record-count").text(total);
         $("tr.archived").removeClass('hidden').removeClass('noSearch').show();
-        $("tr.not-archived").addClass('hidden').addClass('noSearch').hide();
     }
 }
 
@@ -191,8 +189,8 @@ $("input#home-only-switch").click(function(){
     toggleHomeOnlySwitch();
 });
 
-$("input#archived-only-switch").click(function(){
-    toggleArchivedOnlySwitch();
+$("input#active-only-switch").click(function(){
+    toggleActiveOnlySwitch();
 });
     
 total = $("tr").length;

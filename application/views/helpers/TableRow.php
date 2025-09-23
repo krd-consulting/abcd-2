@@ -41,12 +41,13 @@ class Zend_View_Helper_TableRow extends Zend_View_Helper_Abstract {
         $trHome = 'default';
     }
 
-    if(!$rowData['doNotDisplay']) {
-        $trHome .= ' not-archived';
-    }
-
-    if($rowData['doNotDisplay']) {
-        $trHome .= ' archived hidden';
+    // make sure doNotDisplay is a column in rowData
+    if(array_key_exists('doNotDisplay', $rowData)) {
+        if(!$rowData['doNotDisplay']) {
+            $trHome .= ' active';
+        } else {
+            $trHome .= ' archived hidden';
+        }
     }
         
 	$this->rowTopWrapper = "<tr class='$trHome' id=" . $rowData['id'] . ">";
