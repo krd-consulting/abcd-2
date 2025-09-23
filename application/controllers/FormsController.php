@@ -59,7 +59,7 @@ private $auth = NULL;
     
     protected function _setOptionForm($type)     {     
         $referenceDiv = '';
-        $validTypes = array('text','num','date','radio','check','matrix','textarea');
+        $validTypes = array('text','num','date','radio','check','matrix','textarea', 'upload');
         
         if (!in_array($type, $validTypes)) {
             throw new exception("Invalid element type $type passed to AJAX call.");
@@ -144,7 +144,8 @@ private $auth = NULL;
                 case 'radio'    : $colType = 'varchar'; $optionList='(200)';    break;
                 case 'checkbox' : $colType = 'varchar'; $optionList='(200)';    break;
                 case 'matrix'   : $colType = 'varchar'; $optionList='(200)';    break;
-                case 'textarea' : $colType = 'text';                            break;                
+                case 'textarea' : $colType = 'text';                            break;
+                case 'upload'   : $colType = 'varchar';  $optionList='(140)';   break;                
             }
              
             if ($type != 'matrix') {
@@ -1073,6 +1074,8 @@ private $auth = NULL;
                 '<script type="text/javascript" src="/js/ac-reference.js"></script>' .
                 '<script type="text/javascript" src="/js/formOptions.js"></script>' .
                 '<script type="text/javascript" src="/js/jquery.alphanumeric.js"></script>' .
+                '<script type="text/javascript" src="/js/jQuery/jquery.ui.widget.js"></script>' .
+                '<script type="text/javascript" src="/js/jquery.fileupload.js"></script>' .
                 '<script type="text/javascript" src="/js/dataEntry.js"></script>';
         
         if ($this->getRequest()->isPost()) {

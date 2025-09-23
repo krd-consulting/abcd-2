@@ -629,6 +629,59 @@ class AjaxController extends Zend_Controller_Action
         $namespace -> setExpirationSeconds(28800);
         $this->_helper->json("OK");
     }
+
+    public function uploadfileAction() {
+        $desc = $_POST['filDescription'];
+        $tType = $_POST['targetType'];
+        $tID = $_POST['targetID'];
+        $formID = $_POST['formID'];
+        $column = $_POST['column'];
+        $file = $_FILES['files'];
+        $model = new Application_Model_DbTable_Files;
+                   
+        $name = $file['name'][0];
+        $tmpname = $file['tmp_name'][0];
+        $location = APPLICATION_PATH . "/../data/uploaded-files/" . $tID . "-" . time() . "-" . $name;
+        
+        if(strlen($desc)==0) {
+            $description = $name;
+        } else {
+            $description = $desc;
+        }
+        
+        //store file info in database
+        
+        $dbStore = $model->addFile($tType,$tID,$description,$location,$this->uid,$formID,$column);
+        //move file to permanent location
+        move_uploaded_file($tmpname,$location);
+        
+        $jsonReturn['success'] = 'yes';
+        $jsonReturn['fileEntryID'] = $dbStore;
+        $jsonReturn['fileName'] = $description;
+        
+        $this->_helper->json($jsonReturn);
+    }
+    
+    public function downloadfileAction() {
+        $id = $_POST['id'];
+        $model = new Application_Model_DbTable_Files;
+        $file = $model->getFile($id);
+        $location = $file['location'];
+        $description = $file['description'];
+        $link = APPLICATION_PATH . "/../public/files/links/" . $description;
+        $filename = "/files/links/" . $description;
+
+        if (is_link($link)) {
+            unlink($link);
+        }
+        
+        symlink($location,$link);
+        
+        $jsonReturn['success'] = 'yes';
+        $jsonReturn['url'] = $filename;
+        $this->_helper->json($jsonReturn);
+        
+    }
     
     public function getuserdeptsAction() {
         $jsonResult=array();
