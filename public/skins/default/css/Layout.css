@@ -566,6 +566,8 @@ div#content-top.participants {
 
 div#content-top.participants > *:not(#browse) {
     height: 100%;
+    display: flex;
+    align-items: center;
 }
 
 div#content-top.participants #browse h2 {

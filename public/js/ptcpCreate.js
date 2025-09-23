@@ -156,41 +156,31 @@ $(function() {
                     .click(function() {
                             $( "#dialog-form" ).dialog( "open" );
                     });
-                    
-                    
-function toggleHomeOnlySwitch() {
-    home = $("tr.homerecord").length;
-    total = $("tr").length;
-    
-    if ($("input#home-only-switch").is(':checked')) {
-        $("#record-count").text(total);
-        $("tr.default").removeClass('hidden').removeClass('noSearch').show();
-    } else {
-        $("#record-count").text(home);
-        $("tr.default").addClass('hidden').addClass('noSearch').hide();
-    }
-}
 
-function toggleActiveOnlySwitch() {
-    active = $("tr.active").length;
-    total = $("tr").length;
-    
-    // is checked should show only active participants
+function toggleFilters() {
+    // know which rows' classes to include
+    let showClasses = ['active'];
+    // confusing but the switches are in reverse...
     if ($("input#active-only-switch").is(':checked')) {
-        $("#record-count").text(active);
-        $("tr.archived").addClass('hidden').addClass('noSearch').hide();
-    } else {
-        $("#record-count").text(total);
-        $("tr.archived").removeClass('hidden').removeClass('noSearch').show();
+        showClasses.push('archived');
     }
+    if ($("input#home-only-switch").is(':not(:checked)')) {
+        showClasses = showClasses.map(e => `${e}.homerecord`);
+    }
+    const selector = 'tr.' + showClasses.join(', tr.');
+
+    // adjust display
+    $("tr.default").addClass('hidden').addClass('noSearch').hide();
+    $(selector).removeClass('hidden').removeClass('noSearch').show();
+    displayRecordsShown($);
 }
 
 $("input#home-only-switch").click(function(){
-    toggleHomeOnlySwitch();
+    toggleFilters();
 });
 
 $("input#active-only-switch").click(function(){
-    toggleActiveOnlySwitch();
+    toggleFilters();
 });
     
 total = $("tr").length;
