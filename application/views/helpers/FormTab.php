@@ -105,7 +105,7 @@ class Zend_View_Helper_FormTab extends Zend_View_Helper_Abstract {
                 $v = ABCD_Encoding::filterTextOther($v);
                 
                 $contentLineTitle = "<span class='title'>$printName</span>\n";
-                $contentLineValue = "<span class='value' id='$k'>$v</span>\n";
+                $contentLineValue = "<span class='value' id='$k'>$v &nbsp; &nbsp; $dlButtonHTML</span>\n";
                 $contentLineBottom = "</div><!-- .form-display-item -->\n";
                 
                 $contentLine = $contentLineTop . $contentLineTitle . $contentLineValue . $contentLineBottom;
