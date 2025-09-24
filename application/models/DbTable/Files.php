@@ -20,8 +20,12 @@ class Application_Model_DbTable_Files extends Zend_Db_Table_Abstract {
     
     public function getFile($id) 
     {
-            $file=$this->fetchRow("id = $id and `doNotDisplay` = 0")->toArray();
-            return $file;
+      // try {
+        $file=$this->fetchRow("id = $id and `doNotDisplay` = 0")->toArray();
+      // } catch(Exception $e) {
+      //   // die($id);
+      // }
+      return $file;
     }
         
     public function addFile($entType, $entID, $description, $location, $createdBy, $formID='',$column='',$formEntryID=0) {

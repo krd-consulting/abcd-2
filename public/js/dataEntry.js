@@ -3,6 +3,8 @@ $(function() {
 bValid = 0;
 editLatest = 0;
 doNotEditID = 0;
+recordID = '';
+formID = '';
 
 $("input[type=radio]").mouseup(function() {
     this.__chk = this.checked;
@@ -135,7 +137,8 @@ function submitData() {
             task: 'submit',
             id: formID,
             data: formData,
-            oldVersion: doNotEditID
+            oldVersion: doNotEditID,
+            addlData: addlFormData
         }, function(data) {
             $("#dialog-message").dialog({
                 buttons: {

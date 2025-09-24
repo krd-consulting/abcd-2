@@ -16,6 +16,8 @@ class Zend_View_Helper_FormTab extends Zend_View_Helper_Abstract {
         $forms = new Application_Model_DbTable_Forms;
         $formInfo = $forms->getRecord($formID);
         $fcssID = $formInfo['fcssID'];
+
+        $fileTable = new Application_Model_DbTable_Files;
         
         $myData = $record; //only using the latest
 
@@ -79,6 +81,16 @@ class Zend_View_Helper_FormTab extends Zend_View_Helper_Abstract {
                 }
                 
                 if (strlen($v) == 0) continue;
+                
+                if ($element['elType'] == "upload") {
+                    $file = $fileTable->getFile($v);
+                    
+                    $dlButtonHTML = "<button class='right tiny download-file' data-id='$v'>Download</button>";
+                    $v = $file['description'];
+                    
+                } else {
+                    $dlButtonHTML = "";
+                }
                 
                 $contentLineTop = "<div class='form-display-item";
                     if (in_array($k, $nonDisplayFields)) {
