@@ -237,6 +237,9 @@ class ParticipantsController extends Zend_Controller_Action
                     '<script type="text/javascript" src="/js/ac2.js"></script>' .
                     '<script type="text/javascript" src="/js/alertCreate.js"></script>' .
                     '<script type="text/javascript" src="/js/activityCreate.js"></script>' .
+                    '<script type="text/javascript" src="/js/jQuery/jquery.ui.widget.js"></script>' .
+                    '<script type="text/javascript" src="/js/jquery.fileupload.js"></script>' .
+                    '<script type="text/javascript" src="/js/uploadFileCreate.js"></script>' .
                     '<script type="text/javascript" src="/js/disable.js"></script>' .
                     '<script type="text/javascript" src="/js/statusFilter.js"></script>' .
                     '<script type="text/javascript" src="/js/jquery.jeditable.js"></script>' .
