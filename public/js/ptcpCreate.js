@@ -156,43 +156,31 @@ $(function() {
                     .click(function() {
                             $( "#dialog-form" ).dialog( "open" );
                     });
-                    
-                    
-function toggleHomeOnlySwitch() {
-    home = $("tr.homerecord").length;
-    total = $("tr").length;
-    
-    if ($("input#home-only-switch").is(':checked')) {
-        $("#record-count").text(total);
-        $("tr.default").removeClass('hidden').removeClass('noSearch').show();
-    } else {
-        $("#record-count").text(home);
-        $("tr.default").addClass('hidden').addClass('noSearch').hide();
-    }
-}
 
-function toggleArchivedOnlySwitch() {
-    archived = $("tr.archived").length;
-    notArchived = $("tr.not-archived").length;
-    
-    // is checked should show unarchived participants :)
-    if ($("input#archived-only-switch").is(':checked')) {
-        $("#record-count").text(notArchived);
-        $("tr.archived").addClass('hidden').addClass('noSearch').hide();
-        $("tr.not-archived").removeClass('hidden').removeClass('noSearch').show();
-    } else {
-        $("#record-count").text(archived);
-        $("tr.archived").removeClass('hidden').removeClass('noSearch').show();
-        $("tr.not-archived").addClass('hidden').addClass('noSearch').hide();
+function toggleFilters() {
+    // know which rows' classes to include
+    let showClasses = ['active'];
+    // confusing but the switches are in reverse...
+    if ($("input#active-only-switch").is(':checked')) {
+        showClasses.push('archived');
     }
+    if ($("input#home-only-switch").is(':not(:checked)')) {
+        showClasses = showClasses.map(e => `${e}.homerecord`);
+    }
+    const selector = 'tr.' + showClasses.join(', tr.');
+
+    // adjust display
+    $("tr.default").addClass('hidden').addClass('noSearch').hide();
+    $(selector).removeClass('hidden').removeClass('noSearch').show();
+    displayRecordsShown($);
 }
 
 $("input#home-only-switch").click(function(){
-    toggleHomeOnlySwitch();
+    toggleFilters();
 });
 
-$("input#archived-only-switch").click(function(){
-    toggleArchivedOnlySwitch();
+$("input#active-only-switch").click(function(){
+    toggleFilters();
 });
     
 total = $("tr").length;

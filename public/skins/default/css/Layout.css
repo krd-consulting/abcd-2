@@ -557,6 +557,24 @@ div#content-top{
     width: 100%;
 }
 
+div#content-top.participants {
+    height: 100px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+div#content-top.participants > *:not(#browse) {
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+div#content-top.participants #browse h2 {
+    margin-bottom: 0px;
+}
+
+
 #content-top span {
     display: inline-block;
     font-size: 11pt;
@@ -654,6 +672,30 @@ div#options-frag-1 {
 
 dd#filterForm-element {
     margin-bottom: 7px;
+}
+
+#table-filters {
+    display: inline-flex;
+    flex-wrap: wrap;
+}
+
+#table-filters > div.switch-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0.25rem;
+}
+
+#table-filters > div.switch-container > .switch-label {
+    width: 30%;
+}
+
+#table-filters .switch-label-on {
+    text-align: left;
+}
+
+#table-filters .switch-label-off {
+    text-align: right;
 }
 
 h2.canvasHead {

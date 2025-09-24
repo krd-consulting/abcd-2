@@ -1,20 +1,20 @@
 <?php
-$homeOnlySwitch = '<div class="slider-button float-right">
-                    <span class="text float-left">Home Only</span>
+$homeOnlySwitch = '<div class="switch-container">
+                    <span class="switch-label switch-label-off">Home Only</span>
                     <label class="switch">
                         <input id="home-only-switch" type="checkbox" checked="yes">
                         <span class="slider round"></span>
                     </label>
-                    <span class="text float-right">All Departments</span>
+                    <span class="switch-label switch-label-on">All Departments</span>
                 </div>';
 
-$archivedOnlySwitch = '<div class="slider-button float-right">
-                    <span class="text float-left">Archived Only</span>
+$activeOnlySwitch = '<div class="switch-container">
+                    <span class="switch-label switch-label-off">Active Only</span>
                     <label class="switch">
-                        <input id="archived-only-switch" type="checkbox" checked="yes">
+                        <input id="active-only-switch" type="checkbox">
                         <span class="slider round"></span>
                     </label>
-                    <span class="text float-right">Unarchived Only</span>
+                    <span class="switch-label switch-label-on">All</span>
                 </div>';      
 ?>
 
@@ -27,7 +27,7 @@ $archivedOnlySwitch = '<div class="slider-button float-right">
   </div>
 
 
-  <div id="content-top">
+  <div id="content-top" class="participants">
         
         <span id="browse" class="float-left">
             <h2>Browse</h2>
@@ -37,9 +37,9 @@ $archivedOnlySwitch = '<div class="slider-button float-right">
             
         </span>
         
-      <span id="switchbutton">
-          <?php print $homeOnlySwitch ?>
-          <?php print $archivedOnlySwitch ?>
+      <span id="table-filters">
+        <?php print $homeOnlySwitch ?>
+        <?php print $activeOnlySwitch ?>
       </span>
       
         <span id="addNew" class="float-right">
