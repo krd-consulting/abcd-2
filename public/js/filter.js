@@ -1,5 +1,5 @@
 function displayRecordsShown($) {
-  const count = $('tr.default:visible').length;
+  const count = $('.p-list-table tr:visible').length;
   $("#record-count").text(count);
 }
 

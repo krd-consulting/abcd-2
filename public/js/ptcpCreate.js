@@ -159,19 +159,30 @@ $(function() {
 
 function toggleFilters() {
     // know which rows' classes to include
-    let showClasses = ['active'];
+    const classes = new Set(['tr.active', 'tr.archived', 'tr.default', 'tr.homerecord']);
+    const classesToShow = new Set(['tr.active', 'tr.archived', 'tr.default', 'tr.homerecord']);
     // confusing but the switches are in reverse...
     if ($("input#active-only-switch").is(':checked')) {
-        showClasses.push('archived');
+        classesToShow.add('tr.active');
+        classesToShow.add('tr.archived');
+    } else {
+        classesToShow.delete('tr.archived');
     }
-    if ($("input#home-only-switch").is(':not(:checked)')) {
-        showClasses = showClasses.map(e => `${e}.homerecord`);
+    if ($("input#home-only-switch").is(':checked')) {
+        classesToShow.add('tr.homerecord');
+        classesToShow.add('tr.default');
+    } else {
+        classesToShow.delete('tr.default');
     }
-    const selector = 'tr.' + showClasses.join(', tr.');
+    const toShowSelector = Array.from(classesToShow).join(',');
+    const toHideSelector = Array.from(classes.difference(classesToShow)).join(',');
+
+    console.log(toShowSelector);
+    console.log(toHideSelector);
 
     // adjust display
-    $("tr.default").addClass('hidden').addClass('noSearch').hide();
-    $(selector).removeClass('hidden').removeClass('noSearch').show();
+    $(toShowSelector).removeClass('hidden').removeClass('noSearch').show();
+    $(toHideSelector).addClass('hidden').addClass('noSearch').hide();
     displayRecordsShown($);
 }
 

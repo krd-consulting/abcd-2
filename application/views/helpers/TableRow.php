@@ -351,6 +351,11 @@ class Zend_View_Helper_TableRow extends Zend_View_Helper_Abstract {
             $linkName = 'View Enrollment';
         }
 
+        if ($viewLink == 'archive' && array_key_exists('doNotDisplay', $rowData) && $rowData['doNotDisplay']) {
+            $linkName = 'Already Archived';
+            $rowUrl = '#';
+        }
+
 	if (($viewLink == 'delete') && ($class == 'forms')) {
 	   $linkName = 'Disable';
 	}
