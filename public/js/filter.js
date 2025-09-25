@@ -38,16 +38,14 @@
 			       //.slideUp();
 			       .hide();
 		  //$matches.slideDown();
-		  $matches.not('tr.noSearch').show();
-                  var numberGood = $matches.not('tr.noSearch').length;
+		  $matches.show();
+                  var numberGood = $matches.length;
                   $("#record-count").text(numberGood);
-                  $("#lock-unlock-count").hide();
 
         } else {
           //$(list).find("tr").slideDown();
-          $(list).find("tr").not('tr.noSearch').show();
+          $(list).find("tr").show();
           $("#record-count").text(numberOrig);
-          $("#lock-unlock-count").show();
         }
         return false;
       })

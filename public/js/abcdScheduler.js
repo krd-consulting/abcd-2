@@ -1,17 +1,6 @@
 $(function() {
-    var pathname = window.location.pathname;
-    if (pathname == '/schedule/profile/id/9') {
-        //alert ('Will block dates.');
-        scheduler.addMarkedTimespan({
-            days: new Date(2020, 04, 10),
-            zones: "fullday",
-            type: "dhx_time_block",
-            css: "red_section"
-        });
-    }
-     
     var readOnly = $("#readonly").data("readonly");
-     
+    
     var setInfo = $("#setinfo");
     var dateFormatFunc = scheduler.date.date_to_str("%Y-%m-%d %H:%i");
     var str2dateFunc = scheduler.date.str_to_date("%Y-%m-%d");
@@ -22,7 +11,6 @@ $(function() {
     var fromDate = str2dateFunc(setInfo.data("startdate"));    
     var toDate = str2dateFunc(setInfo.data("enddate"));    
     
-    //alert ("Start Time is " + fromTime + " and End Time is " + toTime); 
     //stupid hacky solution to stupid plugin problem where it expects a 0-11 month array
     var fromYear = setInfo.data("startdate").split('-')[0];
     var fromMonth = parseInt(setInfo.data("startdate").split('-')[1]); fromMonth--; fromMonth.toString();
@@ -35,26 +23,21 @@ $(function() {
     
     var setid = setInfo.data("setid");
     
-    var pList = setInfo.data("list"); 
+    var pList = setInfo.data("list");
     
     scheduler.createUnitsView({
         name:"unit",
         property:"unit_id", //the mapped data property
         list:pList,
-        days:1
+        days:5
     });
     
-    scheduler.templates.day_date = function(date){
-    var formatFunc = scheduler.date.date_to_str("%j %M %Y - %l");
-    return formatFunc(date);
-};
+    scheduler.date.unit_start = function(date) {
+        date = scheduler.date.add(date, 2, 'day');
+        return scheduler.date.week_start(date);
+    }
     
-//    scheduler.date.unit_start = function(date) {
-//        date = scheduler.date.add(date, 2, 'day');
-//        return scheduler.date.week_start(date);
-//    }
-    
-    scheduler.locale.labels.unit_tab = "Schedules";
+    scheduler.locale.labels.unit_tab = "Resources";
     
     /*scheduler.ignore_unit = function(date){
     if (date.getDay() == 6 || date.getDay() == 0) //hides Saturdays and Sundays
@@ -64,7 +47,7 @@ $(function() {
     scheduler.config.first_hour = fromTime;
     scheduler.config.last_hour = toTime;
     scheduler.config.start_on_monday = true;
-    scheduler.config.hour_size_px = 132; //176;
+    scheduler.config.hour_size_px = 176;
     //scheduler.date.unit_start = scheduler.date.week_start;
     
     scheduler.config.details_on_create = false;
@@ -72,16 +55,13 @@ $(function() {
     scheduler.config.limit_end = new Date(toYear,toMonth,toD);
     scheduler.config.limit_time_select = true;
     
-    if (new Date(fromDate) < new Date()) {
-        calStartDate = new Date();
-    } else {
-        calStartDate = new Date(fromDate);
-    }
+    //limit what displays in the calendar if today is within its scope
+    //if today is not within its scope (calendar is future or past), out-of-scope dates will not be editable but will display.
+    //if (fromDate < new Date() || toDate > new Date()) {scheduler.config.limit_view = true};
     
     scheduler.config.time_step = 15;
     scheduler.config.fix_tab_position = true;
-    scheduler.config.minicalendar.mark_events = false; 
-
+    
     scheduler.addMarkedTimespan({
         type: "dhx_time_block",
         start_date: new Date(2016,0,1),
@@ -96,21 +76,13 @@ $(function() {
         zones:"fullday"
     })
     
-    scheduler.config.readonly = true;
-
-    
-    //initialize calendar
-    scheduler.init('scheduler_here', calStartDate, "day");
-    
-    // show calendar's "unit" view, since it doesn't autoload any
-    $("div[name='unit_tab']").trigger('click')
-                             .addClass('hidden');
+    scheduler.init('scheduler_here', new Date(), "unit");
     
     $.post(
         ("/ajax/scheduleevent"),
         {task:'getevents', setid: setid},
         function(data){
-                scheduler.parse(data, "json"); //add events                
+                scheduler.parse(data, "json");
             }
 
         );
@@ -157,27 +129,5 @@ $(function() {
         )
     })
     
-    function show_minical(){
-        if (scheduler.isCalendarVisible()){
-            scheduler.destroyCalendar();
-        } else {
-            scheduler.renderCalendar({
-                position:"dhx_minical_icon",
-                date:scheduler._date,
-                navigation:true,
-                handler:function(date,calendar){
-                    scheduler.setCurrentView(date);
-                    scheduler.destroyCalendar();
-                }
-            });
-        }
-    }
-    
-    $("#dhx_minical_icon").click(function() {show_minical();});
-    
-    
-    setTimeout(function() {
-            $("div[name='unit_tab']").trigger('click');
-        },100);
-    
+
 });

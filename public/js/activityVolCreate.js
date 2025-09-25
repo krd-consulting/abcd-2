@@ -10,24 +10,17 @@ $(function() {
         fromTime        =   $( "#addVolActivityForm #fromTime"),
         toTime          =   $( "#addVolActivityForm #toTime"),
         volBeneficiary  =   $( "#addVolActivityForm #volBenef"),
-        tips            =   $( "#addAct-dialog p.validateTips" ),
+        tips            =   $( "#addAct-dialog p" ),
         times           = $("#fromTime, #toTime"),
         deleteActID     = '',
         
-        allInputs = $("#addVolActivityForm :input");
         secondaryInputs =   $('#toTime-label, #toTime-element, #note-label, #note-element');
 
-    allInputs.focus(function(){
-        $(this).removeClass('ui-state-error');
-        tips.text('');
-    });
-
     function nonZeroTime(from,to) {
-        if (Date.parse('2000-01-01 ' + from) >= Date.parse('2000-01-01 ' + to)) {
+        if (from >= to) {
             times.addClass("ui-state-error");
             updateTips("End time has to be after start time!");
-            //fromTime.focus();
-            //alert("From is later than To");
+            fromTime.focus();
         } else {
             addActivity();
         }
@@ -59,27 +52,11 @@ $(function() {
     function updateTips( t ) {
             tips
                     .text( t )
-                    .show()
                     .addClass( "ui-state-highlight" );
             setTimeout(function() {
                     tips.removeClass( "ui-state-highlight", 1500 );
             }, 500 );
     }
-
-    function isBeneficiaryIDSet() {
-        var dataid = volBeneficiary.data('targetid');
-        var n = Math.floor(Number(dataid));
-        if(n > 0) {test = true;} else {test = false;};
-        if (test) {
-            return true;
-        } else {
-            updateTips ("Please select a valid beneficiary.");
-            //updateTips("Found dataid " + dataid + " and n is " + n + ".");
-            volBeneficiary.addClass("ui-state-error");
-            return false;
-        }
-    }
-
 
     function checkLength( o, n, min ) {
             if ( o.val().length < min ) {
@@ -127,18 +104,14 @@ $(function() {
                             fromTime.removeClass( "ui-state-error" );
                             toTime.removeClass( "ui-state-error" );
                             bValid = bValid && checkLength( date, "Date", 1);
-                            bValid = bValid && isBeneficiaryIDSet();
                             bValid = bValid && checkLength( program, "Program", 1);
                             bValid = bValid && checkLength( fromTime, "Start time", 1);
                             bValid = bValid && checkLength( toTime, "End time", 1);
-
                             
                             if ( bValid ) {
                                     nonZeroTime(fromTime.val(),toTime.val());
-                                    //alert("Will save");
                             } else {
                                     toTime.focus();
-                                    //alert("bValid is false.")
                             }
                     },
                     "Nevermind": function() {
@@ -163,35 +136,31 @@ $(function() {
 
     
             
-    function launchToTime() {
+    function launchToTime(tX) {
         $('.timepicker.end').timepicker({
             timeFormat: 'HH:mm',
-            minTime: '07:00',
-            maxTime: '20:00',
-            dynamic: false,
-            dropdown: true,
-            scrollbar: true
+            dynamic: true,
+            dropdown: false,
+            scrollbar: false
         });
         secondaryInputs.show();        
-        //$('.timepicker.end').focus();
+        $('.timepicker.end').focus();
         
     }
 
     $('.timepicker.start').timepicker({
         timeFormat: 'HH:mm',
         defaultTime: '',
-        minTime: '07:00',
-        maxTime: '20:00',
-        dynamic: false,
-        dropdown: true,
-        scrollbar: true,        
+        startTime: '',
+        dynamic: true,
+        dropdown: false,
+        scrollbar: false,        
     });
     
-//    $('input#fromTime').change(function() {
-//            textTime = $(this).val();
-//            alert('From ' + textTime);
-            launchToTime();  
-    //});
+    $('input#fromTime').change(function() {
+            textTime = $(this).val();
+            launchToTime(textTime);  
+    });
             
     
     program.change(function() {
@@ -221,7 +190,7 @@ $(function() {
                 }
             )
         } else {
-            updateTips('Please select a program.');
+            updateTips('Please select a program.');ß
         }
     })
     

@@ -35,12 +35,4 @@ class Application_Model_DbTable_ScheduledEvents extends Zend_Db_Table_Abstract {
         $this->update($data,"id = $id");
     }
     
-    public function releaseRecordFromForm($formID,$formEntryID) {
-        $record = $this->fetchRow("formID = $formID AND formEntryID = $formEntryID");
-        $recordArray = $record->toArray();
-        $recordID=$recordArray['id'];
-        $this->archiveRecord($recordID);
-        return($recordID);
-    }
-    
 }

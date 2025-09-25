@@ -62,9 +62,6 @@ class VolunteersController extends Zend_Controller_Action
         //now we get the user objects to pass to the view
         
         $number = count($list);
-        $numActive = 0;
-        $numLocked = 0;
-        
         $userlist = array();
         $meFirstList = array();
         
@@ -76,11 +73,6 @@ class VolunteersController extends Zend_Controller_Action
                 $user['flag'] = 'yes';
             }
             
-            switch ($user['lock']) {
-                case '0' : $numActive++;break;
-                case '1' : $numLocked++;break;
-                default: throw new Exception("User $uid is neither locked nor unlocked."); break;
-            }
             
             if ($uid != $this->uid) {
                 array_push($userlist, $user);
@@ -108,8 +100,6 @@ class VolunteersController extends Zend_Controller_Action
         $unlockForm = new Application_Form_UnlockVolunteer;
         
         $this->view->count = $number;
-        $this->view->activeCount = $numActive;
-        $this->view->lockedCount = $numLocked;
         $this->view->list = $viewList;
         $this->view->form = $form;
         $this->view->unlockForm = $unlockForm;
@@ -195,8 +185,8 @@ class VolunteersController extends Zend_Controller_Action
         $activityTable = new Application_Model_DbTable_VolunteerActivities;
         $first = date('Y-m-1');
         $firstOfYear = date('Y-1-1');
-        $this->view->monthlyHours = max(0,$activityTable->hoursReport('vol',$id,$first));
-        $this->view->yearlyHours = max(0,$activityTable->hoursReport('vol',$id,$firstOfYear));
+        $this->view->monthlyHours = $activityTable->hoursReport('vol',$id,$first);
+        $this->view->yearlyHours = $activityTable->hoursReport('vol',$id,$firstOfYear);
         $this->view->progCount = count($programs);
            
       $this->view->root = $this->root;

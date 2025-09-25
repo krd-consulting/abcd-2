@@ -117,21 +117,6 @@ class DashController extends Zend_Controller_Action
      $db = $this->getInvokeArg('bootstrap')->getResource('db');
      $addOnSql = '';
      
-     $sourceIsForm = FALSE;
-     $extraSelect = "";
-     $extraFrom = "";
-     $extraWhere = "";
-     
-     $referer = $_SERVER['HTTP_REFERER'];
-     if (strpos($referer, "forms/dataentry") == TRUE) {
-         $sourceIsForm = TRUE;
-         $s = explode("/",$referer);
-         $formID = $s[6];
-         $extraFrom = ", deptForms df ";
-         $extraWhere = "AND pd.deptID = df.deptID AND df.formID = $formID ";
-     }
-     
-     
      if ($type == NULL && $vtype != NULL) {
          $type = $vtype;
      }
@@ -151,27 +136,13 @@ class DashController extends Zend_Controller_Action
              break;
          
          case 'ptcp' : case 'participant' : 
-             $minSelect = 'SELECT firstName, lastName, id, dateOfBirth ';
-             $select = $minSelect . $extraSelect;
-             
-             $minFrom = 'FROM participants p, participantDepts pd, userDepartments ud ';
-             $from = $minFrom . $extraFrom;
-             
-             $minWhere = 'WHERE p.id = pd.participantID AND pd.deptID = ud.deptID AND ud.userID = ' . $this->uid . ' ';
-             $where = $minWhere . $extraWhere;
-             
-             $queryText = $select . $from . $where;
-
+             $select = $db->query('SELECT firstName, lastName, id, dateOfBirth FROM 
+                                   participants, participantDepts, userDepartments WHERE
+                                   participants.id = participantDepts.participantID AND
+                                   participantDepts.deptID = userDepartments.deptID AND
+                                   userDepartments.userID = ' . $this->uid);
              if ($this->root) {
-                if (!$sourceIsForm) {
-                    $select = $db->query('SELECT firstName, lastName, id, dateOfBirth from participants p');
-                } else {
-                    $select = $db->query('SELECT firstName, lastName, id, dateOfBirth '
-                                       . 'FROM participants p, participantDepts pd, deptForms df '
-                                       . 'WHERE p.id = pd.participantID AND pd.deptID = df.deptID AND df.formID = ' . $formID);
-                }
-             } else {
-                $select = $db->query($queryText);
+                 $select = $db->query('SELECT firstName, lastName, id, dateOfBirth from participants');
              }
              break;
              
@@ -246,20 +217,7 @@ class DashController extends Zend_Controller_Action
          
          default: throw new Exception('QuickSearch only works with participants, groups, and users.');
      }
-     //in Calendar / Resource adding, only use Volunteers and Staff from appropriate program
-        $sourceIsCalendar = FALSE;
-        $referer = $_SERVER['HTTP_REFERER'];
-        if (strpos($referer, "programs/calendar") == TRUE) {
-            $sourceIsCalendar = TRUE;
-            $s = explode("/",$referer);
-            $calProgID = $s[6];
-            $progStaffTable = new Application_Model_DbTable_UserPrograms;
-            $programRecords = $progStaffTable->getList('users',$calProgID);
-            //print_r($programRecords);
-        }
-     
-     
-     
+
      $rawValues = $select->fetchAll();
      
      //Format for JSON
@@ -269,11 +227,6 @@ class DashController extends Zend_Controller_Action
      $extraTail = "</span>";
 
      foreach ($rawValues as $rawValue) {
-         $userID = $rawValue['id'];
-         if ($sourceIsCalendar && !in_array($userID,$programRecords)) {
-             continue;
-            }
-            
          if ($type == 'participant' || $type == 'staff' || $type == 'volunteer') {
             $values[$i]['label'] = $rawValue['firstName'] . ' ' . $rawValue['lastName'];
          } else if ($type == 'reference') {
@@ -313,9 +266,8 @@ class DashController extends Zend_Controller_Action
 	$matchValues[0]['extra']='';
      }
 
-    
-    
-    
+     
+     
      //Return to browser
      $this->_helper->json(array_values($matchValues));
     }

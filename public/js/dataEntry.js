@@ -3,11 +3,6 @@ $(function() {
 bValid = 0;
 editLatest = 0;
 doNotEditID = 0;
-isSchedule = false;
-eventID = '';
-recordID = '';
-formID = '';
-checkScheduleConflict = true;
 
 $("input[type=radio]").mouseup(function() {
     this.__chk = this.checked;
@@ -48,12 +43,6 @@ function unmark(n, name) {
 
 function validateForm() 
 {
-    if ($(".refersToSchedule")[0]) {
-        isSchedule = true;
-    } else {
-        isSchedule = false;
-    }
-    
     var incompletes = 0;
     $("input.required").each(function(){
         var inputType = $(this).attr('type');
@@ -77,118 +66,16 @@ function validateForm()
         }
         bValid = bValid && valid;
     })
-    
     if (incompletes > 0) {
         alert('Please complete all required fields. (' + incompletes + ' incomplete field found.)');
-        bValid = false;
-    } else {
-        if (isSchedule) {
-            checkAndEnterCalendarEvent();
-        } else {
-            submitData();
-        }   
-    }
-    
-}
-
-function checkAndEnterCalendarEvent() {
-    calendarID = $(".refersToSchedule").data('scheduleid');
-    schedDate = $(".refersToSchedule").val();
-    schedStartTime = $(".timepicker.start").val();
-    schedEndTime = $(".timepicker.end").val();
-    schedResourceID = $(".resourceSelect option:selected").val();
-    schedResourceType = $(".resourceSelect option:selected").data('resourcetype');
-    
-    if (checkScheduleConflict) {
-    
-        $.post(
-          ("/ajax/getbookedresources"),
-          {sid:calendarID,date:schedDate,from:schedStartTime,to:schedEndTime,rType:schedResourceType,rID:schedResourceID},
-          function(data) {
-              if (data.length == 0) {
-                    $.post(
-                      ("/ajax/saveeventfromform"),
-                      {   scheduleID:calendarID,
-                          date:schedDate,
-                          from:schedStartTime,
-                          to:schedEndTime,
-                          rType:schedResourceType,
-                          rID:schedResourceID,
-                          name:$("input#name").val(),
-                          target:$("#formTarget").val(),
-                          targetID:$("#targetID").val()
-                      },
-                      function(d2) {
-                          if (d2.success == true) {
-                              eventID = d2.eventid;
-                              submitData();
-                          } else {
-                              alert("Couldn't save event: " + d2.message);
-                          }
-                      }
-                    )
-              } else {
-                  alert("A conflict exists for resource '" + schedResourceID + "' at the requested time. Please try again.");
-                  $(".refersToSchedule").val('').trigger('change').focus();
-              }
-          }
-        );
-    
     } else {
         submitData();
     }
-    
-}
-
-function deleteEventFromCal() {
-            tempArr = $('form.dataEntry').prop("id").split("_");
-            formID = tempArr[1];
-            $.post(
-                    "/ajax/formeventdelete",
-                    {formid:formID,entryid:recordID},
-                    function() {
-                        $(".refersToSchedule").prop("disabled",false)
-                                              .val("")
-                                              .trigger('change');
-                        $("#button-release").hide();
-                        checkScheduleConflict = true;
-                    }
-            );
-}
-
-function setScheduleRelease() {
-    checkScheduleConflict = false;
-    dateRefField = $(".refersToSchedule");
-    releaseBtn = "<span id='button-release'>Release</span>";
-    dateRefField.attr('disabled',true)
-                .parents('li').append(releaseBtn);
-    $("#button-release").button()
-              .click(function()
-                        {
-                           sDate = dateRefField.val();
-                           $("#mainColumn").append("<div id='confirmRelease'><span class='releaseMessage'></span></div>");
-                           $(".releaseMessage").html("<b>Are you sure you want to release this appointment?");
-                           $("#confirmRelease").dialog({
-                               modal: true,
-                               buttons: {
-                                   OK: function() {
-                                       deleteEventFromCal();
-                                       $(this).dialog("close");
-                                   },
-                                   Nevermind: function() {
-                                       $(this).dialog("close");
-                                   }
-                               }
-                           }
-                                   );
-                        }
-                    );
 }
 
 function submitData()
 {
     formID   = $("form.dataEntry").attr('id');
-    
     
     disabled = $("form.dataEntry").find(':input:disabled').removeAttr('disabled');
     formData = $("form.dataEntry").serialize();
@@ -211,10 +98,10 @@ function submitData()
          $("#dialog-message").dialog({
                modal: true
             });
-         
+    
          $.post(
              '/forms/ajax',
-             {task: 'submit', id: formID, data: formData, oldVersion: doNotEditID, isSchedule: isSchedule, eventID: eventID},
+             {task: 'submit', id: formID, data: formData, oldVersion: doNotEditID},
              function(data){
                   $("#dialog-message").dialog({
                      buttons: {
@@ -224,17 +111,7 @@ function submitData()
                      }
                   });
                   if (data.success == 'yes') {
-//                     if ($(".refersToSchedule")[0]) {
-//                         var entryID = data.formEntryID;
-//                         $.post(
-//                           "/ajax/linkformtoevent",
-//                            {formID: formID, eventID: eventID, formEntryID: entryID},
-//                            function(d3) {
-//                                $("p#msg").html("Event entry linked to form entry.<br>");
-//                            }
-//                         );
-//                     }  
-                     $("p#msg").append("Your data was saved successfully.");
+                       $("p#msg").html("Your data was saved successfully.");
                        //$('form.dataEntry')[0].reset();
                        history.back();
                   } else {
@@ -249,8 +126,6 @@ function fillForm(){
     userID = $.cookie('formEditUserID', {path: "/"});
     userName = $.cookie('formEditUserName', {path: "/"});
     recordID = $.cookie('formEditRecordID', {path: "/"});
-    
-    setScheduleRelease();
     
     doNotEditID = recordID;
     
@@ -277,7 +152,7 @@ function fillForm(){
                 if (myID == undefined) {
                     myType = 'checkbox';
                 } else if (myType == undefined) {
-                    myType = fInput.prop('type');
+                    myType = 'textarea';
                 }
 
                 //alert ("Working with " + myType + " (will use " + value + " for ID " + fInput.attr('id') + ")");
@@ -294,10 +169,6 @@ function fillForm(){
                               .attr('checked', true);
                         break;
                     case 'checkbox':
-                        if (value == null) {
-                            break;
-                        }
-
                         boxes = new Array();
                         boxes=value.split(' , ');
 
@@ -305,14 +176,10 @@ function fillForm(){
                             $("form#" + formID + ", :input[value='" + boxes[q] + "']").attr('checked', true);
                         }
                         break;
-                    case 'select-one':
-                        $("[name='" + key + "'] select").val(value);
-                        break;
                     default:
                         alert ('Unknown datatype ' + myType + ' detected.');
                 }
             }); 
-            
             
             getDepartments();
         
@@ -364,28 +231,14 @@ function fillForm(){
                             validateForm();
                         }
                     );
-    
-    $.post(
-                ("/ajax/gettimeboundaries"),
-                {sid:$(".refersToSchedule").data('scheduleid')},
-                function(data) {
-                    $('.timepicker').timepicker({
-                        timeFormat: 'HH:mm',
-                        defaultTime: '',
-                        minTime: data.startTime,
-                        maxTime: data.endTime,
-                        dynamic: true,
-                        dropdown: true,
-                        scrollbar: true,
-                        interval: 15,
-                        change: function(time) {
-                            $(this).trigger('change');
-                        }
-                    });
-                }
-            );
-    
-    
-    
+            
+    $('.timepicker').timepicker({
+                timeFormat: 'HH:mm',
+                defaultTime: '',
+                startTime: '',
+                dynamic: true,
+                dropdown: false,
+                scrollbar: false       
+            });
 });
  

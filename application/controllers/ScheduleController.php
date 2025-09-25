@@ -120,7 +120,7 @@ class ScheduleController extends Zend_Controller_Action
                 '<script type="text/javascript" src="/js/timeout/js/timeout-dialog.js"></script>' .
                 '<script type="text/javascript" src="/js/scheduler/dhtmlxscheduler.js"></script>' .
                     //'<script type="text/javascript" src="/js/scheduler/ext/dhtmlxscheduler_container_autoresize.js"></script>' .
-                //'<script type="text/javascript" src="/js/scheduler/ext/dhtmlxscheduler_cookie.js"></script>' .
+                    '<script type="text/javascript" src="/js/scheduler/ext/dhtmlxscheduler_cookie.js"></script>' .
                     //'<script type="text/javascript" src="/js/scheduler/ext/dhtmlxscheduler_csp.js"></script>' .
                     //'<script type="text/javascript" src="/js/scheduler/ext/dhtmlxscheduler_daytimeline.js"></script>' .
                     //'<script type="text/javascript" src="/js/scheduler/ext/dhtmlxscheduler_drag_between.js"></script>' .
@@ -132,7 +132,7 @@ class ScheduleController extends Zend_Controller_Action
                     //'<script type="text/javascript" src="/js/scheduler/ext/dhtmlxscheduler_layer.js"></script>' .
                 '<script type="text/javascript" src="/js/scheduler/ext/dhtmlxscheduler_limit.js"></script>' .
                     //'<script type="text/javascript" src="/js/scheduler/ext/dhtmlxscheduler_map_view.js"></script>' .
-                '<script type="text/javascript" src="/js/scheduler/ext/dhtmlxscheduler_minical.js"></script>' .
+                    //'<script type="text/javascript" src="/js/scheduler/ext/dhtmlxscheduler_minical.js"></script>' .
                     //'<script type="text/javascript" src="/js/scheduler/ext/dhtmlxscheduler_monthheight.js"></script>' .
                     //'<script type="text/javascript" src="/js/scheduler/ext/dhtmlxscheduler_multisection.js"></script>' .
                     //'<script type="text/javascript" src="/js/scheduler/ext/dhtmlxscheduler_multiselect.js"></script>' .

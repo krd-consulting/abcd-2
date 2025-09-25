@@ -62,7 +62,6 @@ class Zend_View_Helper_FormTab extends Zend_View_Helper_Abstract {
             
             if (($type == 'singleuse') && ($fcssID == NULL)) {
                     $divMeat .= "<button class='editLatest' data-formid='$formID' data-entryid='$id' data-userid='$targetID' data-username='$targetName'>Edit Data</button>";
-                    $divMeat .= "<button class='deleteDynamicForm' data-formid='$formID' data-entryid='$id' data-userid='$targetID' data-username='$targetName'>Delete Record</button>";
                 }
               
                 

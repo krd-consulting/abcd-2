@@ -654,93 +654,6 @@ class AjaxController extends Zend_Controller_Action
         $this->_helper->json($jsonReturn);
     }
     
-    public function getbookedresourcesAction() {
-//        $sid = $_POST['sid'];
-//        $date = $_POST['date'];
-//        $from = $_POST['from'];
-//        $to = $_POST['to'];
-//        $rType = $_POST['rType'];
-//        $rID = $_POST['rID'];
-        extract($_POST);
-        //die ("Found: $sid, $date, $from, $to, $rType, $rID");
-        
-        if ($rID && $rType) {
-            $addlSqlText = " AND resourceType = '$rType' AND resourceID = '$rID'";
-        } else {
-            $addlSqlText = '';
-        }
-        
-        $sqlText = "SELECT id,resourceType,resourceID FROM `scheduledEvents` " . 
-                   "WHERE setID = $sid AND doNotDisplay = 0 " . 
-                    "AND '$date $from:00' < `endDate` " .
-                    "AND '$date $to:00' > `startDate`";
-        
-        $sql = $this->db->query($sqlText . $addlSqlText);
-        $result = $sql->fetchAll();
-        
-        $this->_helper->json($result);
-    }
-    
-    public function gettimeboundariesAction() {
-        $resourceTable = new Application_Model_DbTable_ScheduleSets;
-        $sID = $_POST['sid'];
-        
-        if ($sID == '') {
-            $jsonReturn = array(
-                'startTime' => '',
-                'endTime'   => ''
-            );
-        } else {
-            $record = $resourceTable->getSet($sID);
-            $jsonReturn = array(
-                'startTime'  => $record['fromTime'],
-                'endTime'    => $record['toTime'],
-                'startDate'  => $record['startDate'],
-                'endDate'  => $record['endDate']
-            );
-        }       
-        
-        $this->_helper->json($jsonReturn);
-    }
-    
-    public function getresourcelistAction() {
-        $resourceTable = new Application_Model_DbTable_ScheduleSets;
-        $scheduleSetID = $_POST['scheduleSet'];
-        $record = $resourceTable->getSet($scheduleSetID);
-        
-        //have to get hacky because JSON object is not valid: keys repeat (adhoc, vol, etc)
-        $tempString = str_replace('{','',str_replace('}','',$record['resources']));
-        $resources = explode(",",str_replace('"','',str_replace("\n",'',$tempString)));
-        
-        $jsonReturn = array();
-        
-        foreach ($resources as $resource) {
-            $rA = explode(":",$resource);
-            $type = $rA[0];
-            $id = $rA[1];
-            
-            if ($type == 'adhoc') { 
-                $name = $id;
-            } else {
-                $table = new Application_Model_DbTable_Users;
-                $name = $table->getName($id);
-            }
-            
-            $record = array(
-                'resourceID' => $id,
-                'resourceName' => $name,
-                'resourceType' => $type
-            );
-            
-            array_push($jsonReturn,$record);
-        }
-        
-        
-        $this->_helper->json($jsonReturn);
-        
-        
-    }
-    
     public function geteventneedsAction() {
         $eventTable = new Application_Model_DbTable_ProgramEvents;
         $jsonReturn = array();
@@ -797,8 +710,6 @@ class AjaxController extends Zend_Controller_Action
         $action = $_POST['task'];
         $setID = $_POST['setid'];
         $units = FALSE;
-        $ptcpTable = new Application_Model_DbTable_Participants;
-        $dataTable = new Application_Model_DbTable_DynamicForms;
         
         switch ($action) {
             case 'getevents':
@@ -822,20 +733,10 @@ class AjaxController extends Zend_Controller_Action
             
             $sdate = date("m/d/Y H:i",strtotime($event['startDate']));
             $edate = date("m/d/Y H:i",strtotime($event['endDate']));
-            $text = $event['name'];
-            
-            if ($event['linkType'] == 'participant') {
-                $ptcp = $ptcpTable->getRecord($event['linkID']);
-                $dob = $ptcp['dateOfBirth'];
-                $profile = $dataTable->getLatestPtcpRecord('form_150',$event['linkID']);
-                $phone = $profile['field_5'];
-                $text .= "<br><span class='cal-dob'>$dob</span><br>";
-                $text .= "<span class='cal-phone'>$phone</span>";
-            }
             
             $data = array(
                 'id' => $event['id'],
-                'text' => $text,
+                'text' => $event['name'],
                 'desc' => $event['description'],
                 'start_date' => $sdate,
                 'end_date' => $edate,
@@ -845,42 +746,6 @@ class AjaxController extends Zend_Controller_Action
             array_push($jsonReturn,$data);
         }
         $this->_helper->json($jsonReturn);
-    }
-    
-    public function formeventdeleteAction() {
-        extract($_POST); //formid and entryid
-        $eventTable = new Application_Model_DbTable_ScheduledEvents;
-        $formTable = new Application_Model_DbTable_DynamicForms();
-        $eventID = $eventTable->releaseRecordFromForm($formid,$entryid);
-
-        if ($formid < 10) {
-            $table = "form_0" . $formid;
-        } else {
-            $table = "form_" . $formid;
-        }
-        
-        $softDeleteForm = $formTable->updateData($table,array('doNotDisplay' => 1),"id = $entryid");
-        $this->_helper->json($eventID);
-    }
-    
-    
-    public function archiveformentryAction() {
-        extract($_POST); //formid and entryid
-        $eventTable = new Application_Model_DbTable_ScheduledEvents;
-        $eventID = $eventTable->update(array('doNotDisplay' => 1),"formID = $formid AND formEntryID = $entryid");
-        
-        $formTable = new Application_Model_DbTable_DynamicForms;
-        
-        if ($formid < 10 ) {
-            $tableName = "form_0" . $formid;
-        } else {
-            $tableName = "form_" . $formid;
-        }
-        
-        $updatedRecord = $formTable->updateData($tableName, array('doNotDisplay' => 1), "id = $entryid");
-        
-        $this->_helper->json($updatedRecord);
-        
     }
     
     public function eventarchiveAction() {
@@ -914,72 +779,6 @@ class AjaxController extends Zend_Controller_Action
         }
         
         $this->_helper->json($jobs);
-    }
-    
-    public function saveeventfromformAction() {
-        $eventTable = new Application_Model_DbTable_ScheduledEvents;
-        extract($_POST);
-        
-        $formattedName = "<a href='/participants/profile/id/$targetID'>$name</a>"; 
-        
-        $data = array(
-            'setID' => $scheduleID,
-            'startDate' => $date . " " . $from . ":00",
-            'endDate' => $date . " " . $to . ":00",
-            'name' => $formattedName,
-            'resourceType' => $rType,
-            'resourceID' => $rID,
-            'createdBy' => $this->uid,
-            'linkType' => $target,
-            'linkID' => $targetID,
-            'doNotDisplay' => 0
-            );
-        try {
-            $eventID = $eventTable->addAppointment($data);
-        } catch (Exception $e) {
-            $result = false;
-            $message = $e;
-        }
-        
-        if ($eventID > 0) {
-            $result = true;
-            $eventid = $eventID;
-        } else {
-            $result = false;
-            $message = "Event save operation failed in database.";
-        }
-        
-        $jsonReturn = array(
-            'success' => $result,
-            'eventid' => $eventid,
-            'message' => $message
-        );
-        
-        $this->_helper->json($jsonReturn);
-    }
-    
-    public function linkformtoeventAction() {
-        extract($_POST); //eventID, formID and formEntryID
-        $form = explode("_",$formID);
-        $formIDnum = $form[1];
-        
-        $jsonReturn = array();
-        
-        $eventTable = new Application_Model_DbTable_ScheduledEvents;
-        $data = array(
-            'formID' => $formIDnum,
-            'formEntryID' => $formEntryID
-        );
-        
-        $result = $eventTable->update($data,"id = $eventID");
-        
-        if ($result) {
-            $jsonReturn['successOfThing'] = 'yes';
-        } else {
-            $jsonReturn['successOfThing'] = 'no';
-        }
-        
-        $this->_helper->json($jsonReturn);
     }
     
     public function eventsaveAction() {
@@ -1053,8 +852,7 @@ class AjaxController extends Zend_Controller_Action
         $this->_helper->json($jsonReturn);
         
     }
-       
-    
+   
     public function appointmentsinscheduleAction() {
         $id = $_POST['id'];
         $apptsTable = new Application_Model_DbTable_ScheduledEvents;
@@ -1304,7 +1102,7 @@ class AjaxController extends Zend_Controller_Action
             'description'   => $note
         );
         
-        $record = $volActTable->addRecord($data,$this->uid);
+        $record = $volActTable->addRecord($data);
         if ($record > 0) {
             $jsonReturn['success'] = 'yes';
         } else {
@@ -1351,16 +1149,13 @@ class AjaxController extends Zend_Controller_Action
         
         $latestRecord = $dataTable->getRecordByID($tableID, $recordID);
         
-        $jsonReturn['entryID'] = $latestRecord['id'];
-        
         $fillableData = array_slice($latestRecord, 7);
         
         foreach ($fillableData as $elementID => $value) {            
             $elementName = $elementsTable->getElementName($elementID,$formID);
             $jsonReturn[$elementName] = $value;
         }
-
-
+        
         $this->_helper->json($jsonReturn);
         
     }
@@ -1989,20 +1784,9 @@ class AjaxController extends Zend_Controller_Action
                 $data = $dataTable->fetchRow("id=$fid");
                 $usrID = new Zend_Form_Element_Hidden('id');
                 $form->addElement($usrID);
-                
-                $userIsRecordsManager = FALSE;
-                //get list of deparments for which logged-in user is set as manager
-                if ($this->mgr) {
-                    $userDepts = new Application_Model_DbTable_UserDepartments;
-                    $mgrDeptsList = $userDepts->getManagerDepts($this->uid);
-                    $recordDepts = $userDepts->getList('depts',$fid);
-                    if (count(array_intersect($mgrDeptsList,$recordDepts)) > 0) {
-                        $userIsRecordsManager = TRUE;
-                    }
-                }
-                
+
                 $form->removeElement('userID');
-                if ($this->root || $userIsRecordsManager) {
+                if ($this->root) {
                     $role = $form->role;
                     $role->setAttribs(array('class' => ''));
                 } else {
@@ -4015,29 +3799,16 @@ class AjaxController extends Zend_Controller_Action
         $rowValues = array();
         $prepostValues = array();
         
-        if ($filterTarget == 'participant') {
-            $dobctitle = array('sTitle' => 'Date of Birth');
-            array_push($columnTitles,$dobctitle);
-        }
-        
         foreach ($goodIDs as $pid) {
-            if ($this->evaluator) {
-                $pName = $pid; //anonymize for evaluators
-            } elseif ($reportType == 'table') {
-                $pName = "<a href='/participants/profile/id/$pid/' target='_blank'>" . $nameTable->getName($pid) . "</a>";
-            } else {
+            if (!$this->evaluator) {
                 $pName = $nameTable->getName($pid);
+            } else {
+                $pName = $pid; //anonymize for evaluators
             }
-            
             $rowValues[$pid] = array($pName);
-            if ($filterTarget == 'participant') {
-                    $ptcp = $nameTable->getRecord($pid);
-                    $dob = $ptcp['dateOfBirth'];                    
-                    array_push($rowValues[$pid],$dob);
-            }
         }
-        
-
+        //print_r($goodIDs);
+        //print_r($rowValues);
         foreach ($dataFields as $field) {
             $eName = $field['elementName'];
             $eID = $field['elementID'];

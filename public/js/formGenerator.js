@@ -6,7 +6,6 @@ var id = 0;
 var listOfElements = new Array();
 var formInfo = new Object();
 listOfElements[0] = formInfo;
-var resourcelist = '';
 
 function dump(arr,level) {
 	var dumped_text = "";
@@ -63,52 +62,6 @@ function removeElement(t) {
     setTimeout(function(){$("li#" + t).remove()},310);
 }
 
-function createTimeHTML(type) {
-    //type should be 'from' or 'to
-    //used to create first layer of additional fields for calendar reference
-    id = listOfElements.length;
-    idTag = 'field_' + id;
-    switch (type) {
-        case 'from' : title = "From"; cssClass = 'start'; break;
-        case 'to'   : title = "To"; cssClass = 'end'; break;
-        default     : alert ('Invalid Timepicker type passed to HTML creator.'); return false;    
-    }
-    
-    label = "<label class='elementName' for='" + idTag + "'>" + title + "</label>\n";
-    
-    //create time field (text, timepicker)
-    
-    input = "<input id='" + idTag + "' type='text' class='timepicker " + cssClass + "' value='' name='" + title + "'/>\n";
-    html = label + input;
-    
-    thisElement = new Object();
-    thisElement.id = id;
-    thisElement.type = 'text';
-    thisElement.name = title;
-    listOfElements[id] = thisElement;
-
-    return html;
-}
-
-function createResourceHTML() {
-    id = listOfElements.length;
-    idTag = 'field_' + id;
-    title = "Appointment with";
-    
-    label = "<label class='elementName' for='" + idTag + "'>" + title + "</label>\n";
-    input = "<select id='" + idTag + "' class='resourceSelect' value='' name='" + title + "'/>\n";
-    html = label + input;
-    
-    thisElement = new Object();
-    thisElement.id = id;
-    thisElement.type = 'text';
-    thisElement.name = title;
-        
-    listOfElements[id] = thisElement;
-    
-    return html;
-}
-
 function createElementHTML () 
 {
     var elType = $("#elementType").val();
@@ -121,7 +74,6 @@ function createElementHTML ()
     refForm = $("#formList").val();
     refField = $("#fieldList").val();
     scheduleID = $("#scheduleList").val();
-    editable = "editable";
     
     switch(refOpts) {
         case "standAlone"   : extraAtt = ''; break;
@@ -141,17 +93,14 @@ function createElementHTML ()
         case "refersToVol":
                 extraAtt = " class = 'reference' data-refType='volunteer' "; break;
         case "refersToSchedule":
-                extraAtt = " class = 'refersToSchedule' data-scheduleid='" + scheduleID + "' ";
-                title = "Appointment Date";
-                editable = "";
-                break;
+                extraAtt = " class = 'dynamicdatepicker refersToSchedule' data-scheduleid='" + scheduleID + "' "; break;
         default: alert ("Something went wrong with reference field creator: " + refOpts + ". "); break;
     }
     
     id = listOfElements.length;
     idTag = 'field_' + id;
         
-    label = "<label class='" + editable + " elementName' for='" + idTag + "'>" + title + "</label>\n";
+    label = "<label class='editable elementName' for='" + idTag + "'>" + title + "</label>\n";
     
     
     thisElement = new Object();
@@ -165,7 +114,6 @@ function createElementHTML ()
             thisElement.id = id;
             thisElement.type = 'text';
             thisElement.name = title;
-            
             listOfElements[id] = thisElement;
             
             break;
@@ -181,21 +129,12 @@ function createElementHTML ()
             listOfElements[id]      = thisElement;
             
             break;
-        
-        case 'dropdown' :
-            input = "<input id='" + idTag + "' type='select' value='' name='" + title + "'/>";
-            html = label + input;
-            thisElement.id          = id;
-            thisElement.type        = 'select';
-            thisElement.CSSclass    = 'dropdown';
-            thisElement.name        = title;
-            listOfElements[id]      = thisElement;
             
-            break;
-        
         case 'date' : 
             if (refOpts == 'refersToSchedule') {
                 input = "<input id='" + idTag + "' type='text' value=''" + extraAtt + "name='" + title + "'/>";
+                input += "<br><label class='elementName'>Start time: </label><input id='" + idTag + "fromTime' type='text' class='timepicker start' value='' name='" + title + " from'/>";
+                input += "<label class='elementName'>End time: </label><input id='" + idTag + "toTime' type='text' class='timepicker end' value='' name='" + title + " to'/>";
             } else {
                 input = "<input id='" + idTag + "' type='text' class='dynamicdatepicker' value='' name='" + title + "'/>";
             }
@@ -205,9 +144,8 @@ function createElementHTML ()
             thisElement.type        = 'date';
             thisElement.CSSclass    = 'datepicker';
             thisElement.name        = title;
-            thisElement.schedulerID = scheduleID;
             listOfElements[id]      = thisElement;
-                        
+            
             break;
             
         case 'radio' : 
@@ -338,21 +276,15 @@ function createElementHTML ()
     
 }
 
-function addElementtoCanvas(e,t)
+function addElementtoCanvas(e)
 {
     wrapperTop = "<li id='" + id + "' class='dynamicElement'>\n";
-    if (t == 'special') {
-        dragLink = '';
-        removeLink = '';
-    } else {
-        dragLink = "<div class='elementButtons moveElement'>\n\
+    dragLink = "<div class='elementButtons moveElement'>\n\
                     <img src='/skins/default/images/blank.gif' align='left' class='sprite-pic drag-pic'/>\n\
-                </div>\n";    
-        removeLink = "<div class='elementButtons removeElement'>\n\
+                </div>\n";
+    removeLink = "<div class='elementButtons removeElement'>\n\
                     <img src='/skins/default/images/blank.gif' align='left' class='sprite-pic remove-pic'/>\n\
                 </div>\n";
-    }
-    
     wrapperBottom = "</li>\n";
     
     entry = wrapperTop + e + dragLink + removeLink + wrapperBottom;
@@ -613,33 +545,7 @@ $("#addElement").button()
                          return false;
                          exit;
                      } else {
-                        type = 'normal';
-                        addElementtoCanvas(newElement,type);
-                        refOpts = $("#referenceOpts").val();
-                        if (refOpts == 'refersToSchedule') {
-                            type = 'special';
-                            var fromElement = createTimeHTML('from');
-                            addElementtoCanvas(fromElement,type);
-                            var toElement = createTimeHTML('to');
-                            addElementtoCanvas(toElement,type);
-                            var refElement = createResourceHTML();
-                            addElementtoCanvas(refElement,type);
-                            //get scheduleID from element
-                            sID = $("#scheduleList").val();
-                            //get list of resources for schedule set from server
-                                    $.post(
-                                        ("/ajax/getresourcelist"),
-                                        {scheduleSet:sID},
-                                        function(data) {
-                                            $.each(data,function(index,resource){
-                                                $('select.resourceSelect').append(
-                                                      '<option value="' + resource.resourceID + '" data-resourcetype="' + resource.resourceType + '">' + resource.resourceName + '</option>'
-                                                );
-                                            })
-                                        }
-                                    );
-                        }
-
+                        addElementtoCanvas(newElement);
                         $("#elementOptions").html('').slideUp(100);
                         $("ul.formElements").slideDown(500);
                     }

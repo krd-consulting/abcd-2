@@ -29,29 +29,6 @@ $(function() {
                         dateFormat:     "yy-mm-dd"
                 });
                 
-                if ($(".refersToSchedule")[0]) {
-                    setID = $(".refersToSchedule").data('scheduleid');
-                    $.post(
-                            "/ajax/gettimeboundaries",
-                            {sid:setID},
-                            function(data) {
-                                var startDate = new Date(data.startDate);
-                                var endDate = new Date(data.endDate);
-                                startDate.setDate(startDate.getDate() + 1);
-                                endDate.setDate(endDate.getDate() + 1);
-                              $(".refersToSchedule").datepicker({
-                                    changeMonth:        true,
-                                    changeYear:         true,
-                                    dateFormat:         "yy-mm-dd",
-                                    showButtonPanel:    true,
-                                    minDate:            startDate,
-                                    maxDate:            endDate
-                                })  
-                            }
-                    );
-                }
-                
-                
                 
                 
 	});

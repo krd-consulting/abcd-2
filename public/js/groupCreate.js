@@ -96,7 +96,7 @@ function addGroup(g,d,p) {
             $( ".dialog-form" ).dialog({
                     autoOpen: false,
                     height: 390,
-                    width: 400,
+                    width: 450,
                     modal: true,
                     buttons: {
                             "Add Group!": function() {

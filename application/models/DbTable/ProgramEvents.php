@@ -63,8 +63,8 @@ class Application_Model_DbTable_ProgramEvents extends Zend_Db_Table_Abstract {
             
             $list = $this->_filterByDates($list,'startDate',$filterStartDate,$filterEndDate);
         }
-        return $list;
         
+        return $list;
     }
     
     public function getEventNeeds($eventID,$uID) 

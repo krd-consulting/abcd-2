@@ -191,7 +191,7 @@ class Application_Model_DbTable_AlertsParticipants extends Zend_Db_Table_Abstrac
     public function setFormPtcpAlert($ptcpID, $formID, $type, $showAfter=''){
         //$type: 1 == missing, 2 == due
         if (strlen($showAfter) == 0) {
-	    $showAfter = date("Y-m-d",time());
+            $showAfter = time();
         }
         
         $data = array(

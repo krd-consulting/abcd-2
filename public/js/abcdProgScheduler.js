@@ -86,7 +86,7 @@ $(function() {
     
     
     
-jobElement.focus(function() {
+    jobElement.focus(function() {
         volList.html("");
         volListArea.show(); 
         myID = $(this).val();
