@@ -24,7 +24,7 @@ form#search label {
 form label {
     text-transform: capitalize;
     color: #555;
-    float: left;  
+    float: left;    
 }
 
 form input, input, form select, select  {
@@ -247,15 +247,6 @@ input.timepicker.start {
     float: left;
 }
 
-.ui-timepicker-container {
-    position: relative !important;
-    z-index: 99999 !important;
-}
-
-.ui-timepicker-container ul {
-   list-style: none;
-}
-
 #toTime-label label {
     width: 60pt !important;
 }
@@ -301,7 +292,7 @@ input.numeric{
 }
 
 span.reqtext {
-    font-size: 12px;
+    font-size: 9px;
     font-style: italic;
 }
 

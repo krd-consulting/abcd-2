@@ -1,0 +1,49 @@
+Welcome to ABCD (A Better Community Database)!
+
+ABCD is open source software distributed under the GPLv3 public license. There is no warranty for the program, to the extent permitted by applicable law. Except when otherwise stated in writing the copyright holders and/or other parties provide the program “as is” without warranty of any kind, either expressed or implied, including, but not limited to, the implied warranties of merchantability and fitness for a particular purpose. The entire risk as to the quality and performance of the program is with you. Should the program prove defective, you assume the cost of all necessary servicing, repair or correction.
+
+Please see https://www.gnu.org/licenses/gpl.html for the full license text.
+
+
+*** INSTALLATION INSTRUCTIONS ***
+(1) Files
+
+    -> Unpack the files in this package.
+
+    -> Move the "abcd-distro-files" directory to your webserver root directory, changing the name of 
+       this parent directory from "abcd-distro-files" to something more appropriate. 
+
+    -> Configure your webserver. If you renamed the parent directory "abcd", and your webserver root 
+       is "/var/www", the Document Root will be /var/www/abcd/public.
+    
+    -> Ensure to give your webserver write permissions to the following directories:
+       	* data/sessions
+	* data/uploaded-files
+	* public/files
+
+    -> Allow your application to access the database by changing the settings in:
+	* applications/configs/application.ini
+
+	You should change at least three settings in this file:
+		resources.db.params.username
+		resources.db.params.password
+		resources.db.params.dbname
+
+	In rare cases, you may also need to change the other two 'resource' settings:
+		resources.db.params.host
+		resources.db.params.charset
+
+(2) Database
+
+    -> Create a database with the name you chose above, accessible by the user you specified above.
+    -> Import the contents of abcd-distro-db.sql
+    
+    -> Change the following tables / values:
+
+	* In `customValues`, set the "value" column for id #1 to your agency name
+	* In `users`, set the "password" column for id #1 to an MD5 hash of your admin account's chosen password.
+
+(3) Log in!
+    You can now point your web browser to the location of your webserver and you should see the ABCD login page.
+    You can log in with 'admin' as the username (unless you changed it in the db) and the password you chose above.
+

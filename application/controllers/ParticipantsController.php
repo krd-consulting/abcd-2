@@ -100,8 +100,8 @@ class ParticipantsController extends Zend_Controller_Action
 	  $formData = $this->getRequest()->getPost();
 	  if ($form->isValid($formData)) 
 	  {
-		$fn  = trim($form->getValue('fname'));
-                $ln  = trim($form->getValue('lname'));
+		    $fn  = $form->getValue('fname');
+                $ln  = $form->getValue('lname');
                 $dob = $form->getValue('dob');
 		
                 $newPart = new Application_Model_DbTable_Participants();

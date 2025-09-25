@@ -138,8 +138,8 @@ class Application_Model_DbTable_Participants extends Zend_Db_Table_Abstract {
         $now = date("Y-m-d");
         
         $data = array(
-            'firstName'     => trim($fname),
-            'lastName'      => trim($lname),
+            'firstName'     => $fname,
+            'lastName'      => $lname,
             'dateOfBirth'   => $dob,
             'createdOn'     => $now
         ); 

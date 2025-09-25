@@ -28,7 +28,7 @@ class Application_Model_DbTable_VolunteerActivities extends Zend_Db_Table_Abstra
                 $select = "`volunteerID` = $primaryID";
                 break;
             case 'prog':
-                $select = "`programID` = $primaryID";
+                $select = "`volunteerID` = $primaryID";
                 break;
             case 'ind' :
             case 'group' :
@@ -66,10 +66,6 @@ class Application_Model_DbTable_VolunteerActivities extends Zend_Db_Table_Abstra
         $hours = $row[0]['total'];
         if (strlen($hours) == 0) {$hours = "0";}
         return $hours;
-    }
-    
-    public function getTimeTotals($target,$targetID,$startDate,$endDate) {
-        
     }
     
     public function getActivitiesTimeRange($target, $targetID,
@@ -166,9 +162,6 @@ class Application_Model_DbTable_VolunteerActivities extends Zend_Db_Table_Abstra
                 default: throw new exception ("Unknown entity type " . $row['type'] . "passed to VolunteerActivities model.");
             }
             
-            if($row['type'] == 'group' && $row['typeID'] == 0) {
-                continue;
-            }
             $typeName = $nameTable->getName($row['typeID']);
             $row['typeName'] = $typeName;
             array_push($goodResult,$row);
@@ -182,7 +175,7 @@ class Application_Model_DbTable_VolunteerActivities extends Zend_Db_Table_Abstra
         return $rows;
     }
         
-    public function addRecord(array $data, $userID) {
+    public function addRecord(array $data) {
         $keys = array( //required keys
             'volunteerID',
             'programID',
@@ -199,8 +192,6 @@ class Application_Model_DbTable_VolunteerActivities extends Zend_Db_Table_Abstra
             if (!array_key_exists($key, $data)) throw new exception ("Data array for Volunteer Activities missing requried $key key."); 
         }                
         
-        $data['updatedBy'] = $userID;
-
         $recordID = $this->insert($data);
         return $recordID;
     }

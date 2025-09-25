@@ -1159,13 +1159,3 @@ span#list {
     display: block;
     margin: 40px auto;
 }
-
-#button-release {
-    margin-left: 10px;
-    font-size: 9pt;
-}
-
-button.deleteDynamicForm {
-    margin: -72px 0 0 345px;
-    display: table;
-}

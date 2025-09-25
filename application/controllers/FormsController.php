@@ -130,8 +130,6 @@ private $auth = NULL;
             $eid      =   'field_' . $element['id'];
             $type     =   $element['type'];
             $elName   =   $element['name'];
-            $schedulerID = $element['schedulerID'];
-            
             $options  =   array();
             
             switch ($type) {
@@ -141,7 +139,7 @@ private $auth = NULL;
                 case 'radio'    : $colType = 'varchar'; $optionList='(200)';    break;
                 case 'checkbox' : $colType = 'varchar'; $optionList='(200)';    break;
                 case 'matrix'   : $colType = 'varchar'; $optionList='(200)';    break;
-                case 'textarea' : $colType = 'text';    $optionList='';         break;                
+                case 'textarea' : $colType = 'text';                            break;                
             }
              
             if ($type != 'matrix') {
@@ -149,7 +147,7 @@ private $auth = NULL;
                     $options    = $element['options'];
                  }
                 //add to elements description table
-                $zElement->addElement($eid, $myID, $elName, $type, $options, $schedulerID);
+                $zElement->addElement($eid, $myID, $elName, $type, $options);
                 //add to SQL call for new table
                 $sqlCreateDataTable .= ",
                     $eid $colType $optionList NULL default NULL";
@@ -221,12 +219,12 @@ private $auth = NULL;
         if ($formTarget == 'group') {
             $verifyName = $record['name'];
         } else {
-            $verifyName = trim($record['firstName']) . " " . trim($record['lastName']);
+            $verifyName = $record['firstName'] . " " . $record['lastName'];
         }
         
-//        if (trim($pairArray['name']) != $verifyName) {
-//            throw new exception ("Form name and ID are mismatched. Looking at .$verifyName. and ." . $pairArray['name'] . ".");
-//        }
+        if ($pairArray['name'] != $verifyName) {
+            throw new exception ("Form name and ID are mismatched. Looking at .$verifyName. and ." . $pairArray['name'] . ".");
+        }
         
         //Set initial values
         $sqlArray = array(
@@ -348,28 +346,9 @@ private $auth = NULL;
         }   
     }
     
-    protected function _enterCalEntry($data) {
-        //ABANDONING - better handled from the front-end, have better access to necessary data (e.g. calendar id!)
-//        
-//        $params = array();
-//        parse_str($data,$params);
-//        extract($params);
-//        die ("Will check $Choose_available_resource for $Appointment_Date, starting at $From and ending at $To");
-//        
-//        $sqlText = "SELECT * FROM `scheduledEvents` " . 
-//                   "WHERE setID = $sID AND doNotDisplay = 0 " . 
-//                    "AND '$date $from:00' < `endDate` " .
-//                    "AND '$date $to:00' > `startDate`";
-//        
-//        $sql = $this->db->query($sqlText . $addlSqlText);
-//        $result = $sql->fetchAll();
-//        
-    }
-    
-    protected function _insertData($table,$rawdata,$isSchedule=false) {
+    protected function _insertData($table,$rawdata) {
         $this->_setFormID($table);
         $dataArray = $this->_htmlToSql($rawdata);
-        $return = array();
         
         if ($this->_isFcssForm()) {
             //will only proceed to enter data locally
@@ -388,14 +367,10 @@ private $auth = NULL;
             if ($result > 0) {
                 $this->_updateReminder($dataArray);
             }
-            $return['success'] = 1;
-            $return['entryID'] = $result;
+            return 1;
         } else {
-           $return['success'] = 0;
-           $return['message'] = $proceed;
+           return $proceed;
         }
-        
-        return $return;
 }
 
     protected function _setRequired($data=array()){
@@ -919,33 +894,19 @@ private $auth = NULL;
                 $tableName = $_POST['id'];
                 $formData = $_POST['data'];
                 $oldVersion = $_POST['oldVersion'];
-                $isSchedule = $_POST['isSchedule'];
-                
-                $dataResult = $this->_insertData($tableName, $formData, $isSchedule);
                 
                 
-                if($dataResult['success'] == 1) {
+                
+                $dataResult = $this->_insertData($tableName, $formData);
+                
+                if($dataResult == 1) {
                     if ($oldVersion != 0) {
                         $this->_setDoNotDisplay($tableName,$oldVersion);
                     }
-                
-                    if ($isSchedule == "true") {
-                        $formEntryID = $dataResult['entryID'];
-                        $form = explode("_",$tableName);
-                        $formID = (int)$form[1];
-                        $eventID = $_POST['eventID'];
-                        
-                        $eventTable = new Application_Model_DbTable_ScheduledEvents;
-                        $eventLinkData = array(
-                            'formID' => $formID,
-                            'formEntryID' => $formEntryID
-                        );       
-                        $result = $eventTable->update($eventLinkData,"id = $eventID");
-                    }
                     
-                    $jsonReturn = array('success' => 'yes','formEntryID' => $dataResult['entryID']);
+                    $jsonReturn = array('success' => 'yes');
                 } else {
-                    $jsonReturn = array('success' => $dataResult['message']);
+                    $jsonReturn = array('success' => $dataResult);
                 }
 
                 break;
@@ -973,7 +934,7 @@ private $auth = NULL;
                 $pid = $_POST['pid'];
                 $pType = $_POST['type'];
                 
-                $allowedTypes = array('staff','ptcp','participant','vol','volunteer');
+                $allowedTypes = array('staff','ptcp','participant','volunteer','vol');
                 if (!in_array($pType, $allowedTypes)) {
                     throw new exception ("Invalid form type $pType passed to department lister.");
                 }
@@ -982,30 +943,16 @@ private $auth = NULL;
                 
                 switch ($pType) {
                     case 'ptcp' : 
-                    case 'participant': $typeDepts = new Application_Model_DbTable_ParticipantDepts;
+                    case 'participant': $userDepts = new Application_Model_DbTable_ParticipantDepts;
                         break;
-                    case 'staff': 
-                    case 'vol': 
-                    case 'volunteer': $typeDepts = new Application_Model_DbTable_UserDepartments;
+                    case 'vol':
+                    case 'volunteer':
+                    case 'staff': $userDepts = new Application_Model_DbTable_UserDepartments;
                         break;
                 }
                 
-                $sourceIsForm = FALSE;
-                $referer = $_SERVER['HTTP_REFERER'];
-                if (strpos($referer, "forms/dataentry") == TRUE) {
-                    $sourceIsForm = TRUE;
-                    $s = explode("/",$referer);
-                    $formID = $s[6];
-                    $formDeptTable = new Application_Model_DbTable_DeptForms;
-                    $formDepts = $formDeptTable->getList('depts',$formID);
-                }
-                
-                $deptIDs = $typeDepts->getList('depts', $pid);
-                
-                if($sourceIsForm) {
-                    $deptIDs = array_intersect($deptIDs,$formDepts);
-                }
-                
+//                $ptcpDepts = new Application_Model_DbTable_ParticipantDepts;
+                $deptIDs = $userDepts->getList('depts', $pid);
                 $deptTable = new Application_Model_DbTable_Depts;
                 $i = 1;
                 //$jsonReturn['deptlist'][0]['id'] = 0;
@@ -1023,7 +970,7 @@ private $auth = NULL;
         }
                
        if ($j) $this->_helper->json($jsonReturn);
-       //print_r($jsonReturn);
+       
     }
 
     public function addAction()                  {
@@ -1112,7 +1059,6 @@ private $auth = NULL;
                 '<script type="text/javascript" src="/js/ac-reference.js"></script>' .
                 '<script type="text/javascript" src="/js/formOptions.js"></script>' .
                 '<script type="text/javascript" src="/js/jquery.alphanumeric.js"></script>' .
-                '<script type="text/javascript" src="/js/formToSchedule.js"></script>' .
                 '<script type="text/javascript" src="/js/dataEntry.js"></script>';
         
         if ($this->getRequest()->isPost()) {
