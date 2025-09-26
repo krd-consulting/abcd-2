@@ -36,3 +36,42 @@ $this->headTitle(" - $this->title");
 <div id="dialog-message" class="dialog-form hidden" title="Data Entry Status">
     <p id="msg" class="validateTips">Your data was submitted successfully.</p>
 </div>
+
+<div id="uploadFile-dialog" class="dialog-form hidden" title="Upload an attachment">
+    <p class=".validateTips">Please choose attachment to upload.</p>
+    
+    
+    <form id="uploadFileForm" enctype="multipart/form-data" class="dialog-form" method="post" action="">
+        <dl class="zend_form">
+           <dt id="targetType-label"></dt>
+           <dd id="targetType-element">
+               <input type="hidden" name="targetType" value="" id="targetType" />
+           </dd>
+           <dt id="targetID-label"></dt>
+            <dd id="targetID-element">
+                <input type="hidden" name="targetID" value="" id="targetID" />
+            </dd>
+
+            <dt id="formID-label"></dt>
+            <dd id="formID-element">
+                <input type="hidden" name="formID" value="" id="formID" />
+            </dd>
+            
+            <dt id="column-label"></dt>
+            <dd id="column-element">
+                <input type="hidden" name="column" value="" id="column" />
+            </dd>
+            
+            
+           <dt id="fileupload-label"><label for="fileupload" class="optional">Select File</label></dt>
+            <dd>
+                <input type="file" name="files[]" id="fileupload" data-url="/ajax/uploadFile" />
+            </dd>
+        </dl>
+    </form>
+    
+    <div id="progress">
+        <div class="bar" style="width: 0%;"></div>
+    </div>
+   
+</div>

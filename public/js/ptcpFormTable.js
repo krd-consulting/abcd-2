@@ -12,6 +12,18 @@ $(function(){
         }
     })
 
+    $( "button.download-file").button()
+            .click(function() {
+                    var id = $(this).data('id');
+                    $.post(
+                            '/ajax/downloadfile',
+                            {id: id},
+                            function(data) {
+                                window.location.href = data.url+'?eraseCache=true';
+                            }
+                        );
+            })
+
     $("button.addRecordForm").button()
                              .click(function(){
                                  goToForm = $(this).data('path');

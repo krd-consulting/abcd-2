@@ -59,7 +59,7 @@ private $auth = NULL;
     
     protected function _setOptionForm($type)     {     
         $referenceDiv = '';
-        $validTypes = array('text','num','date','radio','check','matrix','textarea');
+        $validTypes = array('text','num','date','radio','check','matrix','textarea', 'upload');
         
         if (!in_array($type, $validTypes)) {
             throw new exception("Invalid element type $type passed to AJAX call.");
@@ -144,7 +144,8 @@ private $auth = NULL;
                 case 'radio'    : $colType = 'varchar'; $optionList='(200)';    break;
                 case 'checkbox' : $colType = 'varchar'; $optionList='(200)';    break;
                 case 'matrix'   : $colType = 'varchar'; $optionList='(200)';    break;
-                case 'textarea' : $colType = 'text';                            break;                
+                case 'textarea' : $colType = 'text';                            break;
+                case 'upload'   : $colType = 'varchar';  $optionList='(140)';   break;                
             }
              
             if ($type != 'matrix') {
@@ -196,10 +197,11 @@ private $auth = NULL;
         return true;
     }
     
-    protected function _htmlToSql($data) {
+    protected function _htmlToSql($data, $extraData) {
         //Get HTTP data into a usable format (indexed array);
         $pairArray = array();
-        parse_str($data, $pairArray);                
+        parse_str($data, $pairArray);
+        $addlData = json_decode($extraData,TRUE);          
                
         $formTarget = $pairArray['formTarget'];
         $this->target = $formTarget;
@@ -215,13 +217,16 @@ private $auth = NULL;
             case 'group':
                 $dbTable = new Application_Model_DbTable_Groups;
                 break;
+            case 'program':
+            $dbTable = new Application_Model_DbTable_Programs;
+            break;
             default: throw new exception("Bad form target passed as AJAX call.");
         }
         
         //Verify that target identity is valid
         $record = $dbTable->getRecord($pairArray['targetID']);
         
-        if ($formTarget == 'group') {
+        if ($formTarget == 'group' || $formTarget == 'program') {
             $verifyName = $record['name'];
         } else {
             $verifyName = $record['firstName'] . " " . $record['lastName'];
@@ -248,6 +253,9 @@ private $auth = NULL;
         } else {
             //$sqlArray['groupID'] = NULL;
             $skelCols = 4;
+            if ($formTarget == 'program') {
+                $sqlArray['deptID'] = $record['deptID'];
+            }
         }
         
         //Pre-post forms have an additional non-dynamic field
@@ -284,6 +292,17 @@ private $auth = NULL;
             
               if ((strlen($v) == 0) || (!isset($v)) || strlen($column) == 0) {
                 continue;
+              }
+
+              //uploaded files send file name in data array, we need the id from addlData
+              if (count($addlData) > 0) {
+                  $tempFieldArray = explode("_",$column);
+                  $fieldID = $tempFieldArray[1];
+                  foreach ($addlData as $dataPair) {
+                      if ($dataPair['fieldID'] == $fieldID) {
+                          $v = $dataPair['fileUploadID'];
+                      }
+                  }
               }
             
               $sqlArray["$column"] = $v;
@@ -351,9 +370,10 @@ private $auth = NULL;
         }   
     }
     
-    protected function _insertData($table,$rawdata) {
+    protected function _insertData($table,$rawdata, $extraData) {
         $this->_setFormID($table);
-        $dataArray = $this->_htmlToSql($rawdata);
+        $dataArray = $this->_htmlToSql($rawdata, $extraData);
+        $return = array();
         
         if ($this->_isFcssForm()) {
             //will only proceed to enter data locally
@@ -372,10 +392,14 @@ private $auth = NULL;
             if ($result > 0) {
                 $this->_updateReminder($dataArray);
             }
-            return 1;
+            $return['success'] = 1;
+            $return['entryID'] = $result;
         } else {
-           return $proceed;
+           $return['success'] = 0;
+           $return['message'] = $proceed;
         }
+
+        return $return;
 }
 
     protected function _setRequired($data=array()){
@@ -895,19 +919,28 @@ private $auth = NULL;
                 $tableName = $_POST['id'];
                 $formData = $_POST['data'];
                 $oldVersion = $_POST['oldVersion'];
+                $addlData = $_POST['addlData'];
                 
+                $dataResult = $this->_insertData($tableName, $formData, $addlData);
                 
-                
-                $dataResult = $this->_insertData($tableName, $formData);
-                
-                if($dataResult == 1) {
+                if($dataResult['success'] == 1) {
+                    $uploadArray = json_decode($addlData,TRUE);
+                    $fileModel = new Application_Model_DbTable_Files;
+                    foreach ($uploadArray as $uploadField) {
+                        if (array_key_exists('fileUploadID',$uploadField)) {
+                            $fileID = $uploadField['fileUploadID'];
+                            $entryID = $dataResult['entryID'];
+                            $fileModel->activateFile($fileID,$entryID);
+                        }
+                    }
+
                     if ($oldVersion != 0) {
                         $this->_setDoNotDisplay($tableName,$oldVersion);
                     }
                     
-                    $jsonReturn = array('success' => 'yes');
+                    $jsonReturn = array('success' => 'yes','formEntryID' => $dataResult['entryID']);
                 } else {
-                    $jsonReturn = array('success' => $dataResult);
+                    $jsonReturn = array('success' => $dataResult['message']);
                 }
 
                 break;
@@ -1073,6 +1106,8 @@ private $auth = NULL;
                 '<script type="text/javascript" src="/js/ac-reference.js"></script>' .
                 '<script type="text/javascript" src="/js/formOptions.js"></script>' .
                 '<script type="text/javascript" src="/js/jquery.alphanumeric.js"></script>' .
+                '<script type="text/javascript" src="/js/jQuery/jquery.ui.widget.js"></script>' .
+                '<script type="text/javascript" src="/js/jquery.fileupload.js"></script>' .
                 '<script type="text/javascript" src="/js/dataEntry.js"></script>';
         
         if ($this->getRequest()->isPost()) {

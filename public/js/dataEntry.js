@@ -3,6 +3,8 @@ $(function() {
 bValid = 0;
 editLatest = 0;
 doNotEditID = 0;
+recordID = '';
+formID = '';
 
 $("input[type=radio]").mouseup(function() {
     this.__chk = this.checked;
@@ -106,6 +108,17 @@ function submitData() {
         formData += '&' + encodeURIComponent(fieldName) + '=' + encodeURIComponent(selectedItems);
     });
 
+    addlFormDataArray = new Array();
+    
+    $("input.dynamic-upload").each(function(){
+        uploadData = new Object;
+        uploadData.fileUploadID = $(this).data("fileid");
+        uploadData.fieldID = $(this).attr('id');
+        addlFormDataArray.push(uploadData);
+    });
+
+    addlFormData = JSON.stringify(addlFormDataArray);
+
     // Re-disable the previously disabled inputs
     disabled.attr('disabled', 'disabled');
 
@@ -124,7 +137,8 @@ function submitData() {
             task: 'submit',
             id: formID,
             data: formData,
-            oldVersion: doNotEditID
+            oldVersion: doNotEditID,
+            addlData: addlFormData
         }, function(data) {
             $("#dialog-message").dialog({
                 buttons: {
@@ -271,10 +285,87 @@ if ($("#formTarget").val() === "staff") {
     });
     
     $(".addForm").button()
-                    .click(function()
-                        {
+                    .click(function(){
                             validateForm();
-                        }
-                    );
+                        });
+
+    function prepareUpload(column) {
+        var formTargetType = $("form.dataEntry input#formTarget"),
+            formTargetID = $("form.dataEntry input#targetID"),
+            uploadFormID = $("form.dataEntry").prop("id");
+            myTargetType = $("form#uploadFileForm input#targetType"),
+            myTargetID = $("form#uploadFileForm input#targetID"),
+            myFormID = $("form#uploadFileForm input#formID"),
+            myColumn = $("form#uploadFileForm input#column"),
+            uploadField = $("#fileUpload");
+         
+       $('#fileupload').fileupload({
+        dataType: 'json',
+        replaceFileInput: false,
+       add: function (e,data) {
+            data.context = 
+                   $("#uploadButton").remove();
+                   $('<button id="uploadButton" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">').html('<span class="ui-button-text">Upload</span>')
+                    .prependTo('.ui-dialog-buttonset')
+                    .click(function() {
+                        //updateTipsUpload('Uploading file...');
+                        myTargetType.val(formTargetType.val());
+                        myTargetID.val(formTargetID.val());
+                        myFormID.val(uploadFormID);
+                        myColumn.val(column);
+                        data.submit();
+            });
+
+        },
+        progressall: function (e, data) {
+            var progress = parseInt(data.loaded / data.total * 100, 10);
+            $('#progress .bar')
+                .css('width', progress + '%')
+                .text(progress + '% complete');
+        },
+        done: function (e, data) {
+            $('#progress').hide();
+            uploadField.val('');
+            fileID = data.result.fileEntryID;
+            fileName = data.result.fileName;
+            
+            $(".uploadInProgress").val(fileName)
+                    .attr("data-fileid",fileID)
+                    .removeClass('uploadInProgress')
+                    .prop("disabled",true);
+            $('#uploadFile-dialog').dialog("close");
+            
+        }
+     });
+    };
+    
+    $( "#uploadFile-dialog" ).dialog({
+        autoOpen: false,
+        height: 365,
+        width: 490,
+        modal: true,
+        buttons: {
+                "Nevermind": function() {
+                        $( this ).dialog( "close" );
+                }
+        },
+            
+        open: function(e,ui) {
+            $("#uploadButton").remove();
+            uploadField.empty();
+            $(this).keyup(function(e) {
+                if (e.keyCode == 13) {
+                    $('.ui-dialog-buttonset > button:first').trigger('click');
+                }
+            });
+        }
+    });
+    
+    $( ".upload-button" )
+        .button()
+        .click(function() {
+                $(this).parents('li').children('input.dynamic-upload').addClass('uploadInProgress');
+                prepareUpload($(this).data('id'));
+                $( "#uploadFile-dialog" ).dialog( "open" );
+        });
 });
- 

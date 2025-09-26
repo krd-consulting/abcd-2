@@ -166,7 +166,7 @@ CREATE TABLE `customFormElements` (
   `formID` int(11) NOT NULL,
   `elementName` varchar(128) NOT NULL,
   `fsiiName` varchar(140) DEFAULT NULL,
-  `elType` enum('text','num','date','radio','checkbox','matrix','textarea') NOT NULL,
+  `elType` enum('text','num','date','radio','checkbox','matrix','textarea','upload') NOT NULL,
   `options` text NOT NULL,
   PRIMARY KEY (`elementID`,`formID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
@@ -252,7 +252,29 @@ CREATE TABLE `events` (
   CONSTRAINT `ev-prid` FOREIGN KEY (`programID`) REFERENCES `programs` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Program instances (public)';
 
+-- --------------------------------------------------------
 
+--
+-- Table structure for table `files`
+--
+DROP TABLE IF EXISTS `files`;
+
+CREATE TABLE `files` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `doNotDisplay` tinyint(1) NOT NULL,
+  `entityID` int NOT NULL,
+  `entityType` varchar(140) NOT NULL,
+  `description` text NOT NULL,
+  `location` text NOT NULL,
+  `formID` varchar(15) DEFAULT NULL,
+  `fieldID` int DEFAULT NULL,
+  `formEntryID` int DEFAULT NULL,
+  `createdOn` date NOT NULL,
+  `createdBy` int NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
 
 # Dump of table flags
 # ------------------------------------------------------------

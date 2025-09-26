@@ -3,10 +3,14 @@
 class Zend_View_Helper_Block extends Zend_View_Helper_Abstract
 {
     protected function _blockWrapper($type,$content) {
-      if ($type == 'activities') {
-          $moreLink = "<a href='#' class='moreRecords tiny'>Show more records</a>";
-      } else {
+      $noLinkTypes = array('alerts','upcoming','needs');
+
+      $noButtonIfReadOnlyTypes = array('alerts'); 
+
+      if (in_array($type,$noLinkTypes)) {
           $moreLink = '';
+      } else {
+          $moreLink = "<a href='#' class='moreRecords tiny'>Show more records</a>";
       }
         
       $title = ucfirst($type);
@@ -66,6 +70,19 @@ class Zend_View_Helper_Block extends Zend_View_Helper_Abstract
       
       return $listItem;
   }
+
+  protected function _liFileWrapper($row,$hidClass='') {
+      extract($row);
+      $dlLink = "<button class='right tiny download-file' data-id='$id'>Download</button>";
+      $deleteLink = "<button class='right tiny archive-file' data-id='$id'>Archive</button>";
+      
+      $listItem = 
+          "<li class='relative $hidClass' data-id='$id'>"
+              . "<h3 class='float-left'> $description </h3>" . $dlLink . $deleteLink 
+          . "</li>";
+      
+      return $listItem;
+  }
   
   protected function _getAlerts($pid)
   {
@@ -80,10 +97,17 @@ class Zend_View_Helper_Block extends Zend_View_Helper_Abstract
       $activities = $ptcpMeetings->getPtcpMeetings($pid);
       return $activities;
   }
-  
-  public function block($type, $pid)
+
+  protected function _getFiles($type,$pid)
   {
-	$validTypes = array('alerts', 'activities');
+      $filesTable = new Application_Model_DbTable_Files;
+      $files = $filesTable->getFileList($type, $pid);
+      return $files;
+  }
+  
+  public function block($type, $pid, $entity='ptcp')
+  {
+	$validTypes = array('alerts', 'activities', 'files');
         if (!in_array($type, $validTypes)) {
             throw new exception("Can't draw a '$type' block.");
         }
@@ -109,6 +133,18 @@ class Zend_View_Helper_Block extends Zend_View_Helper_Abstract
                     }
                     $list .= $liEntry;
                 }   
+                break;
+            case 'files':
+                $dataArray = $this->_getFiles($entity,$pid);
+                $maxCount = 5;
+                foreach ($dataArray as $key => $row) {
+                    if ($key < $maxCount) {
+                        $liEntry = $this->_liFileWrapper($row);
+                    } else {
+                        $liEntry = $this->_liFileWrapper($row,'hidden');
+                    }
+                    $list .= $liEntry;
+                }
                 break;
             default:
                 break;

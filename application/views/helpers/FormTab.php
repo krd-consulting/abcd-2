@@ -16,6 +16,8 @@ class Zend_View_Helper_FormTab extends Zend_View_Helper_Abstract {
         $forms = new Application_Model_DbTable_Forms;
         $formInfo = $forms->getRecord($formID);
         $fcssID = $formInfo['fcssID'];
+
+        $fileTable = new Application_Model_DbTable_Files;
         
         $myData = $record; //only using the latest
 
@@ -80,6 +82,16 @@ class Zend_View_Helper_FormTab extends Zend_View_Helper_Abstract {
                 
                 if (strlen($v) == 0) continue;
                 
+                if ($element['elType'] == "upload") {
+                    $file = $fileTable->getFile($v);
+                    
+                    $dlButtonHTML = "<button class='right tiny download-file' data-id='$v'>Download</button>";
+                    $v = $file['description'];
+                    
+                } else {
+                    $dlButtonHTML = "";
+                }
+                
                 $contentLineTop = "<div class='form-display-item";
                     if (in_array($k, $nonDisplayFields)) {
                         $contentLineTop .= " hidden";
@@ -93,7 +105,7 @@ class Zend_View_Helper_FormTab extends Zend_View_Helper_Abstract {
                 $v = ABCD_Encoding::filterTextOther($v);
                 
                 $contentLineTitle = "<span class='title'>$printName</span>\n";
-                $contentLineValue = "<span class='value' id='$k'>$v</span>\n";
+                $contentLineValue = "<span class='value' id='$k'>$v &nbsp; &nbsp; $dlButtonHTML</span>\n";
                 $contentLineBottom = "</div><!-- .form-display-item -->\n";
                 
                 $contentLine = $contentLineTop . $contentLineTitle . $contentLineValue . $contentLineBottom;

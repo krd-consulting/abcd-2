@@ -35,8 +35,9 @@ $deptList = implode(', ', $deptNames);
 
 $alertsDiv = $this->block('alerts', $ptcp['id']);
 $notesDiv = $this->block('activities', $ptcp['id']);
+$filesDiv = $this->block('files', $ptcp['id']);
 
-$sumtab = $alertsDiv . $notesDiv;
+$sumtab = $alertsDiv . $notesDiv . $filesDiv;
 
 $this->tabPane('ptcp', $sumtab, array('title' => 'Summary'));
 
@@ -156,6 +157,37 @@ $this->tabPane('ptcp', $formTab, array('title' => 'Forms'));
 <div id="addAct-dialog" title="Add a one-on-one activity">
     <p class=".validateTips">Please fill out all fields</p>
     <?php print $this->activityForm; ?>
+</div>
+
+<div id="uploadFile-dialog" title="Upload an attachment">
+    <p class=".validateTips">Please choose attachment to upload.</p>
+    
+    
+    <form id="uploadFileForm" enctype="multipart/form-data" class="dialog-form" method="post" action="">
+        <dl class="zend_form">
+           <dt id="targetType-label">&#160;</dt>
+           <dd id="targetType-element">
+               <input type="hidden" name="targetType" value="ptcp" id="targetType" />
+           </dd>
+           <dt id="targetID-label">&#160;</dt>
+            <dd id="targetID-element">
+                <input type="hidden" name="targetID" value="<?php print $ptcp["id"]?>" id="targetID" />
+            </dd>
+<!--           <dt id="fileDescription-label"><label for="fileDescription" class="optional">Description</label></dt>
+            <dd id="fileDescription-element">
+                <input type="text" name="fileDescription" id="fileDescription" value="" />
+            </dd>-->
+           <dt id="fileupload-label"><label for="fileupload" class="optional">Select File</label></dt>
+            <dd>
+                <input type="file" name="files[]" id="fileupload" data-url="/ajax/uploadFile" />
+            </dd>
+        </dl>
+    </form>
+    
+    <div id="progress">
+        <div class="bar" style="width: 0%;"></div>
+    </div>
+   
 </div>
 
 </div> <!-- /#content -->

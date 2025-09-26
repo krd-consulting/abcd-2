@@ -42,6 +42,7 @@ class Application_Form_DynamicFormOptions extends Zend_Form
                 
                 break;
             case 'num':
+            case 'upload':
                 break;
             case 'date':
                 
