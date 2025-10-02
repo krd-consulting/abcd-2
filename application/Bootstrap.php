@@ -30,7 +30,7 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 	$view->doctype('XHTML1_STRICT');
 //        $view->setEncoding('UTF-8');
 //        $view->headMeta()->appendHttpEquiv('Content-Type', 'text/html;charset=utf-8');
-	$view->headTitle('A Better Community Database');
+	$view->headTitle('A Better Community Database 2.1');
 	$view->skin = 'default';
 
 	$viewRenderer = Zend_Controller_Action_HelperBroker::getStaticHelper('ViewRenderer');
