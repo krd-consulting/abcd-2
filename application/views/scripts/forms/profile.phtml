@@ -10,6 +10,10 @@ $backURL = $this->url(array(
     'action' => 'list'
 ));
 
+extract($this->countData);
+//creates $deptCount, $entryCount, and $uidCount
+
+
 $depts = $this->depts;
 $progs = $this->progs;
 $funders = $this->funders;
@@ -103,6 +107,7 @@ $this->tabPane('form', $entryTab, array('title' => 'Entries'));
         <?php print 'Form Profile: ' . $fName; ?>
     </h1>
     
+
 
 <div class="inline float-right">
     <a href="<?php print $backURL; ?>"> Back to Form List</a>

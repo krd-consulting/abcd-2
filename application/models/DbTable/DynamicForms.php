@@ -48,6 +48,26 @@ class Application_Model_DbTable_DynamicForms extends Zend_Db_Table_Abstract {
         return $filteredRecords;
     }
     
+public function getEntryCount($tableName, $type = 'total') {
+    $this->_name = $tableName;
+
+    $countExpr = ($type == 'unique')
+        ? new Zend_Db_Expr('COUNT(DISTINCT NULLIF(TRIM(uID), ""))')
+        : new Zend_Db_Expr('COUNT(*)');
+
+    $select = $this->select()
+        ->from($this->_name, ['cnt' => $countExpr])
+        ->where('doNotDisplay = 0');
+
+    if ($type == 'unique') {
+        $select->where('uID IS NOT NULL')
+               ->where("TRIM(uID) <> ''");
+    }
+
+    return (int) $this->fetchRow($select)->cnt;
+}
+
+    
     public function getRecordsAdHocFilter($tableName,array $filters) {
         $this->setName($tableName);
         $selectLine = '';
