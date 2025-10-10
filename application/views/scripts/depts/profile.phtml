@@ -128,18 +128,20 @@ $this->tabPane('dept', $formTab, array('title' => 'Forms'));
     </div>
 
 <div id="content-top">
-    <span class="third">
-        <?php print $numProgs; ?> programs
-    </span>
-    
-    <span class="third">
-        <?php print $numGroups; ?> groups
-    </span>
-    
-    <span class="third">
-        <?php print $numPtcps; ?> participants
-    </span>
-    
+    <dl class="profile-top-attributes">
+      <div>
+        <dt>Programs</dt>
+        <dd><?php print $numProgs; ?></dd>
+      </div>
+      <div>
+        <dt>Groups</dt>
+        <dd><?php print $numGroups; ?></dd>
+      </div>
+      <div>
+        <dt>Participants</dt>
+        <dd><?php print $numPtcps; ?></dd>
+      </div>
+    </dl> 
 </div>
     
 <div id="content-main">

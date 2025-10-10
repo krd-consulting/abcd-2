@@ -547,14 +547,24 @@ div#content {
 }
 
 div#content-top{
-    background: url("../images/ui-bg_gloss-wave_35_f6a828_500x100.png") repeat-x scroll 50% 50% #F6A828;
+    background: linear-gradient(
+        to bottom,
+        #f9b653 0%,   /* light orange at top */
+        #f9b24c 30%,
+        #f8ac3f 60%,
+        #f5a233 100%  /* deeper orange at bottom */
+    );
     border-color: #E78F08 #E78F08;
     border-radius: 10px 10px 0 0;
     border-style: solid solid none;
     border-width: 1px 0px medium;
-    display: inline-block;
-    height: 50px;
+    display: flex;
+    justify-content: space-between;
     width: 100%;
+}
+
+div#content-top #browse h2 {
+    margin-bottom: 0px;
 }
 
 div#content-top.participants {
@@ -580,6 +590,47 @@ div#content-top.participants #browse h2 {
     font-size: 11pt;
     margin-left: 10px;
     *display:inline; /*IE7 fix*/
+}
+
+.profile-subtitle {
+    display: flex;
+    padding: 0.5rem 0.5rem;
+    font-size: 1.25rem;
+}
+
+.profile-subtitle > dt::after {
+    content: ":\00a0";
+}
+
+.profile-subtitle dd + dd::before {
+  content: ', ';
+}
+
+/* styling for profile page attributes in the #content-top section */
+.profile-top-attributes {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    padding: 1rem 0rem;
+}
+
+.profile-top-attributes > div {
+    background-color: #FFFFFF;
+    border: 1px solid #73879C;
+    display: flex;
+    flex-direction: column-reverse;
+    text-align: center;
+    padding: 0.5rem;
+    padding-left: 3rem;
+    padding-right: 3rem;
+    padding-bottom: 0rem;
+}
+
+.profile-top-attributes dd {
+    font-size: 2.5rem;
+    line-height: 2.5rem;
+    font-weight: 600;
+    color: #73879C;
 }
 
 #content-top span.third {
