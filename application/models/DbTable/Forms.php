@@ -346,7 +346,7 @@ class Application_Model_DbTable_Forms extends Zend_Db_Table_Abstract
         $uidCount = $dataTable->getEntryCount($tableName,'unique');
         
         //get total entries
-        $entryCount = $dataTable->getEntryCOunt($tableName,'total');
+        $entryCount = $dataTable->getEntryCount($tableName,'total');
   
         return [
             'deptCount' => $deptCount,
