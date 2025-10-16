@@ -145,12 +145,24 @@ $this->tabPane('user', $ptcpTab, array('title' => 'Case Load'));
 ?>
 
 <div id="content">
-    <h1 class='participantProfile float-left' id="<?php print $this->user['id'];?>">
+  <div class="float-left">
+    <h1 class='participantProfile' id="<?php print $this->user['id'];?>">
         Staff Profile: 
         <span class=p-name>
             <?php print $name; ?>
         </span>
     </h1>
+    <dl class="profile-subtitle">
+      <dt>Departments</dt>
+      <?php
+        foreach ($this->depts as $dept) {
+      ?>
+      <dd><a href="#"><?php print $dept['deptName']; ?></a></dd>
+      <?php
+        }
+      ?>
+    </dl>
+  </div>
     
 
 <div class="inline float-right">
@@ -158,17 +170,12 @@ $this->tabPane('user', $ptcpTab, array('title' => 'Case Load'));
 </div>
 
 <div id="content-top">
-    <span class="third shaded">
-        <strong>Departments:</strong> <?php print $this->deptName; ?>
-    </span>
-    
-    <span class="shaded">
-        <strong>Case load:</strong> 
-            <span id="record-count">
-                <?php print $ptcpCount; ?>
-            </span>
-    </span>
-        
+  <dl class="profile-top-attributes">
+    <div>
+      <dt>Case Load</dt>
+      <dd><?php print $ptcpCount; ?></dd>
+    </div>
+  </dl>     
     
 </div>
 

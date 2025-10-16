@@ -76,20 +76,25 @@ $this->tabPane('group', $formTab, array('title' => 'Forms'));
 ?>
 
 <div id="content">
-    <h1 class='participantProfile float-left' id="<?php print $this->group['id']; ?>">
-        Group Profile: 
-        <span class=p-name>
-            <?php print $name; ?>
-        </span>
-    </h1>
-    
+    <div class="float-left">
+        <h1 class='participantProfile' id="<?php print $this->group['id']; ?>">
+            Group Profile: 
+            <span class=p-name>
+                <?php print $name; ?>
+            </span>
+        </h1>
+        <dl class="profile-subtitle">
+            <dt>Program</dt>
+            <dd><a href="#"><?php print $this->progName; ?></a></dd>
+        </dl>
+    </div>
 
 <div class="inline float-right">
     <a href="<?php print $backURL; ?>"> Back to Group List</a>
 </div>
 
 <div id="content-top">
-    <span class="third shaded">
+    <!-- <span class="third shaded">
         <strong>Program:</strong> <?php print $this->progName; ?>
     </span>
     
@@ -102,9 +107,18 @@ $this->tabPane('group', $formTab, array('title' => 'Forms'));
     
     <span class="third shaded">
         <strong>Meetings so far:</strong> <?php print $meetingCount; ?>
-    </span>
-    
-    
+    </span> -->
+    <dl class="profile-top-attributes">
+      <div>
+        <dt>Participants</dt>
+        <dd><?php print $ptcpCount; ?></dd>
+      </div>
+
+      <div>
+        <dt>Meetings</dt>
+        <dd><?php print $meetingCount; ?></dd>
+      </div>
+    </dl> 
 </div>
 
 <div id="content-main">

@@ -25,14 +25,6 @@ $addPtcpToDeptUrl = $this->url(array(
                                'id'         => $ptcp['id']
 ));
 
-
-// List of departments for header
-$deptNames = array();
-foreach ($this->partDepts as $partDept) {
-    array_push($deptNames, $partDept['deptName']);
-}
-$deptList = implode(', ', $deptNames);
-
 $alertsDiv = $this->block('alerts', $ptcp['id']);
 $notesDiv = $this->block('activities', $ptcp['id']);
 $filesDiv = $this->block('files', $ptcp['id']);
@@ -96,12 +88,24 @@ $this->tabPane('ptcp', $formTab, array('title' => 'Forms'));
 ?>
 
 <div id="content">
-    <h1 class='participantProfile float-left' id='<?php print $ptcp["id"]?>'>
-        Participant Profile: 
-        <span class=p-name>
-            <?php print $pName; ?>
-        </span>
-    </h1>
+    <div class="float-left">
+      <h1 class='participantProfile' id='<?php print $ptcp["id"]?>'>
+          Participant Profile: 
+          <span class=p-name>
+              <?php print $pName; ?>
+          </span>
+      </h1>
+      <dl class="profile-subtitle">
+        <dt>Departments</dt>
+        <?php
+          foreach ($this->partDepts as $dept) {
+        ?>
+        <dd><a href="#"><?php print $dept['deptName']; ?></a></dd>
+        <?php
+          }
+        ?>
+      </dl>
+    </div>
     
 
 <div class="inline float-right">
@@ -109,21 +113,19 @@ $this->tabPane('ptcp', $formTab, array('title' => 'Forms'));
 </div>
 
 <div id="content-top">
-    <span class="third shaded">
-        <strong>Date of Birth:</strong> <?php print $dob; ?> (<?php print $age; ?>)
-    </span>
-    
-    <span class="third shaded">
-        <strong>Departments:</strong> 
-            <?php print $deptList; ?>
-    </span>
-    
-    <?php if ($ptcp['createdOn']) : ?>
-    <span style="min-width: 0 !important; margin-right: 5px" class="third shaded float-right">
-        <strong>Since:</strong> <?php print $doc; ?>
-    </span>
-    <?php endif; ?>
-    
+    <dl class="profile-top-attributes">
+      <div>
+        <dt>Date of Birth</dt>
+        <dd><?php print $dob; ?> (<?php print $age; ?>)</dd>
+      </div>
+
+      <?php if ($ptcp['createdOn']) : ?>
+      <div>
+        <dt>Since</dt>
+        <dd><?php print $doc; ?></dd>
+      </div>
+      <?php endif; ?>
+    </dl> 
 </div>
 
     <div id="content-main">

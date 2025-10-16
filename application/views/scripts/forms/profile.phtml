@@ -10,6 +10,15 @@ $backURL = $this->url(array(
     'action' => 'list'
 ));
 
+//creates $deptCount, $entryCount, and $uidCount
+extract($this->countData);
+$about = array(
+  'participant' => 'Participants',
+  'staff' => 'Staff',
+  'group' => 'Groups or Group Meetings'
+)[$this->thisForm['target']];
+
+
 $depts = $this->depts;
 $progs = $this->progs;
 $funders = $this->funders;
@@ -99,19 +108,38 @@ $this->tabPane('form', $entryTab, array('title' => 'Entries'));
 ?>
 
 <div id="content">
-    <h1 class='participantProfile float-left' id='<?php print $id; ?>'>
+  <div class="float-left">
+    <h1 class='participantProfile' id='<?php print $id; ?>'>
         <?php print 'Form Profile: ' . $fName; ?>
     </h1>
+    <dl class="profile-subtitle">
+      <dt>Description</dt>
+      <dd><?php print $desc; ?></dd>
+    </dl>
+  </div>
+
     
+
 
 <div class="inline float-right">
     <a href="<?php print $backURL; ?>"> Back to Form List</a>
 </div>
     
 <div id="content-top">
-    <span class="third">
-        <?php print $desc; ?>
-    </span>
+  <dl class="profile-top-attributes">
+    <div>
+      <dt>Departments</dt>
+      <dd><?php print $deptCount; ?></dd>
+    </div>
+    <div>
+      <dt>Entries</dt>
+      <dd><?php print $entryCount; ?></dd>
+    </div>
+    <div>
+      <dt>Unique <?php print $about; ?></dt>
+      <dd><?php print $uidCount; ?></dd>
+    </div>
+  </dl> 
 </div>
 
 <div id="content-main">

@@ -661,6 +661,8 @@ private $auth = NULL;
         $thisForm = $formTable->getRecord($id);
         $table = $thisForm['tableName'];
 
+        $countData = $formTable->getFormCounts($id);
+        
         $deptArray = array();
         $progArray = array();
         $fundArray = array();
@@ -734,6 +736,7 @@ private $auth = NULL;
         
         
         $this->view->thisForm= $thisForm;
+        $this->view->countData = $countData;
         $this->view->depts   = $deptArray;
         $this->view->progs   = $progArray;
         $this->view->funders = $fundArray;
