@@ -259,10 +259,35 @@ function fillForm({ userID, userName, recordID, formID }) {
     .forEach(n => $.removeCookie(n, { path: '/' }));
 
   // 3) If this form matches, populate it
+  // otherwise, try to check if we're passing in a 'uid' for the form
+  // otherwise, don't fill the form with anything
+  let searchParams = new URLSearchParams(window.location.search);
   if (editIDComp === formIDComp) {
     console.log('[ABCD] filling with', editCtx);
     try { fillForm(editCtx); }
     catch (e) { console.error('[ABCD] fillForm error:', e); }
+  } else if(searchParams.has('uid')) {
+    const $form = $("form#" + formIDFull);
+
+    const $name = $form.find("input#name");
+    const $target = $form.find("input#targetID");
+
+    $form.find('button.addForm').prop('disabled', true);
+    $.get( "/participants/profile/id/" + searchParams.get('uid'))
+      .done(function( htmlData ) {
+        const username = $(htmlData).find('.participantProfile .p-name').text().trim();
+
+        $form.find('button.addForm').prop('disabled', false);
+
+        $name.val(username).prop("disabled", true);
+        $target.val(searchParams.get('uid'));
+      })
+      .fail(function(jqXHR, textStatus, errorThrown) {
+        // Just show the error from the request.
+        document.open('text/html', 'replace');
+        document.write(jqXHR.responseText);
+        document.close();
+      });
   } else {
       console.log('[ABCD] no match: not filling');
   }
