@@ -274,7 +274,8 @@ private $auth = NULL;
                 "<script type='text/javascript' src='/js/filterLi.js'></script>" .
                 "<script type='text/javascript' src='/js/jquery.jeditable.js'></script>" .
                 "<script type='text/javascript' src='/js/meetingList.js'></script>" .
-                "<script type='text/javascript' src='/js/disable.js'></script>" 
+                "<script type='text/javascript' src='/js/disable.js'></script>"  .
+                '<script type="text/javascript" src="/js/editDataWithModal.js"></script>'
         ;
         
     }

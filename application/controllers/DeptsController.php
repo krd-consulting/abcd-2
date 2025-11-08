@@ -164,7 +164,8 @@ class DeptsController extends Zend_Controller_Action
         
         $this->view->layout()->customJS = 
                 '<script type="text/javascript" src="/js/progCreate.js"></script>' .
-                '<script type="text/javascript" src="/js/setHeight.js"></script>'
+                '<script type="text/javascript" src="/js/setHeight.js"></script>' .
+                '<script type="text/javascript" src="/js/editDataWithModal.js"></script>'
         ;
     }
     

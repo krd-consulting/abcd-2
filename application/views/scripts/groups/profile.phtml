@@ -89,7 +89,17 @@ $this->tabPane('group', $formTab, array('title' => 'Forms'));
         </dl>
     </div>
 
+<div id="dialog-form-edit" class="dialog-form" title="Edit group information">
+    <p class="validateTips">Please update values below.</p>
+</div>
+
 <div class="inline float-right">
+    <a
+      id="edit-button"
+      data-id="<?php print $this->group['id']; ?>"
+      data-type="groups"
+      href="#">Edit Group</a>
+    <br>
     <a href="<?php print $backURL; ?>"> Back to Group List</a>
 </div>
 

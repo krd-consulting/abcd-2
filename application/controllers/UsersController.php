@@ -207,7 +207,8 @@ private $auth = NULL;
                 '<script type="text/javascript" src="/js/ptcpNoteCaseLoad.js"></script>' . 
                 '<script type="text/javascript" src="/js/statusFilter.js"></script>' . 
                 '<script type="text/javascript" src="/js/filter.js"></script>' .
-                '<script type="text/javascript" src="/js/userFunctions.js"></script>'
+                '<script type="text/javascript" src="/js/userFunctions.js"></script>' .
+                '<script type="text/javascript" src="/js/editDataWithModal.js"></script>'
             ;      
     }
     

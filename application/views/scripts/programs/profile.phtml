@@ -160,9 +160,18 @@ $this->tabPane('prog', $formTab, array('title' => 'Forms'));
         <dd><a href="#"><?php print $this->deptName; ?></a></dd>
       </dl>
   </div>
-    
 
+<div id="dialog-form-edit" class="dialog-form" title="Edit program information">
+    <p class="validateTips">Please update values below.</p>
+</div>
+    
 <div class="inline float-right">
+    <a
+      id="edit-button"
+      data-id="<?php print $this->program['id']; ?>"
+      data-type="programs"
+      href="#">Edit Program</a>
+    <br>
     <a href="<?php print $backURL; ?>"> Back to Program List</a>
 </div>
 
