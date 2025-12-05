@@ -147,7 +147,7 @@ class Zend_View_Helper_FormTab extends Zend_View_Helper_Abstract {
         return $displayEntries;
     }
     
-    public function formTab($rows = array(),$source='ptcp') {
+    public function formTab($rows = array(),$source='ptcp', $ptcpID=NULL) {
     $formTable = new Application_Model_DbTable_Forms;
     
     $trArray = NULL;
@@ -155,6 +155,9 @@ class Zend_View_Helper_FormTab extends Zend_View_Helper_Abstract {
     if ($source == 'ptcp') {
         $tableHeader = 'Form Name';
         $buttonClass = 'addRecord';
+        if(empty($ptcpID)) {
+            throw new InvalidArgumentException("Participant ID cannot be empty since source is ptcp");
+        }
     } else {
         $tableHeader = 'Department';
         $buttonClass = 'addRecordForm';
@@ -182,7 +185,12 @@ class Zend_View_Helper_FormTab extends Zend_View_Helper_Abstract {
         } else {
             $numEntries = 0;
         }
-        $addEntry = "<button data-path='/forms/dataentry/id/$id' class='$buttonClass'>Add Entry</button>";
+        
+        if ($source == 'ptcp') {
+            $addEntry = "<button data-path='/forms/dataentry/id/$id?uid=$ptcpID' class='$buttonClass'>Add Entry</button>";
+        } else {
+            $addEntry = "<button data-path='/forms/dataentry/id/$id' class='$buttonClass'>Add Entry</button>";
+        }
 
         if ($numEntries > 0) {
                 $mostRecentRow = reset($rowData['data']);

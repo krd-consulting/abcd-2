@@ -79,7 +79,7 @@ $progTab = $progTable . $bottomLinks;
 
 $groupTab = $this->ptcpGroupTable($this->groups);
 
-$formTab = $this->formTab($this->forms);
+$formTab = $this->formTab($this->forms, 'ptcp', $this->participant['id']);
 
 $this->tabPane('ptcp', $progTab, array('title' => 'Programs'));
 $this->tabPane('ptcp', $groupTab, array('title' => 'Groups'));
@@ -89,6 +89,9 @@ $this->tabPane('ptcp', $formTab, array('title' => 'Forms'));
 
 <div id="content">
     <div class="float-left">
+      <?php
+      // If changing this part, make sure to check that form entry participant autofill (dataEntry.js) still works.
+      ?>
       <h1 class='participantProfile' id='<?php print $ptcp["id"]?>'>
           Participant Profile: 
           <span class=p-name>
