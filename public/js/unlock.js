@@ -93,4 +93,16 @@ $("a:contains('unlock')")
                         .dialog("option", "title", dTitle)
                         .dialog("open");
     });
+
+    // for users/profile.phtml unlock button
+    $("#unlock-button")
+        .click(function() {
+            let name = $('span.p-name').text().trim();
+            uid.val($(this).data('id'));
+            username.val(name).attr('disabled','disabled');
+            dTitle = "Unlock ABCD access for " + name;    
+                $("#unlock-form")
+                            .dialog("option", "title", dTitle)
+                            .dialog("open");
+        });
 });

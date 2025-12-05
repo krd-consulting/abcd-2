@@ -147,7 +147,8 @@ $this->tabPane('user', $ptcpTab, array('title' => 'Case Load'));
 <div id="content">
   <div class="float-left">
     <h1 class='participantProfile' id="<?php print $this->user['id'];?>">
-        Staff Profile: 
+        Staff Profile:
+        <!-- Span class and innerHTML used by unlock.js to print name in dialog box -->
         <span class=p-name>
             <?php print $name; ?>
         </span>
@@ -164,8 +165,66 @@ $this->tabPane('user', $ptcpTab, array('title' => 'Case Load'));
     </dl>
   </div>
     
+<div id="dialog-form-edit" class="dialog-form" title="Edit user information">
+    <p class="validateTips">Please update values below.</p>
+</div>
+
+<?php if ($this->mgr) : ?>
+    <div id="unlock-form" class="dialog-form" title="">
+        <p class="validateTips"></p>
+        <?php print $this->unlockForm; ?>
+    </div>
+<?php endif; ?>
 
 <div class="inline float-right">
+    <?php
+    if (in_array('edit', $this->actions)):
+    ?>
+    <a
+      id="edit-button"
+      data-id="<?php print $this->user['id']; ?>"
+      data-type="users"
+      href="#">Edit</a> |
+    <?php
+    endif;
+    ?>
+
+    <?php
+    if (in_array('lock', $this->actions)):
+    ?>
+    <a
+      id="lock-button"
+      data-id="<?php print $this->user['id']; ?>"
+      data-type="users"
+      href="<?php print "/users/lock/id/{$this->user['id']}"; ?>">Lock</a>
+    <?php
+    endif;
+    ?>
+
+    <?php
+    if (in_array('unlock', $this->actions)):
+    ?>
+    <a
+      id="unlock-button"
+      data-id="<?php print $this->user['id']; ?>"
+      data-type="users"
+      href="#">Unlock</a> |
+    <?php
+    endif;
+    ?>
+
+    <?php
+    if (in_array('archive', $this->actions)):
+    ?>
+    <a
+      id="archive-button"
+      data-id="<?php print $this->user['id']; ?>"
+      data-type="users"
+      href="<?php print "/users/archive/id/{$this->user['id']}"; ?>">Archive</a>
+    <?php
+    endif;
+    ?>
+    <br>
     <a href="<?php print $backURL; ?>"> Back to User List</a>
 </div>
 

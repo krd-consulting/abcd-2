@@ -235,6 +235,7 @@ class ParticipantsController extends Zend_Controller_Action
                     '<script type="text/javascript" src="/js/datePicker.js"></script>' .
                     '<script type="text/javascript" src="/js/ptcpFormTable.js"></script>' .
                     '<script type="text/javascript" src="/js/ac2.js"></script>' .
+                    '<script type="text/javascript" src="/js/editDataWithModal.js"></script>' . 
                     '<script type="text/javascript" src="/js/alertCreate.js"></script>' .
                     '<script type="text/javascript" src="/js/activityCreate.js"></script>' .
                     '<script type="text/javascript" src="/js/jQuery/jquery.ui.widget.js"></script>' .

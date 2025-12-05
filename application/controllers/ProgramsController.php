@@ -212,7 +212,8 @@ class ProgramsController extends Zend_Controller_Action
                 '<script type="text/javascript" src="/js/ptcpNote.js"></script>' . 
                 '<script type="text/javascript" src="/js/statusFilter.js"></script>' . 
                 '<script type="text/javascript" src="/js/filter.js"></script>' . 
-                '<script type="text/javascript" src="/js/updateDB3.js"></script>' ; 
+                '<script type="text/javascript" src="/js/updateDB3.js"></script>' .
+                '<script type="text/javascript" src="/js/editDataWithModal.js"></script>'; 
         
         if (!$this->mgr) {
             $this->view->layout()->customJS .=

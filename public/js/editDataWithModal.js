@@ -173,6 +173,16 @@ $(function(){
         
         getModalForm();
     })
+
+    $('a#edit-button').click(function(){
+        id = $(this).data('id');
+        type = $(this).data('type');
+        //fix conflict with 'locked' mode for users
+        weirdType = type.split(" ");
+        if (weirdType) type = weirdType[0];
+        
+        getModalForm();
+    })
     
     editForm.dialog({
                     autoOpen: false,

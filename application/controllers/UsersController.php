@@ -104,6 +104,33 @@ private $auth = NULL;
         $this->view->myID = $this->uid;
     }
 
+    private function getProfileActions($staff, $currentUserID, $isAdmin) {
+        $actions = array();
+
+        $notMe = FALSE;    
+        $locked = $staff['lock'];
+        if ($staff['id'] != $currentUserID) {
+            $notMe = TRUE;
+        } else {
+            $notMe = FALSE;
+        }
+
+        if ($isAdmin || (!$notMe)) {
+            array_push($actions, 'edit');
+        }
+                                
+        if ($isAdmin && ($notMe) && (!$locked)) {
+            array_push($actions, 'lock');
+        }
+
+        if ($isAdmin && ($locked)) {
+            array_push($actions, 'unlock');
+            array_push($actions, 'archive');
+        }
+
+        return $actions;
+    }
+
     public function profileAction()
     {
       $id = $this->_getParam('id');
@@ -189,17 +216,20 @@ private $auth = NULL;
         //get home depts
         $homeDepts = $deptUserTable->getHomeDepts($id);
       
-      $this->view->root = $this->root;
-      $this->view->mgr = $this->mgr;
-      $this->view->uid = $this->uid;
-      $this->view->evaluator = $this->evaluator;
-      $this->view->user = $user;
-      $this->view->ptcps = $participants;
-      $this->view->programs = $programs;
-      $this->view->depts = $depts;
-      $this->view->homeDepts = $homeDepts;
-      $this->view->filterForm = $statusFilterForm;
-      $this->view->statusForm = $statusForm;
+        $this->view->root = $this->root;
+        $this->view->mgr = $this->mgr;
+        $this->view->uid = $this->uid;
+        $this->view->evaluator = $this->evaluator;
+        $this->view->user = $user;
+        $this->view->ptcps = $participants;
+        $this->view->programs = $programs;
+        $this->view->depts = $depts;
+        $this->view->homeDepts = $homeDepts;
+        $this->view->unlockForm = new Application_Form_UnlockUser;
+        $this->view->filterForm = $statusFilterForm;
+        $this->view->statusForm = $statusForm;
+        $this->view->actions = $this->getProfileActions($user, $this->uid, $this->root);
+
 
       $this->view->layout()->customJS = 
                 '<script type="text/javascript" src="/js/jquery.jeditable.js"></script>' . 
@@ -207,7 +237,9 @@ private $auth = NULL;
                 '<script type="text/javascript" src="/js/ptcpNoteCaseLoad.js"></script>' . 
                 '<script type="text/javascript" src="/js/statusFilter.js"></script>' . 
                 '<script type="text/javascript" src="/js/filter.js"></script>' .
-                '<script type="text/javascript" src="/js/userFunctions.js"></script>'
+                '<script type="text/javascript" src="/js/userFunctions.js"></script>' .
+                '<script type="text/javascript" src="/js/editDataWithModal.js"></script>' .
+                '<script type="text/javascript" src="/js/unlock.js"></script>'
             ;      
     }
     

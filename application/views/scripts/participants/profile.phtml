@@ -109,9 +109,18 @@ $this->tabPane('ptcp', $formTab, array('title' => 'Forms'));
         ?>
       </dl>
     </div>
-    
+
+<div id="dialog-form-edit" class="dialog-form" title="Edit participant information">
+    <p class="validateTips">Please update values below.</p>
+</div>
 
 <div class="inline float-right">
+    <a
+      id="edit-button"
+      data-id="<?php print $this->participant['id']; ?>"
+      data-type="participants"
+      href="#">Edit Participant</a>
+    <br>
     <a href="<?php print $backURL; ?>"> Back to Participant List</a>
 </div>
 
