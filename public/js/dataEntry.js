@@ -160,38 +160,40 @@ function submitData() {
 
 
 function fillForm({ userID, userName, recordID, formID }) {
-    doNotEditID = recordID;
- 
-    const $form = $("form#" + formID);
+  doNotEditID = recordID;
 
-    const $name = $form.find("input#name");
-    const $target = $form.find("input#targetID");
+  const $form = $("form#" + formID);
 
-    $name.val(userName).prop("disabled", true);
-    $target.val(userID);
+  const $name = $form.find("input#name");
+  const $target = $form.find("input#targetID");
 
+  $name.val(userName).prop("disabled", true);
+  $target.val(userID);
 
   $.post('/ajax/getformdata', { formID, recordID }, function (data) {
-      $.each(data, function (key, value) {
-      const $input = $form.find("[name='" + key + "']");
+    $.each(data, function (key, value) {
+      // match both name="Field" and name="Field[]"
+      const $inputs = $form.find("[name='" + key + "'], [name='" + key + "[]']");
+      const $first  = $inputs.first();
 
-      //check and skip broken keys
-      if (!$input.length) {
-          console.warn('[ABCD] No input found for key:', key);
-          return; //skip this field
+      // check and skip broken keys
+      if (!$inputs.length) {
+        console.warn('[ABCD] No input found for key:', key);
+        return; // skip this field
       }
 
-      if ($input.hasClass("multiselect")) {
-        $input.parent().find(".tag-for-multi").remove();
+      // multiselect handling (uses first input in the group)
+      if ($first.hasClass("multiselect")) {
+        $first.parent().find(".tag-for-multi").remove();
         if (value) {
-          $.each(value.split(","), function (_, item) {
+          $.each(String(value).split(","), function (_, item) {
             item = $.trim(item);
             const $tag = $(
               '<span class="tag-for-multi">' +
                 item +
                 '<span class="remove" style="margin-left:5px;cursor:pointer;">x</span></span>'
             );
-            $tag.insertBefore($input);
+            $tag.insertBefore($first);
             $tag.find(".remove").on("click", function () {
               $(this).parent().remove();
             });
@@ -200,8 +202,9 @@ function fillForm({ userID, userName, recordID, formID }) {
         return; // done with this field
       }
 
-      let type = $input.attr("type") || "";
-      if (!type && $input.is("textarea")) {
+      // detect type based on first input in the group
+      let type = $first.attr("type") || "";
+      if (!type && $first.is("textarea")) {
         type = "textarea";
       }
       if (!type) {
@@ -211,38 +214,101 @@ function fillForm({ userID, userName, recordID, formID }) {
       switch (type) {
         case "text":
         case "textarea":
-          $input.val(value);
+          // set value on all matching inputs with this name
+          $inputs.val(value);
           break;
+
         case "radio":
-          $form
-            .find(":input[name='" + key + "'][value='" + value + "']")
+          // check only radios in this name group
+          $inputs
+            .filter("[value='" + value + "']")
             .prop("checked", true);
           break;
+
         case "checkbox":
           if (value != null) {
-            $.each(value.split(","), function (_, box) {
-              $form.find(":input[value='" + $.trim(box) + "']").prop("checked", true);
+            const values = String(value)
+              .split(",")
+              .map(v => $.trim(v))
+              .filter(Boolean);
+
+            const $group = $inputs.filter(":checkbox");
+
+            $.each(values, function (_, box) {
+              // basic escape for single quotes in value
+              const v = box.replace(/'/g, "\\'");
+              $group
+                .filter("[value='" + v + "']")
+                .prop("checked", true);
             });
           }
           break;
+
         default:
           alert("Unknown datatype " + type + " detected.");
       }
     });
+
     getDepartments();
   });
 }
 
 
+function prepareUpload(column) {
+        var formTargetType = $("form.dataEntry input#formTarget"),
+            formTargetID = $("form.dataEntry input#targetID"),
+            uploadFormID = $("form.dataEntry").prop("id");
+            myTargetType = $("form#uploadFileForm input#targetType"),
+            myTargetID = $("form#uploadFileForm input#targetID"),
+            myFormID = $("form#uploadFileForm input#formID"),
+            myColumn = $("form#uploadFileForm input#column"),
+            uploadField = $("#fileUpload");
+         
+       $('#fileupload').fileupload({
+        dataType: 'json',
+        replaceFileInput: false,
+       add: function (e,data) {
+            data.context = 
+                   $("#uploadButton").remove();
+                   $('<button id="uploadButton" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">').html('<span class="ui-button-text">Upload</span>')
+                    .prependTo('.ui-dialog-buttonset')
+                    .click(function() {
+                        //updateTipsUpload('Uploading file...');
+                        myTargetType.val(formTargetType.val());
+                        myTargetID.val(formTargetID.val());
+                        myFormID.val(uploadFormID);
+                        myColumn.val(column);
+                        data.submit();
+            });
+
+        },
+        progressall: function (e, data) {
+            var progress = parseInt(data.loaded / data.total * 100, 10);
+            $('#progress .bar')
+                .css('width', progress + '%')
+                .text(progress + '% complete');
+        },
+        done: function (e, data) {
+            $('#progress').hide();
+            uploadField.val('');
+            fileID = data.result.fileEntryID;
+            fileName = data.result.fileName;
+            
+            $(".uploadInProgress").val(fileName)
+                    .attr("data-fileid",fileID)
+                    .removeClass('uploadInProgress')
+                    .prop("disabled",true);
+            $('#uploadFile-dialog').dialog("close");
+            
+        }
+     });
+};
 
   // Cookie bug fix Sept 2025
   const editID     = $.cookie('formEdit');
   const editIDComp = (editID || '').replace(/^0+/, '');
   const formIDFull = $("form.dataEntry").attr('id') || '';
   const formIDComp = (formIDFull.split("_")[1] || '').replace(/^0+/, '');
-
-  const staffID = $.cookie('staffID') || '';
-  const staffName = $.cookie('staffName') || '';
 
   // 1) Read values BEFORE deletion
   const editCtx = {
@@ -295,6 +361,11 @@ function fillForm({ userID, userName, recordID, formID }) {
 
     
 if ($("#formTarget").val() === "staff") {
+    const staffID = editCtx.userID || '';
+    const staffName = editCtx.userName || '';
+
+    console.log('[ABCD] working with ' + staffName + ', id ' + staffID);
+
     $("input#name").val(staffName.replace(/\+/g," "));
     $("input#targetID").val(staffID);
     getDepartments();
@@ -314,55 +385,6 @@ if ($("#formTarget").val() === "staff") {
                             validateForm();
                         });
 
-    function prepareUpload(column) {
-        var formTargetType = $("form.dataEntry input#formTarget"),
-            formTargetID = $("form.dataEntry input#targetID"),
-            uploadFormID = $("form.dataEntry").prop("id");
-            myTargetType = $("form#uploadFileForm input#targetType"),
-            myTargetID = $("form#uploadFileForm input#targetID"),
-            myFormID = $("form#uploadFileForm input#formID"),
-            myColumn = $("form#uploadFileForm input#column"),
-            uploadField = $("#fileUpload");
-         
-       $('#fileupload').fileupload({
-        dataType: 'json',
-        replaceFileInput: false,
-       add: function (e,data) {
-            data.context = 
-                   $("#uploadButton").remove();
-                   $('<button id="uploadButton" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">').html('<span class="ui-button-text">Upload</span>')
-                    .prependTo('.ui-dialog-buttonset')
-                    .click(function() {
-                        //updateTipsUpload('Uploading file...');
-                        myTargetType.val(formTargetType.val());
-                        myTargetID.val(formTargetID.val());
-                        myFormID.val(uploadFormID);
-                        myColumn.val(column);
-                        data.submit();
-            });
-
-        },
-        progressall: function (e, data) {
-            var progress = parseInt(data.loaded / data.total * 100, 10);
-            $('#progress .bar')
-                .css('width', progress + '%')
-                .text(progress + '% complete');
-        },
-        done: function (e, data) {
-            $('#progress').hide();
-            uploadField.val('');
-            fileID = data.result.fileEntryID;
-            fileName = data.result.fileName;
-            
-            $(".uploadInProgress").val(fileName)
-                    .attr("data-fileid",fileID)
-                    .removeClass('uploadInProgress')
-                    .prop("disabled",true);
-            $('#uploadFile-dialog').dialog("close");
-            
-        }
-     });
-    };
     
     $( "#uploadFile-dialog" ).dialog({
         autoOpen: false,
