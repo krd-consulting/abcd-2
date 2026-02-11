@@ -668,19 +668,46 @@ class AjaxController extends Zend_Controller_Action
         $file = $model->getFile($id);
         $location = $file['location'];
         $description = $file['description'];
-        $link = APPLICATION_PATH . "/../public/files/links/" . $description;
-        $filename = "/files/links/" . $description;
 
-        if (is_link($link)) {
-            unlink($link);
+        if (!is_string($location) || strlen($location) === 0 || !file_exists($location)) {
+            $this->_helper->json(array('success' => 'no', 'error' => 'File not found'));
+            return;
         }
-        
-        symlink($location,$link);
-        
-        $jsonReturn['success'] = 'yes';
-        $jsonReturn['url'] = $filename;
-        $this->_helper->json($jsonReturn);
-        
+
+        $this->getHelper('layout')->disableLayout();
+
+        // clear output buffer.
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+
+        $filename = basename($description);
+        if ($filename === '' || $filename === '.') {
+            $filename = basename($location);
+        }
+
+        $mimeType = 'application/octet-stream';
+        if (function_exists('finfo_open')) {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            if ($finfo) {
+                $detected = finfo_file($finfo, $location);
+                if ($detected) {
+                    $mimeType = $detected;
+                }
+                finfo_close($finfo);
+            }
+        }
+
+        header('Content-Description: File Transfer');
+        header('Content-Type: ' . $mimeType);
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($location));
+
+        readfile($location);
+        exit;
     }
     
     public function getuserdeptsAction() {

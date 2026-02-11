@@ -14,14 +14,18 @@ $(function(){
 
     $( "button.download-file").button()
             .click(function() {
-                    var id = $(this).data('id');
-                    $.post(
-                            '/ajax/downloadfile',
-                            {id: id},
-                            function(data) {
-                                window.location.href = data.url+'?eraseCache=true';
-                            }
-                        );
+                    let id = $(this).data('id');
+                    let $form = $('<form>', {
+                        method: 'POST',
+                        action: '/ajax/downloadfile'
+                    });
+                    $form.append($('<input>', {
+                        type: 'hidden',
+                        name: 'id',
+                        value: id
+                    }));
+                    $(document.body).append($form);
+                    $form.trigger('submit');
             })
 
     $("button.addRecordForm").button()
