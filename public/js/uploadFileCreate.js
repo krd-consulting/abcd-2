@@ -89,19 +89,6 @@ $(function() {
                     $( "#uploadFile-dialog" ).dialog( "open" );
             });
             
-    $( ".download-file")
-            .button()
-            .click(function() {
-                    var id = $(this).data('id');
-                    $.post(
-                            '/ajax/downloadfile',
-                            {id: id},
-                            function(data) {
-                                window.location.href = data.url;
-                            }
-                        );
-            })
-            
     $(".archive-file")
             .button()
             .click(function() {
