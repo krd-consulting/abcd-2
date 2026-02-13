@@ -670,8 +670,8 @@ class AjaxController extends Zend_Controller_Action
         $description = $file['description'];
 
         if (!is_string($location) || strlen($location) === 0 || !file_exists($location)) {
-            $this->_helper->json(array('success' => 'no', 'error' => 'File not found'));
-            return;
+            $this->getResponse()->setHttpResponseCode(404);
+            throw new Zend_Exception("File ${description} not found.");
         }
 
         $this->getHelper('layout')->disableLayout();
