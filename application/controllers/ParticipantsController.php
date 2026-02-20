@@ -42,9 +42,8 @@ class ParticipantsController extends Zend_Controller_Action
         //check if sub-list is being passed
         if ($this->_helper->flashMessenger->getMessages()) {
             $passedList = $this->_helper->flashMessenger->getMessages();
-            $idList = $passedList['0'];
-            $neededIDs = implode(",", $idList);
-            $list = $participants->getFullRecords($neededIDs);
+            $idList = $passedList[0];
+            $list = $participants->getFullRecords($idList);
         } else {
             $list = $participants->getStaffPtcps(NULL,"FULLREC");
         }
