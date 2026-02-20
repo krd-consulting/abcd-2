@@ -40,11 +40,14 @@ class ParticipantsController extends Zend_Controller_Action
         
         
         //check if sub-list is being passed
-        if ($this->_helper->flashMessenger->getMessages()) {
+        // and make sure it's the right format (array of IDs)
+        // see: https://github.com/krd-consulting/abcd-2/pull/12
+        if (isset($this->_helper->flashMessenger->getMessages()[0])
+            && isset($this->_helper->flashMessenger->getMessages()[0]['quicksearch_ids'])
+            ) {
             $passedList = $this->_helper->flashMessenger->getMessages();
-            $idList = $passedList['0'];
-            $neededIDs = implode(",", $idList);
-            $list = $participants->getFullRecords($neededIDs);
+            $idList = $passedList[0]['quicksearch_ids'];
+            $list = $participants->getFullRecords($idList);
         } else {
             $list = $participants->getStaffPtcps(NULL,"FULLREC");
         }

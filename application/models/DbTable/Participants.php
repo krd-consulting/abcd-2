@@ -219,7 +219,18 @@ class Application_Model_DbTable_Participants extends Zend_Db_Table_Abstract {
     }
     
     public function getFullRecords($ids) {
-         return $this->fetchAll("id in (" . $ids . ")")->toArray();
+        if(!is_array($ids)) {
+            throw new Zend_Exception('Expected $ids to be an array of participant IDs.');
+        }
+
+        // return nothing when given no ids
+        // prevents the query below from throwing an error when given an empty array
+        if(count($ids) == 0) {
+            return array();
+        }
+
+        $select = $this->select()->where('id IN (?)', $ids);
+        return $this->fetchAll($select)->toArray();
     }
     
 }
