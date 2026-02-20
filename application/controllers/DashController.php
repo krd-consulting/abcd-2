@@ -41,9 +41,9 @@ class DashController extends Zend_Controller_Action
                        break;
             case '0' : throw new exception("Could not find a record for $key");
                        break;
-            default  : $ids=array(); $i=0;
+            default  : $ids=array('ids'); $i=0;
                        foreach ($result as $multiples) {
-                        $ids[$i] = $multiples['id']; $i++;
+                        $ids['quicksearch_ids'][$i] = $multiples['id']; $i++;
                        }
                        
                        $this->_helper->flashMessenger->addMessage($ids);
