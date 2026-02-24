@@ -822,8 +822,17 @@ class AjaxController extends Zend_Controller_Action
         
         $jsonReturn['responseDate'] = $latestRecord['responseDate'];
         foreach ($fillableData as $elementID => $value) {            
-            $elementName = $elementsTable->getElementName($elementID,$formID);
-            $jsonReturn[$elementName] = $value;
+            $element = $elementsTable->getElement($elementID,$formID);
+            $elementName = $element['elementName'];
+            $elementType = $element['elType'];
+
+            if (($elementType == 'upload') && (strlen($value) > 0)) {
+                $fileTable = new Application_Model_DbTable_Files;
+                $jsonReturn[$elementName]['filename'] = $fileTable->getName($value);
+                $jsonReturn[$elementName]['file_id'] = $value;
+            } else {
+                $jsonReturn[$elementName] = $value;   
+            }
         }
         
         
