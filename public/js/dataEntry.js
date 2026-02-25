@@ -415,15 +415,14 @@ if ($("#formTarget").val() === "staff") {
     });
     
     $( ".upload-button" )
-        .button()
         .click(function() {
-                $(this).parents('li').children('input.dynamic-upload').addClass('uploadInProgress');
+                $(this).siblings('input.dynamic-upload').addClass('uploadInProgress');
                 prepareUpload($(this).data('id'));
                 $( "#uploadFile-dialog" ).dialog( "open" );
         });
     
     // Handle remove file button on click
-    $('.remove-file-upload').click(function() {
+    $('.remove-file-button').click(function() {
       $(this).siblings('input.dynamic-upload').val('');
      });
 });
