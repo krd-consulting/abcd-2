@@ -286,8 +286,9 @@ function createElementHTML ()
         case 'upload' :
             //input = "<input id='" + id + "' type='file' class='dynamic-upload' data-url='/ajax/uploadFile' name='" + title + "[]' />\n";
             input = "<input id='" + id + "' type='text' class='dynamic-upload' name='" + title + "' />\n";
-            uploadButton = "<a data-fileid='' class='dynamic-upload tiny ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only'><span class='ui-button-text upload-button' data-id='" + id + "'>Choose File</span></a>";
-            html = label + input + uploadButton;
+            uploadButton = "<a data-fileid='' class='dynamic-upload upload-button' data-id='" + id + "'>Select File</a>";
+            removeButton = "<button data-id='" + id + "' type='button' class='remove-file-button'>Clear File Selection</button>";
+            html = label + input + uploadButton + removeButton;
             
             thisElement.id = id;
             thisElement.name = title;

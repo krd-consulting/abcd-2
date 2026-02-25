@@ -247,6 +247,12 @@ function fillForm({ userID, userName, recordID, formID }) {
         default:
           alert("Unknown datatype " + type + " detected.");
       }
+
+      if ($first.hasClass("dynamic-upload")) {
+        $first.prop("disabled", true);
+        $first.attr("data-fileid", value['file_id']);
+        $first.val(value['filename']);
+      }
     });
 
     getDepartments();
@@ -409,10 +415,14 @@ if ($("#formTarget").val() === "staff") {
     });
     
     $( ".upload-button" )
-        .button()
         .click(function() {
-                $(this).parents('li').children('input.dynamic-upload').addClass('uploadInProgress');
+                $(this).siblings('input.dynamic-upload').addClass('uploadInProgress');
                 prepareUpload($(this).data('id'));
                 $( "#uploadFile-dialog" ).dialog( "open" );
         });
+    
+    // Handle remove file button on click
+    $('.remove-file-button').click(function() {
+      $(this).siblings('input.dynamic-upload').val('');
+     });
 });
