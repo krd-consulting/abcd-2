@@ -251,10 +251,12 @@ function createElementHTML ()
             
             for(var j=1;j<=nRows;j++) {
                 rowTop = "<tr >";
+
+                const inputName = `Question ${j}`;
                 
                     rowMeat = "<td id='" + id + "_row_" + j + "' class='question head'><span id='" + j + "' class='editable row'>Question" + j + "</span></td>";
                     for (var k=1; k<=nCols; k++) {        
-                        td = "<td><input type='radio' class='" + j + "' name='" + j + "' value='Option " + k + "'/></td>";
+                        td = "<td><input type='radio' class='" + j + "' name='" + inputName + "' value='Option " + k + "'/></td>";
                         rowMeat += td;
                     }
                     
@@ -262,7 +264,7 @@ function createElementHTML ()
                 row = rowTop + rowMeat + rowBottom;
                 matrixTable += row;
                 
-                thisElement.rows[j-1] = "Question " + j;
+                thisElement.rows[j-1] = inputName;
             }
             
             matrixTable += matrixTableBot;
