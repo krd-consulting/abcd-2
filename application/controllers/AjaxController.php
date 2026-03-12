@@ -570,10 +570,10 @@ class AjaxController extends Zend_Controller_Action
             $deptlist[$deptID] = $thisdept['deptName'];
         }
         
-        $dept   = $form->deptField;
-        $dept   ->addMultiOptions($deptlist);
+        $dept = $form->deptField;
+        $dept->addMultiOptions($deptlist);
         
-        //$form->addElement($dept);
+        // $form->addElement($dept);
         return $form;
     }
     
