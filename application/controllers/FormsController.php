@@ -637,19 +637,10 @@ private $auth = NULL;
     protected function _getEntriesByDept($table,$deptID) {
         $dataTable = new Application_Model_DbTable_DynamicForms;
         
-        if ($this->root || $this->mgr) {
-            //filter by dept only
-            $filterArray = array(
-              'deptID' => $deptID  
-            );
-        } else {
-            //filter by dept and enteredBy
-            $filterArray = array(
-                'deptID' => $deptID,
-                'enteredBy' => $this->uid
-            );
-        }
-        
+        $filterArray = array(
+            'deptID' => $deptID  
+        );
+
         $data = $dataTable->getRecordsAdHocFilter($table,$filterArray);
         
         return $data;
@@ -698,6 +689,9 @@ private $auth = NULL;
                 $entryArray[$count]['deptID'] = $deptID;
                 $entryArray[$count]['name'] = $dept['deptName'];
                 $entryArray[$count]['frequency'] = '';
+                // Get entries by given department.
+                // TODO: this might not work in use cases where
+                // a staff (role) user is only allowed to see their own entries.
                 $entryArray[$count]['data'] = $this->_getEntriesByDept($table,$deptID);
                 $count++;
             }
