@@ -564,7 +564,19 @@ class AjaxController extends Zend_Controller_Action
         
         $userDepts = new Application_Model_DbTable_UserDepartments;
         $deptlist = array();
-        $myDeptIDs = $userDepts->getList('depts', $this->uid);
+
+        // root user gets all depts and ignore
+        // the possibility that they are not actually assigned to those depts.
+        // other users only get depts they are assigned to.
+        if($this->root) {
+            $allDepts = $depts->fetchAll()->toArray();
+            foreach ($allDepts as $dept) {
+                $deptlist[$dept['id']] = $dept['deptName'];
+            }
+        } else {
+            $myDeptIDs = $userDepts->getList('depts', $this->uid);
+        }
+
         foreach ($myDeptIDs as $deptID) {
             $thisdept = $depts->getDept($deptID);
             $deptlist[$deptID] = $thisdept['deptName'];
