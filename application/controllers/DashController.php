@@ -6,6 +6,7 @@ class DashController extends Zend_Controller_Action
     private $uid = NULL;
     private $root = FALSE;
     private $mgr = FALSE;
+    private $staff = FALSE;
     private $evaluator = FALSE;
     private $role = NULL;
     private $referringFormID = NULL;
@@ -17,6 +18,7 @@ class DashController extends Zend_Controller_Action
         $this->role = $this->auth->getIdentity()->role;
         if ($this->role == 4) {$this->root = TRUE; $this->mgr = TRUE;};
         if ($this->role == 3) {$this->mgr = TRUE;};
+        if ($this->role == 2) {$this->staff = TRUE;};
         if ($this->role == 1) {$this->evaluator = TRUE;};
     }
 
@@ -103,23 +105,17 @@ class DashController extends Zend_Controller_Action
         
         if ($this->root) {
             $selectQuery = "SELECT DISTINCT $field FROM $table WHERE $field IS NOT NULL";
-        } elseif ($this->mgr) {
+        } elseif ($this->mgr || $this->staff) {
             $userDeptTable = new Application_Model_DbTable_UserDepartments;
             $myDepts = $userDeptTable->getList('depts',$this->uid);
             $myDeptsString = implode(",",$myDepts);
-            
+            // Supports the change (commit 0c63ad374309964dc866732556e475691a4d372a)
+            // that allows staff to see all form entries of forms that they can see.
             $selectQuery = "SELECT DISTINCT $field,deptID FROM $table WHERE $field IS NOT NULL AND deptID in ($myDeptsString)";
-            
-        } elseif (!$this->evaluator) {
-            $myID = $this->uid;
-            $selectQuery = "SELECT DISTINCT $field,enteredBy FROM $table WHERE $field IS NOT NULL AND enteredBy = $myID";
         }
         
         $selectQuery .= " AND doNotDisplay = 0";
         
-        if ($table == 'form_13' && $this->referringFormID == '18') {
-             $selectQuery .= " AND field_24 = 'Active' ";
-        }
         $query = $db->query($selectQuery);
         
         return ($query);
