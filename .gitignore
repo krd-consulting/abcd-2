@@ -4,3 +4,4 @@ scripts/img/*
 /vendor/
 *.swp
 .DS_Store
+.ddev

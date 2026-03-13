@@ -41,11 +41,13 @@ class Application_Model_DbTable_Depts extends Zend_Db_Table_Abstract
 
     public function addDept($name) 
     {
-	$data = array(
-		'deptName' => $name,
+	    $data = array(
+            'deptName' => $name,
 		);
-	$this->insert($data);
-        $dept = $this->fetchRow('deptName = \'' . $name . '\'');
+	    $this->insert($data);
+        $dept = $this->fetchRow(
+            $this->select()->where('deptName = ?', $name)
+        );
         return $dept->toArray();
     }
 
